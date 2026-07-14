@@ -1,0 +1,1751 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="我们的宇宙 — 两个人的小世界">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/icon-192.png">
+    <title>我们的宇宙</title>
+
+    <style>
+        /* ============================================================
+           CSS 变量（修改配色方案从这里下手）
+           ============================================================ */
+        :root {
+            --bg-deep: #080817;          /* 星空底色（V2 深邃宇宙） */
+            --bg-card: rgba(255,255,255,0.06);  /* 卡片半透明背景 */
+            --text-primary: #e8e8f0;     /* 主文字色 */
+            --text-secondary: #b0b0c0;   /* 次要文字色 */
+            --accent: #ff9ebb;           /* 强调色（樱花粉） */
+            --accent2: #a8d8ff;          /* 辅助强调色（月光蓝） */
+            --gold: #ffd166;             /* 金色（暖金星星） */
+            --starlight: #fff1f8;        /* 星光白（柔和星光） */
+            --nav-bg: rgba(8,8,23,0.95);
+            --blur: blur(16px);
+            --radius: 16px;
+            --transition: 0.3s ease;
+            --font-main: 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', sans-serif;
+            /* 底部安全区域 */
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        /* ============================================================
+           全局重置 & 移动端适配
+           ============================================================ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body {
+            width: 100%;
+            min-height: 100vh;
+            font-family: var(--font-main);
+            color: var(--text-primary);
+            background: var(--bg-deep);
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ============================================================
+           星空背景（多层 CSS 渐变模拟星云 + JS 生成闪烁星星）
+           ============================================================ */
+        #starfield {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 0;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(168,216,255,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 60%, rgba(255,158,187,0.06) 0%, transparent 55%),
+                radial-gradient(ellipse at 50% 80%, rgba(255,209,102,0.05) 0%, transparent 50%),
+                radial-gradient(circle at center, rgba(8,8,23,1) 0%, #080817 100%);
+        }
+
+        /* JS 动态生成的星星节点 */
+        .star-dot {
+            position: fixed;
+            border-radius: 50%;
+            background: white;
+            pointer-events: none;
+            z-index: 0;
+            animation: twinkle var(--dur) ease-in-out infinite;
+            animation-delay: var(--delay);
+            opacity: 0;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            50%      { opacity: var(--peak, 0.9); transform: scale(var(--sc, 1.5)); }
+        }
+
+        /* ============================================================
+           密码锁（全屏遮罩，浪漫毛玻璃风格）
+           ============================================================ */
+        #lock-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 9999;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            background: radial-gradient(ellipse at center, #1a1a3a 0%, #06060f 100%);
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+        #lock-screen.hidden {
+            opacity: 0; visibility: hidden; pointer-events: none;
+        }
+
+        .lock-card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 24px;
+            padding: 40px 28px;
+            width: min(340px, 85vw);
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5),
+                        0 0 80px rgba(255,107,157,0.08);
+        }
+        .lock-card .lock-icon { font-size: 56px; margin-bottom: 12px; }
+        .lock-card h2 {
+            font-size: 22px; font-weight: 600;
+            letter-spacing: 2px; color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+        .lock-card .lock-hint {
+            font-size: 13px; color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+        .lock-card input {
+            width: 100%; padding: 14px 18px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 14px;
+            background: rgba(255,255,255,0.06);
+            color: #fff; font-size: 18px;
+            text-align: center; letter-spacing: 6px;
+            outline: none;
+            transition: border var(--transition);
+        }
+        .lock-card input:focus { border-color: var(--accent); }
+        .lock-card input.shake { animation: shake 0.5s ease; }
+        .lock-card .lock-btn {
+            width: 100%; margin-top: 18px;
+            padding: 13px 0; border: none; border-radius: 14px;
+            background: linear-gradient(135deg, var(--accent), #e05580);
+            color: #fff; font-size: 17px; font-weight: 600;
+            letter-spacing: 2px; cursor: pointer;
+            transition: transform var(--transition), box-shadow var(--transition);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .lock-card .lock-btn:active { transform: scale(0.96); }
+        .lock-card .error-msg {
+            color: #ff6b6b; font-size: 13px; margin-top: 10px;
+            min-height: 20px;
+        }
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            20%     { transform: translateX(-8px); }
+            40%     { transform: translateX(8px); }
+            60%     { transform: translateX(-6px); }
+            80%     { transform: translateX(4px); }
+        }
+
+        /* ============================================================
+           主应用容器
+           ============================================================ */
+        #app-main {
+            position: relative; z-index: 1;
+            display: none;                /* 密码正确后 flex */
+            flex-direction: column;
+            min-height: 100vh;
+            padding-bottom: calc(70px + var(--safe-bottom));
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        #app-main.active { display: flex; opacity: 1; }
+
+        /* ============================================================
+           生日祝福弹窗
+           ============================================================ */
+        #birthday-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 8000;
+            display: none;
+            flex-direction: column;
+            align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        #birthday-modal.active { display: flex; }
+        #birthday-modal canvas#petal-canvas {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%; pointer-events: none; z-index: 0;
+        }
+        .birthday-content {
+            position: relative; z-index: 1; text-align: center;
+        }
+        .birthday-content h1 {
+            font-size: clamp(28px, 6vw, 48px);
+            color: var(--accent);
+            text-shadow: 0 0 40px rgba(255,107,157,0.5);
+            animation: floatIn 1s ease forwards;
+        }
+        .birthday-content p {
+            font-size: 16px; color: var(--text-secondary);
+            margin: 16px 0 28px;
+        }
+        .birthday-content .bless-btn {
+            padding: 14px 40px;
+            border: none; border-radius: 30px;
+            background: linear-gradient(135deg, var(--accent), #e05580);
+            color: #fff; font-size: 18px; font-weight: 600;
+            letter-spacing: 2px; cursor: pointer;
+            transition: transform var(--transition);
+        }
+        .birthday-content .bless-btn:active { transform: scale(0.95); }
+        @keyframes floatIn {
+            0%   { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 底部导航栏 */
+        #bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            z-index: 100;
+            display: flex;
+            background: var(--nav-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: var(--safe-bottom);
+        }
+        .nav-item {
+            flex: 1;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            min-height: 48px;
+            padding: 8px 0;
+            cursor: pointer; user-select: none;
+            color: var(--text-secondary);
+            transition: color var(--transition);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .nav-item.active { color: var(--accent); }
+        .nav-item .nav-icon { font-size: 24px; margin-bottom: 2px; }
+        .nav-item .nav-label { font-size: 11px; letter-spacing: 1px; }
+
+        @keyframes fadeSlideIn {
+            0%   { opacity: 0; transform: translateY(12px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ============================================================
+           模块一：时光回放机
+           ============================================================ */
+        /* 照片回忆墙（每组3张，居中放大）*/
+        .photo-nav {
+            display: flex; align-items: center; justify-content: center;
+            gap: 16px; margin-bottom: 12px;
+        }
+        .photo-arrow {
+            width: 40px; height: 40px;
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 50%;
+            background: var(--bg-card);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: #fff; font-size: 18px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: border var(--transition), background var(--transition);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .photo-arrow:active { border-color: var(--accent); background: rgba(255,107,157,0.15); }
+        .photo-group-info { font-size: 13px; color: var(--text-secondary); min-width: 40px; text-align: center; }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            max-width: 1000px; margin: 0 auto;
+            padding: 0 8px;
+        }
+        .photo-grid .photo-card {
+            position: relative;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+            animation: fadeSlideIn 0.4s ease;
+        }
+        .photo-grid .photo-card img {
+            width: 100%; height: auto;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            display: block;
+        }
+        /* 桌面端：3列并排，更大间距 */
+        @media (min-width: 768px) {
+            .photo-grid {
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 20px;
+            }
+        }
+
+        .photo-dots {
+            display: flex; justify-content: center; gap: 6px;
+            margin-top: 10px; flex-wrap: wrap;
+        }
+        .photo-dots .pdot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.25);
+            transition: background var(--transition);
+        }
+        .photo-dots .pdot.active {
+            background: var(--accent);
+        }
+        .photo-caption {
+            text-align: center; margin-top: 10px;
+            font-size: 14px; color: var(--text-secondary);
+            min-height: 22px;
+        }
+
+        /* 音乐控制按钮 */
+        .music-toggle {
+            display: block; margin: 16px auto 0;
+            padding: 10px 24px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 22px;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-size: 14px; cursor: pointer;
+            letter-spacing: 1px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: border var(--transition);
+        }
+        .music-toggle:active { border-color: var(--accent); }
+
+        /* 在线心跳 */
+        .heartbeat-indicator {
+            display: flex; align-items: center; justify-content: center;
+            gap: 8px; margin-top: 18px;
+            font-size: 15px; color: var(--accent);
+        }
+        .heartbeat-indicator .heart {
+            animation: heartbeat 1.2s ease-in-out infinite;
+        }
+        @keyframes heartbeat {
+            0%, 100%            { transform: scale(1); }
+            14%                 { transform: scale(1.3); }
+            28%                 { transform: scale(1); }
+            42%                 { transform: scale(1.3); }
+            56%                 { transform: scale(1); }
+        }
+
+        /* ============================================================
+           模块二：秘密基地
+           ============================================================ */
+        /* 留言输入卡片 */
+        .msg-form-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius);
+            padding: 16px; margin-bottom: 20px;
+        }
+        .msg-form-card textarea {
+            width: 100%; height: 80px;
+            padding: 12px; border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px; resize: none;
+            background: rgba(255,255,255,0.04);
+            color: var(--text-primary); font-size: 15px;
+            font-family: var(--font-main); outline: none;
+        }
+        .msg-form-card textarea:focus { border-color: var(--accent2); }
+        .msg-form-row {
+            display: flex; gap: 10px; margin-top: 10px;
+            align-items: center; flex-wrap: wrap;
+        }
+        .msg-form-row input[type="file"] { display: none; }
+        .msg-form-row .file-label {
+            padding: 8px 14px; border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            font-size: 13px; color: var(--text-secondary); cursor: pointer;
+            white-space: nowrap;
+        }
+        .msg-form-row .file-label:active { border-color: var(--accent2); }
+        .msg-form-row .send-btn {
+            padding: 9px 20px; border: none; border-radius: 20px;
+            background: linear-gradient(135deg, var(--accent2), #4a90d9);
+            color: #fff; font-size: 14px; font-weight: 600;
+            cursor: pointer; letter-spacing: 1px;
+            margin-left: auto;
+        }
+        .msg-form-row .send-btn:active { transform: scale(0.96); }
+        .upload-preview {
+            width: 48px; height: 48px; border-radius: 8px;
+            object-fit: cover; display: none;
+        }
+
+        /* 留言列表 */
+        .msg-list { display: flex; flex-direction: column; gap: 12px; }
+        .msg-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: var(--radius);
+            padding: 14px;
+            animation: fadeSlideIn 0.3s ease;
+        }
+        .msg-card .msg-text { font-size: 15px; line-height: 1.6; margin-bottom: 8px; }
+        .msg-card .msg-img {
+            width: 100%; max-height: 200px; object-fit: cover;
+            border-radius: 10px; margin-bottom: 8px;
+        }
+        .msg-card .msg-time { font-size: 12px; color: var(--text-secondary); }
+
+        /* CSS 树 */
+        .tree-container {
+            position: relative; width: 200px; height: 240px;
+            margin: 24px auto 0;
+        }
+        .tree-trunk {
+            position: absolute; bottom: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 16px; height: 80px;
+            background: linear-gradient(to right, #5d4037, #795548);
+            border-radius: 6px 6px 0 0;
+        }
+        .tree-crown {
+            position: absolute; bottom: 65px; left: 50%;
+            transform: translateX(-50%);
+            width: 120px; height: 120px;
+            background: radial-gradient(circle at 40% 40%, #4caf50, #2e7d32);
+            border-radius: 50% 50% 45% 45%;
+            box-shadow:
+                0 0 30px rgba(76,175,80,0.2),
+                inset 0 -10px 20px rgba(0,0,0,0.15);
+            transition: transform 0.5s ease;
+        }
+        /* 叶子 */
+        .leaf {
+            position: absolute;
+            width: 14px; height: 18px;
+            background: var(--leaf-color, #66bb6a);
+            border-radius: 2px 60% 2px 50%;
+            pointer-events: none;
+            animation: leafAppear 0.6s ease forwards;
+            z-index: 2;
+        }
+        @keyframes leafAppear {
+            0%   { opacity: 0; transform: scale(0) rotate(0deg); }
+            100% { opacity: 1; transform: scale(1) rotate(var(--rot, 30deg)); }
+        }
+
+        /* 天气卡片 */
+        .weather-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px; margin-top: 20px;
+        }
+        .weather-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: var(--radius);
+            padding: 14px; text-align: center;
+        }
+        .weather-card .city-name { font-size: 15px; font-weight: 600; }
+        .weather-card .temp { font-size: 32px; font-weight: 300; margin: 6px 0; }
+        .weather-card .desc { font-size: 12px; color: var(--text-secondary); }
+        .weather-tip {
+            text-align: center; margin-top: 12px;
+            font-size: 13px; color: var(--accent);
+            animation: floatIn 0.5s ease;
+        }
+
+        /* ============================================================
+           通用工具类
+           ============================================================ */
+        .section-title {
+            font-size: 22px; font-weight: 600;
+            letter-spacing: 3px; margin-bottom: 20px;
+            text-align: center; color: var(--text-primary);
+        }
+        .loading-text { text-align: center; font-size: 13px; color: var(--text-secondary); }
+
+        /* 模块页面容器 —— 去最大宽度限制，让照片区撑满 */
+        .module-page {
+            display: none; flex-direction: column;
+            flex: 1; padding: 24px 16px;
+            animation: fadeSlideIn 0.35s ease;
+        }
+        .module-page.active { display: flex; }
+
+        /* 桌面端适配 */
+        @media (min-width: 768px) {
+            .module-page {
+                max-width: 1100px; margin: 0 auto;
+            }
+        }
+
+        /* ============================================================
+           V2 宇宙首页 Hero
+           ============================================================ */
+        .universe-home {
+            display: flex; flex-direction: column;
+            align-items: center;
+            padding: 10px 0 0;
+        }
+
+        /* 顶部标题 */
+        .universe-title {
+            text-align: center; margin-bottom: 16px;
+            animation: fadeSlideIn 0.8s ease;
+        }
+        .universe-title .title-moon {
+            font-size: 42px; display: block;
+            animation: planetBreath 4s ease-in-out infinite;
+        }
+        .universe-title h1 {
+            font-size: clamp(24px, 5vw, 36px);
+            font-weight: 600; letter-spacing: 6px;
+            color: var(--text-primary);
+            text-shadow: 0 0 40px rgba(168,216,255,0.4), 0 0 80px rgba(168,216,255,0.15);
+            margin: 4px 0;
+        }
+        .universe-title .subtitle {
+            font-size: 14px; color: var(--text-secondary);
+            letter-spacing: 4px;
+        }
+
+        /* 中央星球区域 */
+        .planet-area {
+            position: relative;
+            display: flex; flex-direction: column;
+            align-items: center;
+            margin: 12px 0 24px;
+            animation: fadeSlideIn 0.8s ease 0.2s both;
+        }
+        .planet {
+            width: 130px; height: 130px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #a8d8ff 0%, #6b8fbf 30%, #2d4a6e 70%, #1a2a40 100%);
+            box-shadow:
+                0 0 60px rgba(168,216,255,0.35),
+                0 0 120px rgba(168,216,255,0.15),
+                inset -10px -10px 30px rgba(0,0,0,0.4);
+            display: flex; align-items: center; justify-content: center;
+            animation: planetBreath 4s ease-in-out infinite;
+        }
+        .planet .planet-emoji {
+            font-size: 52px;
+            filter: drop-shadow(0 0 8px rgba(255,255,255,0.5));
+        }
+        @keyframes planetBreath {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 60px rgba(168,216,255,0.35), 0 0 120px rgba(168,216,255,0.15); }
+            50%      { transform: scale(1.04); box-shadow: 0 0 80px rgba(168,216,255,0.5), 0 0 150px rgba(168,216,255,0.25); }
+        }
+
+        /* 相遇天数 */
+        .love-days {
+            margin-top: 14px; text-align: center;
+        }
+        .love-days .days-num {
+            font-size: clamp(40px, 7vw, 56px);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
+        }
+        .love-days .days-label {
+            font-size: 14px; color: var(--text-secondary);
+            letter-spacing: 2px; margin-top: 2px;
+        }
+        .love-days .days-poem {
+            font-size: 13px; color: var(--text-secondary);
+            margin-top: 8px; line-height: 1.8;
+            opacity: 0.8;
+        }
+
+        /* 三个星球入口卡片 */
+        .space-menu {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            width: 100%; max-width: 600px;
+            margin: 8px 0 10px;
+            animation: fadeSlideIn 0.8s ease 0.4s both;
+        }
+        .space-menu-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 18px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .space-menu-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(168,216,255,0.3);
+            box-shadow: 0 8px 30px rgba(168,216,255,0.1);
+        }
+        .space-menu-card:active {
+            transform: scale(0.96);
+        }
+        .space-menu-card .card-icon {
+            font-size: 32px; margin-bottom: 8px; display: block;
+        }
+        .space-menu-card .card-label {
+            font-size: 14px; font-weight: 600;
+            color: var(--text-primary); letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        .space-menu-card .card-desc {
+            font-size: 11px; color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* 移动端：卡片更紧凑 */
+        @media (max-width: 480px) {
+            .space-menu {
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 8px;
+            }
+            .space-menu-card {
+                padding: 14px 6px; border-radius: 16px;
+            }
+            .space-menu-card .card-icon { font-size: 26px; }
+            .space-menu-card .card-label { font-size: 12px; }
+            .space-menu-card .card-desc { font-size: 10px; }
+            .planet { width: 110px; height: 110px; }
+            .planet .planet-emoji { font-size: 42px; }
+        }
+
+        /* 首页分隔线 */
+        .universe-divider {
+            width: 60px; height: 1px;
+            background: linear-gradient(to right, transparent, rgba(168,216,255,0.3), transparent);
+            margin: 6px auto 16px;
+        }
+    </style>
+<script src="config.js"></script>
+<script src="lion_background.js" defer></script>
+<script src="image_carousel.js" defer></script>
+</head>
+<body>
+
+    <!-- =====================================================
+         星空背景层（JS 会动态往里面插入星星）
+         ===================================================== -->
+    <div id="starfield"></div>
+
+    <!-- =====================================================
+         密码锁（全屏）
+         ===================================================== -->
+    <div id="lock-screen" class="hidden">
+        <div class="lock-card">
+            <div class="lock-icon">🌙</div>
+            <h2>我们的宇宙</h2>
+            <p class="lock-hint">输入属于我们的密码</p>
+            <input type="password" id="lock-input" placeholder="····" maxlength="20" autocomplete="off">
+            <button class="lock-btn" id="lock-btn">✨ 进入宇宙 ✨</button>
+            <p class="error-msg" id="lock-error"></p>
+        </div>
+    </div>
+
+    <!-- =====================================================
+         主应用容器
+         ===================================================== -->
+    <div id="app-main">
+
+        <!-- ========== 生日祝福弹窗 ========== -->
+        <div id="birthday-modal">
+            <canvas id="petal-canvas"></canvas>
+            <div class="birthday-content">
+                <h1>🎂 生日快乐 🎂</h1>
+                <p id="birthday-msg">愿每一天都像今天一样美好 ✨</p>
+                <button class="bless-btn" id="bless-close-btn">💝 开启回忆</button>
+            </div>
+            <!-- 语音祝福 audio（自动播放可能被浏览器拦截，需用户交互触发） -->
+            <audio id="blessing-audio" src="assets/blessing.mp3" preload="auto" style="display:none;"></audio>
+        </div>
+
+        <!-- ========== 模块一：宇宙首页 ========== -->
+        <div class="module-page active" id="module-time-machine">
+
+            <!-- ═══════════ V2 宇宙 Hero ═══════════ -->
+            <section class="universe-home">
+                <!-- 顶部标题 -->
+                <div class="universe-title">
+                    <span class="title-moon">🌙</span>
+                    <h1>我们的宇宙</h1>
+                    <p class="subtitle">两个人的小世界</p>
+                </div>
+
+                <!-- 中央星球 + 相遇天数 -->
+                <div class="planet-area">
+                    <div class="planet">
+                        <span class="planet-emoji">✨</span>
+                    </div>
+                    <div class="love-days">
+                        <div class="days-num" id="love-days">0</div>
+                        <div class="days-label">天</div>
+                        <p class="days-poem">
+                            从遇见你的那天开始<br>
+                            我的宇宙有了光
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 三个星球入口卡片 -->
+                <div class="space-menu">
+                    <div class="space-menu-card" data-nav="time-machine-content">
+                        <span class="card-icon">📖</span>
+                        <div class="card-label">时间星河</div>
+                        <div class="card-desc">记录我们的故事</div>
+                    </div>
+                    <div class="space-menu-card" data-nav="secret-base">
+                        <span class="card-icon">🌱</span>
+                        <div class="card-label">成长星球</div>
+                        <div class="card-desc">保存我们的留言</div>
+                    </div>
+                    <div class="space-menu-card" data-nav="image-carousel">
+                        <span class="card-icon">💌</span>
+                        <div class="card-label">写给你的信</div>
+                        <div class="card-desc">隐藏惊喜</div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="universe-divider"></div>
+
+            <!-- ═══════════ 以下为原有内容（照片/音乐/情话）═══════════ -->
+
+            <!-- 照片回忆墙（每组3张，随机排列，手动翻页） -->
+            <div class="photo-nav">
+                <button class="photo-arrow" id="photo-prev">◀</button>
+                <span class="photo-group-info" id="photo-group-info">1 / 1</span>
+                <button class="photo-arrow" id="photo-next">▶</button>
+            </div>
+            <div class="photo-grid" id="photo-grid">
+                <!-- JS 动态填充 -->
+            </div>
+            <p class="photo-caption" id="photo-caption"></p>
+            <div class="photo-dots" id="photo-dots"></div>
+
+            <!-- 背景音乐（解锁后自动随机播放） -->
+            <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;">
+                <button class="music-toggle" id="music-pause-btn" style="padding:10px 20px;">⏯ 暂停</button>
+                <button class="music-toggle" id="music-next-btn" style="padding:10px 16px;">⏭ 下一首</button>
+            </div>
+            <span style="display:block;text-align:center;font-size:12px;color:var(--text-secondary);margin-top:4px;" id="music-track-name"></span>
+            <audio id="bgm-audio" preload="none" style="display:none;"></audio>
+
+            <!-- 每日一语 -->
+            <div style="margin-top:32px;margin-bottom:20px;padding:16px;background:var(--bg-card);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius);text-align:center;">
+                <p style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">💬 今天的一句话</p>
+                <p id="daily-quote" style="font-size:15px;line-height:1.6;min-height:24px;">加载中…</p>
+                <p id="daily-quote-from" style="font-size:11px;color:var(--text-secondary);margin-top:4px;"></p>
+            </div>
+
+            <!-- 在线心跳 -->
+            <div class="heartbeat-indicator" id="heartbeat-area" style="display:none;">
+                <span class="heart">❤️</span>
+                <span id="heartbeat-text"></span>
+            </div>
+        </div>
+
+        <!-- ========== 模块二：秘密基地 ========== -->
+        <div class="module-page" id="module-secret-base">
+            <h2 class="section-title">🌳 秘密基地</h2>
+
+            <!-- 留言输入 -->
+            <div class="msg-form-card">
+                <textarea id="msg-input" placeholder="在这里写下想说的话…" maxlength="500"></textarea>
+                <div class="msg-form-row">
+                    <!-- TODO: 图片上传需 Firebase Storage（需 Blaze 计划绑卡），暂禁用 -->
+                    <!-- <input type="file" id="msg-img-input" accept="image/*">
+                    <label for="msg-img-input" class="file-label">🔒 图片上传(待开启)</label> -->
+                    <span style="font-size:12px;color:var(--text-secondary);">🔒 图片功能待开通 Storage 后启用</span>
+                    <button class="send-btn" id="msg-send-btn">💌 发送</button>
+                </div>
+            </div>
+
+            <!-- 留言列表 -->
+            <div class="msg-list" id="msg-list">
+                <p class="loading-text">加载留言中…</p>
+            </div>
+
+            <!-- CSS 树 -->
+            <div class="tree-container" id="tree-container">
+                <div class="tree-crown" id="tree-crown"></div>
+                <div class="tree-trunk"></div>
+            </div>
+            <p style="text-align:center;font-size:12px;color:var(--text-secondary);" id="leaf-count">🌿 0 片叶子</p>
+
+            <!-- 天气 -->
+            <div class="weather-row" id="weather-row">
+                <div class="weather-card"><p class="loading-text">加载天气…</p></div>
+                <div class="weather-card"><p class="loading-text">加载天气…</p></div>
+            </div>
+            <p class="weather-tip" id="weather-tip"></p>
+        </div>
+
+        <!-- ========== 模块三：图片轮播 ========== -->
+        <div class="module-page" id="module-image-carousel">
+            <h2 class="section-title">🖼 回忆放映机</h2>
+            <!-- 轮播容器由 JS 动态创建 -->
+        </div>
+
+        <!-- ========== 底部导航栏 ========== -->
+        <nav id="bottom-nav">
+            <div class="nav-item active" data-module="time-machine">
+                <span class="nav-icon">📖</span>
+                <span class="nav-label">时间星河</span>
+            </div>
+            <div class="nav-item" data-module="secret-base">
+                <span class="nav-icon">🌱</span>
+                <span class="nav-label">成长星球</span>
+            </div>
+            <div class="nav-item" data-module="image-carousel">
+                <span class="nav-icon">🖼</span>
+                <span class="nav-label">回忆放映机</span>
+            </div>
+        </nav>
+
+    <!-- =====================================================
+         JavaScript（内联）
+         ===================================================== -->
+    <script>
+    /* =================================================================
+       【配置区】— 小花先生修改以下变量即可，无需改动其他代码
+       ================================================================= */
+
+    // --- 密码锁 ---
+    const SECRET_CODE = "0729";             // 修改为想要的密码
+
+    // --- 生日 ---
+    const BIRTHDAY = "07-29";               // 格式 MM-DD，如 "12-25"
+
+    // --- 照片数组（按需增删，从 assets/Photograph/IMG_20260228/ 下选取）---
+    // 6 张照片 = 2 组 × 3 张（请替换为你的实际照片路径）
+    const photos = [
+        {
+            url: "assets/Photograph/IMG_20260228/IMG_20250704_133728.jpg",
+            date: "2025-07-04",
+            text: "我们的第一天 🌟"
+        },
+        {
+            url: "assets/Photograph/IMG_20260228/IMG_20250704_133732.jpg",
+            date: "2025-07-04",
+            text: "一起的时光 💕"
+        },
+        {
+            url: "assets/Photograph/IMG_20260228/IMG_20250706_094730.jpg",
+            date: "2025-07-06",
+            text: "那个夏天的傍晚 🌅"
+        },
+        // ── 第二组 ──
+        {
+            url: "assets/Photograph/IMG_20260228/IMG_20260204_183142.jpg",
+            date: "2026-02-04",
+            text: "最温暖的笑容 💝"
+        },
+        {
+            url: "assets/Photograph/IMG_20260228/IMG_20260211_144655.jpg",
+            date: "2026-02-11",
+            text: "每一刻都值得记住 ✨"
+        },
+        {
+            url: "assets/Photograph/IMG_20260228/待替换_图片6.jpg",
+            date: "2026-待填",
+            text: "🌸 待自定义..."
+        }
+    ];
+
+    // --- Firebase 配置（从 config.js 读取，若无则使用空配置）---
+    const FIREBASE_CONFIG = (window.__CONFIG__ && window.__CONFIG__.FIREBASE_CONFIG) || {};
+
+    // --- OpenWeatherMap（从 config.js 读取，若无则为空字符串）---
+    const WEATHER_API_KEY = (window.__CONFIG__ && window.__CONFIG__.WEATHER_API_KEY) || "";
+
+    // --- 天气城市（名称、纬度、经度）---
+    const WEATHER_CITIES = [
+        { name: "上海", lat: 31.2304, lon: 121.4737 },
+        { name: "成都", lat: 30.5728, lon: 104.0668 }
+    ];
+
+    // --- 天气随机提示语 ---
+    const MESSAGE_TIPS = [
+        "天冷记得加衣，多喝热水～",
+        "阳光正好，适合出门走走 ☀️",
+        "今天有雨，记得带伞 🌧️",
+        "微风不燥，一切刚刚好 🍃",
+        "无论什么天气，心里都是晴天 ☺️"
+    ];
+
+    // --- 情话语录（自己预设，随机展示，可无限扩充）---
+    const LOVE_QUOTES = [
+        "想和你一起看遍世间所有日落 🌅",
+        "你是我宇宙里最亮的那颗星 ✨",
+        "遇见你，是我这辈子最美丽的意外 💕",
+        "有你在身边，每一天都是好天气 ☀️",
+        "世界很大，但我的心很小，只装得下你 💝",
+        "执子之手，与子偕老",
+        "山河远阔，人间烟火，无一是你，无一不是你",
+        "你是我疲惫生活里的英雄梦想 🌙",
+        "斯人若彩虹，遇上方知有 🌈",
+        "愿得一心人，白首不相离"
+    ];
+
+    // --- 背景音乐播放列表（assets/Music/ 下的文件名）---
+    const MUSIC_PLAYLIST = [
+        "Music/LBI利比（时柏尘） - 有愧.flac",
+        "Music/周深 - 云裳羽衣曲.flac",
+        "Music/周深 - 若梦.flac",
+        "Music/焦迈奇 - 我的名字.flac",
+        "Music/罗森涛 - 如果这份爱.flac",
+        "Music/蓝心羽 - 阿拉斯加海湾.flac",
+        "Music/韦礼安 - 如果可以.flac"
+    ];
+
+    /* =================================================================
+       相遇天数系统
+       ================================================================= */
+    const LOVE_START_DATE = new Date("2025-01-29");
+
+    function updateLoveDays() {
+        const now = new Date();
+        const days = Math.floor((now - LOVE_START_DATE) / (1000 * 60 * 60 * 24));
+        const el = document.getElementById('love-days');
+        if (el) el.innerText = days;
+    }
+
+    /* =================================================================
+       DOM 引用缓存
+       ================================================================= */
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => document.querySelectorAll(sel);
+
+    /* =================================================================
+       1. 星空背景生成器
+       ================================================================= */
+    const starfield = $('#starfield');
+    const STAR_COUNT = 80;  // 星星数量，可调整
+
+    function createStars() {
+        const frag = document.createDocumentFragment();
+        for (let i = 0; i < STAR_COUNT; i++) {
+            const star = document.createElement('div');
+            star.className = 'star-dot';
+            // 随机大小 1~3px
+            const size = Math.random() * 2.5 + 1;
+            star.style.width  = size + 'px';
+            star.style.height = size + 'px';
+            star.style.left   = Math.random() * 100 + '%';
+            star.style.top    = Math.random() * 100 + '%';
+            // 随机闪烁周期 1.5~5s
+            star.style.setProperty('--dur', (Math.random() * 3.5 + 1.5) + 's');
+            // 随机延迟
+            star.style.setProperty('--delay', (Math.random() * 5) + 's');
+            // 随机峰值亮度
+            star.style.setProperty('--peak', (Math.random() * 0.6 + 0.4));
+            // 随机缩放幅度
+            star.style.setProperty('--sc', (Math.random() * 1.5 + 0.8));
+            frag.appendChild(star);
+        }
+        starfield.appendChild(frag);
+    }
+    createStars();
+
+    /* =================================================================
+       2. 密码锁逻辑
+       ================================================================= */
+    const lockScreen  = $('#lock-screen');
+    const lockInput   = $('#lock-input');
+    const lockBtn     = $('#lock-btn');
+    const lockError   = $('#lock-error');
+    const appMain     = $('#app-main');
+
+    function checkPassword() {
+        const input = lockInput.value.trim();
+        if (input === SECRET_CODE) {
+            lockError.textContent = '';
+            lockScreen.classList.add('hidden');
+            appMain.classList.add('active');
+            // 密码正确后，检测生日
+            checkBirthday();
+            // 初始化模块
+            initTimeMachine();
+            initSecretBase();
+            // 更新相遇天数
+            updateLoveDays();
+            // 解锁后自动随机播一首音乐（用户已点击按钮，浏览器允许播放）
+            autoPlayMusic();
+            // 获取每日一语
+            fetchDailyQuote();
+            // 尝试进入全屏
+            try { document.documentElement.requestFullscreen().catch(() => {}); } catch(e) {}
+        } else {
+            lockError.textContent = '密码不对哦，再试试吧 🌸';
+            lockInput.classList.add('shake');
+            lockInput.value = '';
+            lockInput.focus();
+            setTimeout(() => lockInput.classList.remove('shake'), 500);
+        }
+    }
+
+    lockBtn.addEventListener('click', checkPassword);
+    lockInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') checkPassword();
+    });
+    // 页面加载后自动聚焦密码框
+    lockInput.focus();
+
+    /* =================================================================
+       3. 底部导航切换
+       ================================================================= */
+    const navItems    = $$('.nav-item');
+    const modulePages = $$('.module-page');
+
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const target = item.dataset.module;
+            switchModule(target);
+        });
+    });
+
+    // 统一模块切换函数
+    function switchModule(target) {
+        navItems.forEach(n => n.classList.remove('active'));
+        const navItem = document.querySelector(`.nav-item[data-module="${target}"]`);
+        if (navItem) navItem.classList.add('active');
+        modulePages.forEach(page => {
+            page.classList.remove('active');
+            if (page.id === 'module-' + target) page.classList.add('active');
+        });
+    }
+
+    // V2 宇宙首页卡片点击 → 导航切换
+    document.querySelectorAll('.space-menu-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const target = card.dataset.nav;
+            if (target) switchModule(target);
+        });
+    });
+
+    /* =================================================================
+       4. 生日检测 + 花瓣粒子 + 祝福弹窗
+       ================================================================= */
+    const birthdayModal   = $('#birthday-modal');
+    const blessingAudio   = $('#blessing-audio');
+    const blessCloseBtn   = $('#bless-close-btn');
+    const petalCanvas     = $('#petal-canvas');
+    let petalCtx = null;
+    let petalAnimId = null;
+
+    function checkBirthday() {
+        const now = new Date();
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        const today = mm + '-' + dd;
+
+        if (today === BIRTHDAY) {
+            showBirthdayModal();
+        }
+    }
+
+    function showBirthdayModal() {
+        birthdayModal.classList.add('active');
+        // 初始化 Canvas 花瓣
+        initPetals();
+        // 尝试播放语音祝福（注意：浏览器可能拦截自动播放，所以放在用户可见弹窗后触发）
+        blessingAudio.play().catch(() => {
+            // 若被拦截，在关闭按钮点击时播放
+            console.log('语音自动播放被浏览器拦截，将在点击按钮后播放');
+        });
+    }
+
+    blessCloseBtn.addEventListener('click', () => {
+        blessingAudio.play().catch(() => {});
+        birthdayModal.classList.remove('active');
+        if (petalAnimId) cancelAnimationFrame(petalAnimId);
+    });
+
+    /* ---- 花瓣粒子系统（Canvas）---- */
+    function initPetals() {
+        petalCtx = petalCanvas.getContext('2d');
+        // Canvas 尺寸匹配屏幕
+        function resizeCanvas() {
+            petalCanvas.width  = window.innerWidth;
+            petalCanvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // 花瓣粒子数组
+        const petals = [];
+        const MAX_PETALS = 40;
+
+        class Petal {
+            constructor() {
+                this.reset(true);
+            }
+            reset(initial) {
+                // 起始位置：屏幕上方随机
+                this.x = Math.random() * petalCanvas.width;
+                this.y = initial ? Math.random() * petalCanvas.height : -20;
+                // 大小
+                this.size = Math.random() * 12 + 6;
+                // 飘落速度
+                this.speedY = Math.random() * 1.5 + 0.8;
+                this.speedX = Math.random() * 0.6 - 0.3;
+                // 旋转
+                this.angle = Math.random() * Math.PI * 2;
+                this.rotSpeed = Math.random() * 0.03 - 0.015;
+                // 颜色渐变（粉色系）
+                this.hue = Math.random() * 30 + 340;  // 340~370（粉-红）
+                this.alpha = Math.random() * 0.5 + 0.5;
+            }
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX;
+                this.angle += this.rotSpeed;
+                // 超出底部或两侧则回收
+                if (this.y > petalCanvas.height + 30 ||
+                    this.x < -30 || this.x > petalCanvas.width + 30) {
+                    this.reset(false);
+                }
+            }
+            draw(ctx) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+                ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = `hsl(${this.hue}, 80%, 70%)`;
+                // 画椭圆花瓣
+                ctx.beginPath();
+                ctx.ellipse(0, 0, this.size * 0.5, this.size * 0.25, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        // 初始化花瓣
+        for (let i = 0; i < MAX_PETALS; i++) {
+            petals.push(new Petal());
+        }
+
+        function animate() {
+            if (!birthdayModal.classList.contains('active')) return;
+            petalCtx.clearRect(0, 0, petalCanvas.width, petalCanvas.height);
+            petals.forEach(p => {
+                p.update();
+                p.draw(petalCtx);
+            });
+            petalAnimId = requestAnimationFrame(animate);
+        }
+        animate();
+    }
+
+    /* =================================================================
+       5. 模块一：时光回放机
+       ================================================================= */
+    let carouselTimer   = null;
+    let currentPhotoIdx = 0;
+    const CAROUSEL_INTERVAL = 4000;  // 4秒切换，可在 3000~5000 间调整
+
+    function initTimeMachine() {
+        buildCarousel();
+        startCarousel();
+        initOnlineStatus();
+    }
+
+    /* -- 照片回忆墙（随机洗牌 → 3张一组 → 手动翻页）-- */
+    let photoGroups = [];        // [[{url,date,text}, ...], ...]
+    let currentGroupIdx = 0;
+
+    function buildCarousel() {
+        const grid        = $('#photo-grid');
+        const dotsContainer = $('#photo-dots');
+        const captionEl   = $('#photo-caption');
+        const infoEl      = $('#photo-group-info');
+
+        // 随机洗牌所有照片
+        const shuffled = [...photos].sort(() => Math.random() - 0.5);
+
+        // 每3张一组
+        photoGroups = [];
+        for (let i = 0; i < shuffled.length; i += 3) {
+            photoGroups.push(shuffled.slice(i, i + 3));
+        }
+
+        // 构建圆点指示器（每组一个点）
+        dotsContainer.innerHTML = '';
+        photoGroups.forEach((_, gi) => {
+            const dot = document.createElement('span');
+            dot.className = 'pdot';
+            dot.addEventListener('click', () => showGroup(gi));
+            dotsContainer.appendChild(dot);
+        });
+
+        currentGroupIdx = 0;
+        if (photoGroups.length > 0) {
+            showGroup(0);
+        }
+    }
+
+    function showGroup(idx) {
+        if (idx < 0 || idx >= photoGroups.length) return;
+        currentGroupIdx = idx;
+
+        const grid      = $('#photo-grid');
+        const dots      = $$('#photo-dots .pdot');
+        const captionEl = $('#photo-caption');
+        const infoEl    = $('#photo-group-info');
+
+        // 更新圆点
+        dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+
+        // 更新页码
+        infoEl.textContent = (idx + 1) + ' / ' + photoGroups.length;
+
+        // 渲染当前组的照片
+        grid.innerHTML = '';
+        photoGroups[idx].forEach(photo => {
+            const card = document.createElement('div');
+            card.className = 'photo-card';
+            const img = document.createElement('img');
+            img.src = photo.url;
+            img.alt = photo.text;
+            img.loading = 'lazy';
+            card.appendChild(img);
+            grid.appendChild(card);
+        });
+
+        // 显示组的第一张照片文字
+        captionEl.textContent = photoGroups[idx][0].date + ' — ' + photoGroups[idx][0].text;
+    }
+
+    function reshuffleGroups() {
+        // 重新洗牌，确保优先展示没看过的排列
+        const shuffled = [...photos].sort(() => Math.random() - 0.5);
+        photoGroups = [];
+        for (let i = 0; i < shuffled.length; i += 3) {
+            photoGroups.push(shuffled.slice(i, i + 3));
+        }
+        // 重建圆点
+        const dotsContainer = $('#photo-dots');
+        dotsContainer.innerHTML = '';
+        photoGroups.forEach((_, gi) => {
+            const dot = document.createElement('span');
+            dot.className = 'pdot';
+            dot.addEventListener('click', () => showGroup(gi));
+            dotsContainer.appendChild(dot);
+        });
+    }
+
+    function startCarousel() {
+        // 翻页按钮
+        $('#photo-prev').addEventListener('click', () => {
+            if (photoGroups.length === 0) return;
+            let newIdx = currentGroupIdx - 1;
+            if (newIdx < 0) { reshuffleGroups(); newIdx = photoGroups.length - 1; }
+            showGroup(newIdx);
+        });
+        $('#photo-next').addEventListener('click', () => {
+            if (photoGroups.length === 0) return;
+            let newIdx = currentGroupIdx + 1;
+            if (newIdx >= photoGroups.length) { reshuffleGroups(); newIdx = 0; }
+            showGroup(newIdx);
+        });
+
+        // 自动轮播（每6秒翻一组）
+        carouselTimer = setInterval(() => {
+            if (photoGroups.length <= 1) return;
+            let newIdx = currentGroupIdx + 1;
+            if (newIdx >= photoGroups.length) { reshuffleGroups(); newIdx = 0; }
+            showGroup(newIdx);
+        }, 6000);
+    }
+
+    /* -- 解锁后自动播放音乐（暂停/播放 + 下一首双按钮）-- */
+    function autoPlayMusic() {
+        const audio   = $('#bgm-audio');
+        const trackEl = $('#music-track-name');
+        const pauseBtn = $('#music-pause-btn');
+        const nextBtn  = $('#music-next-btn');
+
+        // Fisher-Yates 洗牌
+        function shuffle(arr) {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        // 播放指定序号
+        function playIdx(idx) {
+            window._currentIdx = idx;
+            const path = 'assets/' + window._playlist[idx];
+            audio.src = path;
+            const name = window._playlist[idx].replace(/^Music\//, '').replace(/\.(flac|mp3|wav|ogg|aac|m4a)$/i, '');
+            trackEl.textContent = '♪ ' + name;
+            audio.play().catch(() => {});
+            pauseBtn.textContent = '⏯ 暂停';
+        }
+
+        // 切下一首
+        function playNext() {
+            window._currentIdx++;
+            if (window._currentIdx >= window._playlist.length) {
+                window._playlist = shuffle(MUSIC_PLAYLIST);
+                window._currentIdx = 0;
+            }
+            playIdx(window._currentIdx);
+        }
+
+        // 初始化：洗牌 + 播第一首
+        window._playlist = shuffle(MUSIC_PLAYLIST);
+        window._currentIdx = -1;
+        playNext();
+
+        // 暂停/播放按钮
+        pauseBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play().catch(() => {});
+                pauseBtn.textContent = '⏯ 暂停';
+            } else {
+                audio.pause();
+                pauseBtn.textContent = '▶ 播放';
+            }
+        });
+
+        // 下一首按钮
+        nextBtn.addEventListener('click', () => playNext());
+
+        // 播完自动切下一首
+        audio.addEventListener('ended', () => playNext());
+
+        // 播放失败跳过
+        audio.addEventListener('error', () => {
+            trackEl.textContent = '⚠ 跳过（格式可能不支持）';
+            setTimeout(() => playNext(), 500);
+        });
+    }
+
+    /* -- 流星特效（CSS + JS 定时生成）-- */
+    /* function initMeteors() {
+        // 添加流星 CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            .meteor {
+                position: fixed; pointer-events: none; z-index: 0;
+                width: 2px; height: 80px;
+                background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.9));
+                border-radius: 1px;
+                animation: meteorFall var(--mdur, 1.5s) linear forwards;
+                opacity: 0;
+            }
+            @keyframes meteorFall {
+                0%   { opacity: 0; transform: translate(0, 0) rotate(var(--mang, -35deg)); }
+                5%   { opacity: 1; }
+                100% { opacity: 0; transform: translate(var(--mx, 400px), var(--my, 300px)) rotate(var(--mang, -35deg)); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        function spawnMeteor() {
+            const m = document.createElement('div');
+            m.className = 'meteor';
+            // 随机起始位置：屏幕上方偏右
+            m.style.left = (Math.random() * 70 + 15) + '%';
+            m.style.top  = (Math.random() * 30) + '%';
+            m.style.setProperty('--mdur', (Math.random() * 1.5 + 1) + 's');
+            m.style.setProperty('--mang', (-(Math.random() * 20 + 25)) + 'deg');
+            m.style.setProperty('--mx', (Math.random() * 500 + 200) + 'px');
+            m.style.setProperty('--my', (Math.random() * 300 + 150) + 'px');
+            document.body.appendChild(m);
+            // 动画结束后移除
+            m.addEventListener('animationend', () => m.remove());
+        }
+
+        // 每 4~10 秒生成一颗流星
+        function scheduleNext() {
+            const delay = Math.random() * 6000 + 4000;
+            setTimeout(() => {
+                spawnMeteor();
+                scheduleNext();
+            }, delay);
+        }
+        scheduleNext();
+    } */
+
+    /* -- 每日一语（进入时展示情话，之后每30分钟随机切换）-- */
+    async function fetchDailyQuote() {
+        const quoteEl = $('#daily-quote');
+        const fromEl  = $('#daily-quote-from');
+
+        // 从预设数组随机取一条情话
+        function pickLoveQuote() {
+            const q = LOVE_QUOTES[Math.floor(Math.random() * LOVE_QUOTES.length)];
+            quoteEl.textContent = q;
+            fromEl.textContent = '—— 写给你的情话 💕';
+        }
+
+        // 从 Hitokoto API（分类 j = 网易云）取一条
+        async function pickHitokoto() {
+            try {
+                const res = await fetch('https://v1.hitokoto.cn/?c=j');
+                const data = await res.json();
+                quoteEl.textContent = data.hitokoto;
+                fromEl.textContent = '—— ' + (data.from || '网易云音乐');
+            } catch (err) {
+                // API 挂了就回落情话数组
+                pickLoveQuote();
+            }
+        }
+
+        // 【首次】直接从情话数组取
+        pickLoveQuote();
+
+        // 【每30分钟】数组 或 Hitokoto(j) 随机二选一
+        setInterval(() => {
+            if (Math.random() < 0.5) {
+                pickLoveQuote();
+            } else {
+                pickHitokoto();
+            }
+        }, 30 * 60 * 1000);  // 30分钟 = 1800000ms
+    }
+
+    /* -- Firebase 在线状态监听 -- */
+    function initOnlineStatus() {
+        // 检查 Firebase SDK 是否加载成功
+        if (typeof firebase === 'undefined') {
+            console.warn('Firebase SDK 未加载，跳过在线状态监听');
+            return;
+        }
+
+        try {
+            // 初始化 Firebase（如果有重复初始化则跳过）
+            if (!firebase.apps.length) {
+                firebase.initializeApp(FIREBASE_CONFIG);
+            }
+
+            const db = firebase.database();
+            const connectedRef = db.ref('.info/connected');
+            const statusRef = db.ref('status');
+
+            connectedRef.on('value', (snap) => {
+                if (snap.val() === true) {
+                    // 在线：写入状态，断开时自动清除
+                    const userRef = statusRef.push();
+                    userRef.set({ online: true, ts: firebase.database.ServerValue.TIMESTAMP });
+                    userRef.onDisconnect().remove();
+                }
+            });
+
+            // 监听对方在线状态
+            statusRef.on('value', (snap) => {
+                const data = snap.val();
+                const onlineCount = data ? Object.keys(data).length : 0;
+                const heartbeatArea = $('#heartbeat-area');
+                const heartbeatText = $('#heartbeat-text');
+
+                // 超过 1 个人在线（含自己） → 说明对方也在
+                if (onlineCount >= 2) {
+                    heartbeatArea.style.display = 'flex';
+                    heartbeatText.textContent = '❤️ 他正在想你';
+                } else {
+                    heartbeatArea.style.display = 'none';
+                }
+            });
+
+        } catch (err) {
+            console.warn('Firebase 初始化失败，请检查 FIREBASE_CONFIG:', err);
+        }
+    }
+
+    /* =================================================================
+       6. 模块二：秘密基地
+       ================================================================= */
+    function initSecretBase() {
+        initMessageBoard();
+        initCSSTree();
+        loadWeather();
+    }
+
+    /* -- 留言板 -- */
+    function initMessageBoard() {
+        if (typeof firebase === 'undefined') {
+            $('#msg-list').innerHTML = '<p class="loading-text">Firebase 未连接，留言功能不可用</p>';
+            return;
+        }
+
+        try {
+            if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+            // Firestore 需额外引入，若未加载则提示
+            if (typeof firebase.firestore === 'undefined') {
+                $('#msg-list').innerHTML = '<p class="loading-text">Firestore SDK 未加载，请检查 CDN</p>';
+                return;
+            }
+
+            const db     = firebase.firestore();
+            // TODO: Storage 待开通 Blaze 计划后启用
+            // const storage = firebase.storage();
+            const msgList = $('#msg-list');
+            const msgInput = $('#msg-input');
+            const sendBtn = $('#msg-send-btn');
+
+            // TODO: 图片上传预览逻辑，待 Storage 开通后恢复
+            // let selectedFile = null;
+            // msgImgInput.addEventListener('change', ...) { ... }
+
+            // 发送留言（纯文字，图片功能待 Storage 开通）
+            async function sendMessage() {
+                const text = msgInput.value.trim();
+                if (!text) {
+                    msgInput.focus();
+                    return;
+                }
+
+                sendBtn.disabled = true;
+                sendBtn.textContent = '发送中…';
+
+                try {
+                    // 写入 Firestore（纯文字）
+                    await db.collection('messages').add({
+                        text: text,
+                        // imageUrl 字段预留，待 Storage 开通后启用
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    // 清空输入
+                    msgInput.value = '';
+                } catch (err) {
+                    console.error('发送留言失败:', err);
+                    alert('发送失败，请重试');
+                }
+
+                sendBtn.disabled = false;
+                sendBtn.textContent = '💌 发送';
+            }
+
+            sendBtn.addEventListener('click', sendMessage);
+
+            // 实时监听留言（按时间倒序）
+            db.collection('messages')
+                .orderBy('createdAt', 'desc')
+                .onSnapshot((snapshot) => {
+                    msgList.innerHTML = '';
+                    snapshot.forEach((doc) => {
+                        const data = doc.data();
+                        const card = document.createElement('div');
+                        card.className = 'msg-card';
+
+                        const textEl = document.createElement('p');
+                        textEl.className = 'msg-text';
+                        textEl.textContent = data.text || '';
+
+                        card.appendChild(textEl);
+
+                        if (data.imageUrl) {
+                            const imgEl = document.createElement('img');
+                            imgEl.className = 'msg-img';
+                            imgEl.src = data.imageUrl;
+                            imgEl.loading = 'lazy';
+                            card.appendChild(imgEl);
+                        }
+
+                        const timeEl = document.createElement('p');
+                        timeEl.className = 'msg-time';
+                        if (data.createdAt) {
+                            const d = data.createdAt.toDate();
+                            timeEl.textContent = d.toLocaleString('zh-CN');
+                        }
+                        card.appendChild(timeEl);
+
+                        msgList.appendChild(card);
+                    });
+
+                    // 更新 CSS 树叶子数
+                    updateTreeLeaves(snapshot.size);
+                });
+
+        } catch (err) {
+            console.error('Firebase 初始化失败:', err);
+        }
+    }
+
+    /* -- CSS 树 -- */
+    let currentLeafCount = 0;
+
+    function initCSSTree() {
+        // 树已用 CSS 绘制好，这里只做生长动画
+        const crown = $('#tree-crown');
+        // 缓慢生长：每 30 秒增大一点点
+        setInterval(() => {
+            const currentScale = parseFloat(crown.style.transform?.match(/scale\(([\d.]+)\)/)?.[1] || 1);
+            if (currentScale < 1.3) {
+                crown.style.transform = `translateX(-50%) scale(${currentScale + 0.02})`;
+            }
+        }, 30000);
+    }
+
+    function updateTreeLeaves(count) {
+        if (count <= currentLeafCount) return;
+        const treeContainer = $('#tree-container');
+        const crown = $('#tree-crown');
+        const leafCountEl = $('#leaf-count');
+        const crownRect = crown.getBoundingClientRect();
+        const containerRect = treeContainer.getBoundingClientRect();
+
+        // 新增的叶子数
+        const newLeaves = count - currentLeafCount;
+        for (let i = 0; i < newLeaves; i++) {
+            const leaf = document.createElement('span');
+            leaf.className = 'leaf';
+            // 叶子颜色随机绿色调
+            const hue = Math.random() * 40 + 90;  // 90~130
+            leaf.style.setProperty('--leaf-color', `hsl(${hue}, 65%, 50%)`);
+            leaf.style.setProperty('--rot', (Math.random() * 60 - 30) + 'deg');
+            // 位置在树冠附近随机
+            const cx = crownRect.left - containerRect.left + crownRect.width * (0.2 + Math.random() * 0.6);
+            const cy = crownRect.top - containerRect.top + crownRect.height * (0.15 + Math.random() * 0.65);
+            leaf.style.left = cx + 'px';
+            leaf.style.top  = cy + 'px';
+            treeContainer.appendChild(leaf);
+        }
+
+        currentLeafCount = count;
+        leafCountEl.textContent = '🌿 ' + currentLeafCount + ' 片叶子';
+    }
+
+    /* -- 天气 -- */
+    async function loadWeather() {
+        const weatherRow = $('#weather-row');
+        const weatherTip = $('#weather-tip');
+
+        try {
+            const cards = await Promise.all(WEATHER_CITIES.map(async (city) => {
+                const url = `https://api.openweathermap.org/data/2.5/weather?lat=${city.lat}&lon=${city.lon}&appid=${WEATHER_API_KEY}&units=metric&lang=zh_cn`;
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('API 请求失败');
+                const data = await res.json();
+                return `
+                    <div class="weather-card">
+                        <p class="city-name">${city.name}</p>
+                        <p class="temp">${Math.round(data.main.temp)}°C</p>
+                        <p class="desc">${data.weather[0].description}</p>
+                    </div>`;
+            }));
+
+            weatherRow.innerHTML = cards.join('');
+
+            // 随机提示语
+            const tip = MESSAGE_TIPS[Math.floor(Math.random() * MESSAGE_TIPS.length)];
+            weatherTip.textContent = '💬 ' + tip;
+        } catch (err) {
+            console.error('天气加载失败:', err);
+            weatherRow.innerHTML = '<div class="weather-card"><p class="loading-text">天气加载失败</p></div>'
+                                 + '<div class="weather-card"><p class="loading-text">天气加载失败</p></div>';
+            weatherTip.textContent = '💬 天气暂时离家出走了～';
+        }
+    }
+
+    /* =================================================================
+       7. Firebase SDK 动态加载 & 初始化
+       ================================================================= */
+    function loadFirebaseSDK() {
+        return new Promise((resolve) => {
+            // 如果已经加载过，直接返回
+            if (typeof firebase !== 'undefined') { resolve(); return; }
+
+            // 动态插入 Firebase CDN script 标签
+            const scripts = [
+                'https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js',
+                'https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js',
+                'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js',
+                'https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js'
+            ];
+
+            let loaded = 0;
+            scripts.forEach(src => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = () => {
+                    loaded++;
+                    if (loaded === scripts.length) resolve();
+                };
+                script.onerror = () => {
+                    // 即使加载失败也继续，各模块会做降级处理
+                    loaded++;
+                    if (loaded === scripts.length) resolve();
+                };
+                document.head.appendChild(script);
+            });
+        });
+    }
+
+    /* =================================================================
+       8. Service Worker 注册（PWA）
+       ================================================================= */
+    function registerSW() {
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('✅ Service Worker 注册成功:', reg.scope))
+                    .catch(err => console.warn('⚠️ Service Worker 注册失败:', err));
+            });
+        }
+    }
+
+    /* =================================================================
+       9. 启动入口
+       ================================================================= */
+    async function bootstrap() {
+        registerSW();
+        await loadFirebaseSDK();
+
+        // V2：页面加载立即启动宇宙开场动画
+        if (typeof initLionBackground === 'function') {
+            initLionBackground();
+        }
+
+        // 监听动画完成 → 显示密码锁
+        let spaceReadyFired = false;
+        window.addEventListener('spaceReady', () => {
+            if (spaceReadyFired) return;
+            spaceReadyFired = true;
+            // 显示密码锁（带动画过渡）
+            lockScreen.classList.remove('hidden');
+            lockInput.focus();
+        });
+
+        // 兜底：15 秒后强制显示（防止 Three.js CDN 超时）
+        setTimeout(() => {
+            if (!spaceReadyFired) {
+                spaceReadyFired = true;
+                lockScreen.classList.remove('hidden');
+                lockInput.focus();
+            }
+        }, 15000);
+    }
+    bootstrap();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>
+Leo Universe
+</title>
+
+
+<style>
+
+html,body{
+
+margin:0;
+
+padding:0;
+
+overflow:hidden;
+
+background:black;
+
+}
+
+
+canvas{
+
+display:block;
+
+}
+
+
+</style>
+
+
+</head>
+
+
+<body>
+
+
+
+<script src="
+https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js">
+</script>
+
+
+
+<script>
+
+
+// ===============================
+// 基础场景
+// ===============================
+
+
+const scene =
+new THREE.Scene();
+
+
+// 宇宙雾气
+
+scene.fog =
+new THREE.FogExp2(
+0x000000,
+0.00055
+);
+
+
+
+
+const camera =
+new THREE.PerspectiveCamera(
+
+70,
+
+window.innerWidth /
+window.innerHeight,
+
+0.1,
+
+6000
+
+);
+
+
+
+// 初始距离很远
+
+camera.position.z=3500;
+
+
+
+const renderer =
+new THREE.WebGLRenderer({
+
+antialias:true,
+
+alpha:true
+
+});
+
+
+renderer.setPixelRatio(
+window.devicePixelRatio
+);
+
+
+renderer.setSize(
+
+window.innerWidth,
+
+window.innerHeight
+
+);
+
+
+document.body.appendChild(
+renderer.domElement
+);
+
+
+
+
+
+
+// ===============================
+// 星空粒子
+// ===============================
+
+
+let starGeometry =
+new THREE.BufferGeometry();
+
+
+let starPositions=[];
+
+
+let starSizes=[];
+
+
+
+for(let i=0;i<8000;i++){
+
+
+let r=3000;
+
+
+starPositions.push(
+
+(Math.random()-0.5)*r,
+
+(Math.random()-0.5)*r,
+
+(Math.random()-0.5)*r
+
+);
+
+
+starSizes.push(
+
+Math.random()*2+0.5
+
+);
+
+
+}
+
+
+
+starGeometry.setAttribute(
+
+"position",
+
+new THREE.Float32BufferAttribute(
+
+starPositions,
+
+3
+
+)
+
+);
+
+
+
+let starMaterial =
+new THREE.PointsMaterial({
+
+color:0xffffff,
+
+size:1.8,
+
+transparent:true,
+
+opacity:0.9
+
+});
+
+
+
+const stars =
+new THREE.Points(
+
+starGeometry,
+
+starMaterial
+
+);
+
+
+
+scene.add(stars);
+
+
+
+
+
+
+
+// ===============================
+// 银河旋臂
+// ===============================
+
+
+let galaxyGeometry =
+new THREE.BufferGeometry();
+
+
+let galaxyPositions=[];
+
+
+
+const arms=5;
+
+
+
+for(let i=0;i<15000;i++){
+
+
+let arm =
+i%arms;
+
+
+
+let radius =
+Math.pow(
+Math.random(),
+0.7
+)
+*
+1400;
+
+
+
+let angle =
+
+radius*0.003
+
++
+
+arm*
+Math.PI*2/arms;
+
+
+
+let random =
+(Math.random()-0.5)*120;
+
+
+
+galaxyPositions.push(
+
+
+Math.cos(angle)
+*
+radius
++
+random,
+
+
+(Math.random()-0.5)*80,
+
+
+Math.sin(angle)
+*
+radius
++
+random
+
+
+);
+
+
+
+}
+
+
+
+galaxyGeometry.setAttribute(
+
+"position",
+
+new THREE.Float32BufferAttribute(
+
+galaxyPositions,
+
+3
+
+)
+
+);
+
+
+
+let galaxyMaterial =
+new THREE.PointsMaterial({
+
+color:0x8899ff,
+
+size:2,
+
+transparent:true,
+
+opacity:0.65
+
+});
+
+
+
+const galaxy =
+new THREE.Points(
+
+galaxyGeometry,
+
+galaxyMaterial
+
+);
+
+
+
+scene.add(galaxy);
+
+
+
+
+
+
+// ===============================
+// 星云雾气
+// ===============================
+
+
+
+let nebulaGeometry =
+new THREE.BufferGeometry();
+
+
+let nebulaPositions=[];
+
+
+
+for(let i=0;i<4000;i++){
+
+
+let radius=
+Math.random()*1500;
+
+
+
+nebulaPositions.push(
+
+(Math.random()-0.5)
+*
+radius,
+
+(Math.random()-0.5)
+*
+radius*0.3,
+
+(Math.random()-0.5)
+*
+radius
+
+);
+
+
+}
+
+
+
+nebulaGeometry.setAttribute(
+
+"position",
+
+new THREE.Float32BufferAttribute(
+
+nebulaPositions,
+
+3
+
+)
+
+);
+
+
+
+let nebulaMaterial =
+new THREE.PointsMaterial({
+
+color:0xaa66ff,
+
+size:15,
+
+transparent:true,
+
+opacity:0.035
+
+});
+
+
+
+const nebula =
+new THREE.Points(
+
+nebulaGeometry,
+
+nebulaMaterial
+
+);
+
+
+
+scene.add(nebula);
+
+
+
+
+
+
+
+
+// ===============================
+// 宇宙进入动画
+// ===============================
+
+
+let entering=true;
+
+
+
+function enterUniverse(){
+
+
+
+if(entering){
+
+
+camera.position.z-=12;
+
+
+
+if(camera.position.z<=900){
+
+
+camera.position.z=900;
+
+
+entering=false;
+
+
+}
+
+
+}
+
+
+}
+
+
+
+
+
+
+// ===============================
+// 动画基础
+// ===============================
+
+
+
+function baseAnimate(){
+
+showLeo();
+
+updateLeo();
+
+requestAnimationFrame(
+baseAnimate
+);
+
+
+
+// 银河旋转
+
+galaxy.rotation.y+=0.00025;
+
+
+// 星云漂浮
+
+nebula.rotation.y+=0.0001;
+
+
+// 星空运动
+
+stars.rotation.y+=0.00008;
+
+
+
+enterUniverse();
+
+showLeo();
+
+updateLeo();
+
+renderer.render(
+
+scene,
+
+camera
+
+);
+
+
+
+}
+
+
+
+baseAnimate();
+
+
+
+
+
+
+
+// ===============================
+// 窗口适配
+// ===============================
+
+
+window.addEventListener(
+
+"resize",
+
+()=>{
+
+
+camera.aspect=
+
+window.innerWidth/
+window.innerHeight;
+
+
+camera.updateProjectionMatrix();
+
+
+renderer.setSize(
+
+window.innerWidth,
+
+window.innerHeight
+
+);
+
+
+}
+
+);
+
+
+
+
+
+// ==================================
+// 真实狮子座 Leo 星座系统
+// ==================================
+
+
+// 主要恒星
+// 坐标经过视觉比例调整
+// 亮度参考真实星等
+
+
+const leoStarsData=[
+
+
+{
+name:"Regulus 轩辕十四",
+x:0,
+y:0,
+z:0,
+size:10
+},
+
+
+
+{
+name:"Algieba 轩辕十二",
+x:-120,
+y:150,
+z:-20,
+size:7
+},
+
+
+
+{
+name:"Adhafera 太子",
+x:-220,
+y:180,
+z:-30,
+size:5
+},
+
+
+
+{
+name:"Rasalas",
+x:-280,
+y:80,
+z:-20,
+size:5
+},
+
+
+
+{
+name:"Zosma 西上相",
+x:170,
+y:80,
+z:0,
+size:6
+},
+
+
+
+{
+name:"Chertan",
+x:220,
+y:-10,
+z:0,
+size:5
+},
+
+
+
+{
+name:"Denebola 五帝座一",
+x:420,
+y:-80,
+z:-30,
+size:9
+},
+
+
+
+{
+name:"Eta Leonis",
+x:100,
+y:-160,
+z:20,
+size:4
+}
+
+
+
+];
+
+
+
+
+
+
+
+// ==================================
+// 创建狮子座恒星粒子
+// ==================================
+
+
+
+let leoStarGeometry =
+new THREE.BufferGeometry();
+
+
+let leoStarPositions=[];
+
+
+let leoStarColors=[];
+
+
+
+leoStarsData.forEach(
+star=>{
+
+
+leoStarPositions.push(
+
+star.x,
+star.y,
+star.z
+
+);
+
+
+});
+
+
+
+leoStarGeometry.setAttribute(
+
+"position",
+
+new THREE.Float32BufferAttribute(
+
+leoStarPositions,
+
+3
+
+)
+
+);
+
+
+
+
+
+let leoStarMaterial =
+new THREE.PointsMaterial({
+
+color:0xffd36a,
+
+size:8,
+
+transparent:true,
+
+opacity:0
+
+});
+
+
+
+const leoStars =
+new THREE.Points(
+
+leoStarGeometry,
+
+leoStarMaterial
+
+);
+
+
+
+scene.add(
+leoStars
+);
+
+
+
+
+
+
+
+
+// ==================================
+// 狮子座星座连线
+// ==================================
+
+
+
+let leoLines=[
+
+
+// 头部
+
+[1,2],
+
+[2,3],
+
+[3,4],
+
+
+// 身体
+
+[4,0],
+
+[0,5],
+
+[5,6],
+
+
+// 腹部
+
+[0,7],
+
+[7,5]
+
+
+];
+
+
+
+
+
+let leoLinePositions=[];
+
+
+
+leoLines.forEach(
+line=>{
+
+
+let a=
+leoStarsData[line[0]];
+
+
+let b=
+leoStarsData[line[1]];
+
+
+
+leoLinePositions.push(
+
+a.x,
+a.y,
+a.z,
+
+b.x,
+b.y,
+b.z
+
+);
+
+
+
+});
+
+
+
+
+
+let leoLineGeometry =
+new THREE.BufferGeometry();
+
+
+
+leoLineGeometry.setAttribute(
+
+"position",
+
+new THREE.Float32BufferAttribute(
+
+leoLinePositions,
+
+3
+
+)
+
+);
+
+
+
+
+
+let leoLineMaterial =
+new THREE.LineBasicMaterial({
+
+color:0xffc866,
+
+transparent:true,
+
+opacity:0
+
+});
+
+
+
+
+const leoLinesMesh =
+new THREE.LineSegments(
+
+leoLineGeometry,
+
+leoLineMaterial
+
+);
+
+
+
+scene.add(
+leoLinesMesh
+);
+
+
+
+
+
+
+
+// ==================================
+// 狮子座出现动画
+// ==================================
+
+
+
+let leoAppear=0;
+
+
+
+function showLeo(){
+
+
+
+if(leoAppear<1){
+
+
+leoAppear+=0.003;
+
+
+
+leoStarMaterial.opacity=
+leoAppear;
+
+
+leoLineMaterial.opacity=
+leoAppear*0.7;
+
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+// ==================================
+// 狮子座缓慢运动
+// ==================================
+
+
+function updateLeo(){
+
+
+
+leoStars.rotation.y+=0.0005;
+
+
+leoLinesMesh.rotation.y+=0.0005;
+
+
+
+// 微微呼吸效果
+
+
+let glow =
+Math.sin(
+Date.now()*0.002
+)
+*
+0.3
++
+1;
+
+
+
+leoStarMaterial.size=
+8*glow;
+
+
+
+}
+
+// ==================================
+// 高级流星粒子系统
+// ==================================
+
+
+let meteors=[];
+
+
+
+// 狮子座激活强度
+
+let leoPower=1;
+
+
+
+
+
+function createMeteor(position){
+
+
+    let meteor =
+    new THREE.Group();
+
+
+
+    // 流星粒子尾巴
+
+    for(let i=0;i<45;i++){
+
+
+        let size =
+        i<5?
+        4:
+        2.5;
+
+
+
+        let geometry =
+        new THREE.SphereGeometry(
+
+            size,
+
+            6,
+
+            6
+
+        );
+
+
+
+        let material =
+        new THREE.MeshBasicMaterial({
+
+            color:
+
+            i<5?
+            0xffffff:
+            0xffaa55,
+
+
+            transparent:true,
+
+
+            opacity:
+
+            1-i/50
+
+        });
+
+
+
+
+
+        let particle =
+        new THREE.Mesh(
+
+            geometry,
+
+            material
+
+        );
+
+
+
+        /*
+        
+        注意：
+
+        流星运动方向：
+        
+        左上  --->  右下
+        
+             ☄
+              \
+               \
+                \
+        
+        所以尾巴必须在左上方向
+        
+        */
+
+
+        particle.position.set(
+
+            -i*7,
+
+            i*7,
+
+            (Math.random()-0.5)*4
+
+        );
+
+
+
+        meteor.add(
+            particle
+        );
+
+
+    }
+
+
+
+
+    meteor.position.copy(
+        position
+    );
+
+
+
+    // 统一运动方向
+
+    meteor.velocity =
+    new THREE.Vector3(
+
+        12,
+
+        -12,
+
+        0
+
+    );
+
+
+
+    scene.add(
+        meteor
+    );
+
+
+
+    meteors.push(
+        meteor
+    );
+
+
+}
+
+
+
+
+
+
+
+
+// ==================================
+// 自动流星
+// ==================================
+
+
+setInterval(()=>{
+
+
+let start =
+new THREE.Vector3(
+
+    -1200,
+
+    900,
+
+    Math.random()*600-300
+
+);
+
+
+
+createMeteor(start);
+
+
+
+},800);
+
+
+
+
+
+
+
+
+
+// ==================================
+// 鼠标召唤流星
+// ==================================
+
+
+window.addEventListener(
+
+"click",
+
+function(event){
+
+
+
+let mouse =
+new THREE.Vector2();
+
+
+
+mouse.x =
+event.clientX /
+window.innerWidth
+*
+2-1;
+
+
+
+mouse.y =
+-event.clientY /
+window.innerHeight
+*
+2+1;
+
+
+
+
+let raycaster =
+new THREE.Raycaster();
+
+
+
+raycaster.setFromCamera(
+
+mouse,
+
+camera
+
+);
+
+
+
+let direction =
+raycaster.ray.direction;
+
+
+
+let start =
+camera.position.clone()
+.add(
+
+direction.multiplyScalar(600)
+
+);
+
+
+
+createMeteor(
+start
+);
+
+
+
+});
+
+
+
+
+
+
+
+
+
+// ==================================
+// 流星检测狮子座
+// ==================================
+
+
+function checkLeo(meteor){
+
+
+
+let distance =
+meteor.position.distanceTo(
+
+leoStars.position
+
+);
+
+
+
+
+if(distance<350){
+
+
+
+leoPower+=0.05;
+
+
+
+}
+
+else{
+
+
+leoPower-=0.005;
+
+
+}
+
+
+
+leoPower=
+
+Math.max(
+
+1,
+
+Math.min(
+
+2,
+
+leoPower
+
+)
+
+);
+
+
+
+
+
+leoStarMaterial.opacity=
+leoAppear*
+leoPower;
+
+
+
+leoStarMaterial.size=
+8*
+leoPower;
+
+
+
+leoLineMaterial.opacity=
+0.7*
+leoPower;
+
+
+
+}
+
+
+
+
+
+
+
+
+
+// ==================================
+// 更新流星
+// ==================================
+
+
+function updateMeteors(){
+
+
+
+meteors.forEach(
+
+(meteor,index)=>{
+
+
+// 移动
+
+meteor.position.add(
+
+meteor.velocity
+
+);
+
+
+
+// 尾焰消失
+
+meteor.children.forEach(
+
+particle=>{
+
+
+particle.material.opacity*=0.96;
+
+
+}
+
+);
+
+
+
+
+// 检测星座
+
+checkLeo(
+meteor
+);
+
+
+
+
+
+// 超出范围删除
+
+
+if(
+
+meteor.position.x>1800 ||
+
+meteor.position.y<-1500
+
+){
+
+
+scene.remove(
+meteor
+);
+
+
+
+meteors.splice(
+
+index,
+
+1
+
+);
+
+
+
+}
+
+
+});
+
+
+}
+
+
+
+
+
+
+// ==================================
+// 覆盖动画循环
+// ==================================
+
+
+// 保存旧动画
+
+const oldAnimate =
+baseAnimate;
+
+
+
+// 重新定义
+
+function animateFinal(){
+
+
+
+requestAnimationFrame(
+animateFinal
+);
+
+
+
+// 星空
+
+stars.rotation.y+=0.00008;
+
+
+// 银河
+
+galaxy.rotation.y+=0.00025;
+
+
+// 星云
+
+nebula.rotation.y+=0.0001;
+
+
+
+
+// 宇宙进入
+
+enterUniverse();
+
+
+
+// 狮子座
+
+showLeo();
+
+updateLeo();
+
+
+
+// 流星
+
+updateMeteors();
+
+
+
+renderer.render(
+
+scene,
+
+camera
+
+);
+
+
+
+}
+
+
+
+
+// 启动最终动画
+
+animateFinal();
+
+</script>
+
+</body>
+
+</html>

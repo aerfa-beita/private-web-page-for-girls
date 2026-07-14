@@ -1,0 +1,24 @@
+# API 密钥配置文件
+config.js
+
+# ============================================================
+# 不上传任何个人媒体资源（音乐 / 照片 / 视频）
+# ============================================================
+
+# 音乐
+assets/Music/**
+!assets/Music/.gitkeep
+
+# 照片（递归排除所有文件，仅保留 .gitkeep 维持目录结构）
+assets/Photograph/**
+!assets/Photograph/IMG_20260228/
+!assets/Photograph/IMG_20260228/.gitkeep
+
+# 视频
+assets/Video/**
+!assets/Video/.gitkeep
+
+# 系统文件
+Thumbs.db
+.DS_Store
+*.tmp
