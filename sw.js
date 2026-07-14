@@ -5,13 +5,18 @@
    ============================================================ */
 
 // 缓存名称（修改版本号可强制刷新缓存）
-const CACHE_NAME = 'our-universe-v1';
+const CACHE_NAME = 'our-universe-v2';
 
 // 需要缓存的静态文件列表
 const CACHE_FILES = [
     'index.html',
     'manifest.json',
-    'assets/music.mp3',
+    'lion_background.js',
+    'image_carousel.js',
+    'memory_timeline.js',
+    'love_letter.js',
+    'star_tree.js',
+    'ai_service.js',
     'assets/blessing.mp3',
     'assets/icon-192.png',
     'assets/icon-512.png'
