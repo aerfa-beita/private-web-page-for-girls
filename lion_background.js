@@ -1,11 +1,22 @@
 (function(){
     /* =================================================================
-       lion_background.js V2 — 宇宙开场动画系统
-       包含：三层星空 / 银河旋臂 / 狮子座呼吸发光 / 月亮 / 流星 / 爱心彩蛋
+       lion_background.js V3 — 私人狮子座开场系统
+       包含：克制深空 / 固定狮子座 / 月亮 / 隐藏情书入口
        ================================================================= */
 
     // 是否为移动端（降低粒子数）
     var isMobile = window.innerWidth < 600;
+    var INTRO_TIMELINE = {
+        starsEnd: 2,
+        galaxyStart: 1,
+        galaxyEnd: 3,
+        leoStart: 2,
+        leoEnd: 4,
+        titleStart: 4,
+        titleEnd: 6,
+        leoFadeStart: 6,
+        finish: 8
+    };
 
     // 动态加载 Three.js
     function loadThree(callback) {
@@ -169,20 +180,24 @@
     function createLeoConstellation(scene) {
         leoGroup = new THREE.Group();
         leoGroup.name = 'leoConstellation';
-        leoGroup.userData = { targetOpacity: 0, starPoints: [], haloPoints: [] };
+        leoGroup.userData = { targetOpacity: 0, starPoints: [], haloPoints: [], linePoints: [] };
+        leoGroup.position.set(-10, 8, 20);
+        leoGroup.scale.setScalar(isMobile ? 0.78 : 1.08);
 
         var starData = [
-            { name:'Regulus',  pos:[ -220, 55, 0], mag:1.4, color:0xffd700 },
-            { name:'Algieba',  pos:[ -100, 25, 0], mag:2.0, color:0xffee88 },
-            { name:'Denebola', pos:[  170,-35, 0], mag:2.1, color:0xffd700 },
-            { name:'Zosma',    pos:[   70,  0, 0], mag:2.6, color:0xffdd66 },
-            { name:'Chertan',  pos:[  140,-55, 0], mag:3.3, color:0xffcc44 },
-            { name:'Rasalas',  pos:[  -15, 10, 0], mag:3.9, color:0xffdd88 },
-            { name:'Adhafera', pos:[  -55, 22, 0], mag:3.4, color:0xffdd88 }
+            { name:'Rasalas',       pos:[-168, 154, 0], mag:3.8, color:0xD8B36A },
+            { name:'Adhafera',      pos:[-122, 102, 0], mag:3.4, color:0xD8B36A },
+            { name:'Algieba',       pos:[ -72,  58, 0], mag:2.0, color:0xF8F4EA },
+            { name:'Regulus',       pos:[ -28,   0, 0], mag:1.4, color:0xF8F4EA },
+            { name:'Zosma',         pos:[  86,  42, 0], mag:2.6, color:0xD8B36A },
+            { name:'Chertan',       pos:[ 142, -78, 0], mag:3.3, color:0xD8B36A },
+            { name:'Denebola',      pos:[ 222, -22, 0], mag:2.1, color:0xF8F4EA },
+            { name:'AsellusBorealis', pos:[-118, -82, 0], mag:3.9, color:0xD8B36A },
+            { name:'EtaLeonis',     pos:[ -76,-166, 0], mag:3.5, color:0xD8B36A }
         ];
 
         starData.forEach(function(s){
-            var size = (7 - s.mag) * 3.5;
+            var size = (6.5 - s.mag) * 3.1;
             var g = new THREE.BufferGeometry();
             g.setAttribute('position', new THREE.Float32BufferAttribute(s.pos, 3));
             var m = new THREE.PointsMaterial({
@@ -197,26 +212,28 @@
             var hg = new THREE.BufferGeometry();
             hg.setAttribute('position', new THREE.Float32BufferAttribute(s.pos, 3));
             var hm = new THREE.PointsMaterial({
-                color: s.color, size: size * 2.8,
+                color: s.color, size: size * 2.25,
                 blending: THREE.AdditiveBlending, depthWrite: false,
                 transparent: true, opacity: 0
             });
             var halo = new THREE.Points(hg, hm);
             leoGroup.add(halo);
-            leoGroup.userData.haloPoints.push({ mesh: halo, baseSize: size * 2.8 });
+            leoGroup.userData.haloPoints.push({ mesh: halo, baseSize: size * 2.25 });
         });
 
-        var connections = [[0,1],[1,6],[6,3],[3,2],[2,4],[3,5]];
+        var connections = [[0,1],[1,2],[2,3],[3,4],[4,6],[4,5],[5,6],[3,7],[7,8]];
         connections.forEach(function(pair){
             var a = starData[pair[0]].pos;
             var b = starData[pair[1]].pos;
             var lg = new THREE.BufferGeometry();
             lg.setAttribute('position', new THREE.Float32BufferAttribute([a[0],a[1],a[2], b[0],b[1],b[2]], 3));
             var lm = new THREE.LineBasicMaterial({
-                color: 0xff6b9d, transparent: true, opacity: 0,
+                color: 0xD8B36A, transparent: true, opacity: 0,
                 blending: THREE.AdditiveBlending, depthWrite: false
             });
-            leoGroup.add(new THREE.Line(lg, lm));
+            var line = new THREE.Line(lg, lm);
+            leoGroup.add(line);
+            leoGroup.userData.linePoints.push(line);
         });
 
         scene.add(leoGroup);
@@ -324,7 +341,7 @@
     }
 
     /* =================================================================
-       6. 爱心星团彩蛋
+       6. 旧爱心星团（保留渲染兼容，不再触发）
        ================================================================= */
     function createHeartStars(scene) {
         var count = 200;
@@ -363,10 +380,8 @@
        ================================================================= */
     function introAnimation(galaxy, leoGroup, moon, heart, stars, callback) {
         var startTime = performance.now() / 1000;
-        var introMeteorsSpawned = [false, false, false];
         var textShown = false;
         var readyDispatched = false;
-        var activeMeteors = [];
 
         var textOverlay = document.createElement('div');
         textOverlay.id = 'intro-text-overlay';
@@ -375,18 +390,42 @@
             'display:flex;flex-direction:column;align-items:center;justify-content:center;' +
             'pointer-events:none;z-index:10;opacity:0;transition:opacity 1.5s ease;';
         textOverlay.innerHTML =
-            '<p style="font-size:clamp(18px,4vw,28px);color:#fff;text-align:center;' +
-            'letter-spacing:3px;line-height:2;text-shadow:0 0 30px rgba(168,216,255,0.6),0 0 60px rgba(168,216,255,0.3);">' +
-            '宇宙有 138 亿年<br>我却遇见了你</p>';
+            '<p style="font-family:Georgia,serif;font-size:clamp(22px,4vw,34px);color:#f8f4ea;text-align:center;' +
+            'letter-spacing:0.22em;line-height:1.7;text-shadow:0 0 30px rgba(216,179,106,0.18);">' +
+            '我们的宇宙<br><span style="font-size:10px;letter-spacing:0.34em;color:#d8b36a;">OUR LITTLE UNIVERSE</span>' +
+            '<br><span style="font-family:serif;font-size:13px;letter-spacing:0.12em;color:#a8a6b3;">两个人的小世界</span></p>';
         document.body.appendChild(textOverlay);
 
-        function setLeoOpacity(val) {
-            leoGroup.userData.targetOpacity = val;
-            leoGroup.traverse(function(child){
-                if (child.material && child.material.transparent) {
-                    if (child.isLine) { child.material.opacity = val * 0.55; }
-                    else if (child.isPoints) { child.material.opacity = val * 0.95; }
-                }
+        var leoLabel = document.createElement('div');
+        leoLabel.style.cssText =
+            'position:fixed;left:50%;top:65%;transform:translateX(-50%);pointer-events:none;' +
+            'z-index:10;text-align:center;color:#d8b36a;font:11px Georgia,serif;letter-spacing:0.26em;' +
+            'line-height:1.8;opacity:0;transition:opacity 1s ease;';
+        leoLabel.innerHTML = 'LEO<br><span style="font-family:serif;color:#a8a6b3;letter-spacing:0.1em;">狮子座</span>';
+        document.body.appendChild(leoLabel);
+
+        function revealLeo(progress) {
+            var stars = leoGroup.userData.starPoints;
+            var halos = leoGroup.userData.haloPoints;
+            var lines = leoGroup.userData.linePoints;
+            leoGroup.userData.targetOpacity = progress;
+            stars.forEach(function(star, index) {
+                star.mesh.material.opacity = Math.max(0, Math.min(1, progress * stars.length - index)) * 0.82;
+                halos[index].mesh.material.opacity = star.mesh.material.opacity * 0.28;
+            });
+            lines.forEach(function(line, index) {
+                line.material.opacity = Math.max(0, Math.min(1, progress * lines.length - index - 3)) * 0.3;
+            });
+        }
+
+        function fadeLeo(visibility) {
+            leoGroup.userData.targetOpacity = visibility;
+            leoGroup.userData.starPoints.forEach(function(star, index) {
+                star.mesh.material.opacity = (index === 3 ? 0.82 : 0.62) * visibility;
+                leoGroup.userData.haloPoints[index].mesh.material.opacity = star.mesh.material.opacity * 0.28;
+            });
+            leoGroup.userData.linePoints.forEach(function(line) {
+                line.material.opacity = 0.3 * visibility;
             });
         }
 
@@ -406,61 +445,53 @@
         function introTick() {
             var elapsed = performance.now() / 1000 - startTime;
 
-            // 0~1.5s：星星渐显
-            if (elapsed < 1.5) {
-                var p = Math.min(elapsed / 1.5, 1);
+            // 0~2s：深空中少量星辰渐显
+            if (elapsed < INTRO_TIMELINE.starsEnd) {
+                var p = Math.min(elapsed / INTRO_TIMELINE.starsEnd, 1);
                 stars.forEach(function(s){
-                    s.material.opacity = p * (s.material.userDataTarget || 0.8);
+                    s.material.opacity = p * (s.material.userDataTarget || 0.8) * 0.55;
                 });
             }
 
-            // 1.5~4s：银河渐显
-            if (elapsed >= 1.5 && elapsed < 4) {
-                var gp = Math.min((elapsed - 1.5) / 2.5, 1);
-                galaxy.material.opacity = gp * 0.55;
+            // 1~3s：极低亮度银河出现
+            if (elapsed >= INTRO_TIMELINE.galaxyStart && elapsed < INTRO_TIMELINE.galaxyEnd) {
+                var gp = Math.min((elapsed - INTRO_TIMELINE.galaxyStart) / (INTRO_TIMELINE.galaxyEnd - INTRO_TIMELINE.galaxyStart), 1);
+                galaxy.material.opacity = gp * 0.24;
             }
 
-            // 3~6s：狮子座渐显
-            if (elapsed >= 3 && elapsed < 6) {
-                setLeoOpacity(Math.min((elapsed - 3) / 3, 1));
+            // 2~4s：固定星点依次亮起，再连接为狮子座
+            if (elapsed >= INTRO_TIMELINE.leoStart && elapsed < INTRO_TIMELINE.leoEnd) {
+                revealLeo(Math.min((elapsed - INTRO_TIMELINE.leoStart) / (INTRO_TIMELINE.leoEnd - INTRO_TIMELINE.leoStart), 1));
             }
 
-            // 4~8s：月亮渐显
-            if (elapsed >= 4 && elapsed < 8) {
-                setMoonOpacity(Math.min((elapsed - 4) / 4, 1));
+            // 4~6s：月亮与星座名称只作轻微提示
+            if (elapsed >= INTRO_TIMELINE.titleStart && elapsed < INTRO_TIMELINE.titleEnd) {
+                setMoonOpacity(Math.min((elapsed - INTRO_TIMELINE.titleStart) / (INTRO_TIMELINE.titleEnd - INTRO_TIMELINE.titleStart), 1));
+                leoLabel.style.opacity = '1';
             }
 
-            // 1s 第一颗流星
-            if (elapsed >= 1 && !introMeteorsSpawned[0]) {
-                introMeteorsSpawned[0] = true;
-                var m1 = spawnMeteor(250, 200, 0, -8, -6, 0, 1.5, 60);
-                if (m1) activeMeteors.push(m1);
-            }
-            // 3s 第二颗
-            if (elapsed >= 3 && !introMeteorsSpawned[1]) {
-                introMeteorsSpawned[1] = true;
-                var m2 = spawnMeteor(400, 280, 0, -10, -7, 0, 1.8, 80);
-                if (m2) activeMeteors.push(m2);
-            }
-            // 6s 第三颗
-            if (elapsed >= 6 && !introMeteorsSpawned[2]) {
-                introMeteorsSpawned[2] = true;
-                var m3 = spawnMeteor(150, 320, 0, -6, -5, 0, 1.3, 50);
-                if (m3) activeMeteors.push(m3);
+            // 6~8s：星图与标题缓慢消失，为密码锁留出静默空间
+            if (elapsed >= INTRO_TIMELINE.leoFadeStart && elapsed < INTRO_TIMELINE.finish) {
+                var fadeProgress = (elapsed - INTRO_TIMELINE.leoFadeStart) / (INTRO_TIMELINE.finish - INTRO_TIMELINE.leoFadeStart);
+                fadeLeo(1 - fadeProgress);
+                leoLabel.style.opacity = String(1 - fadeProgress);
+                textOverlay.style.opacity = String(1 - fadeProgress);
             }
 
-            // 7s：文字出现
-            if (elapsed >= 7 && !textShown) {
+            // 4s：标题出现
+            if (elapsed >= INTRO_TIMELINE.titleStart && !textShown) {
                 textShown = true;
                 textOverlay.style.opacity = '1';
             }
 
-            // 11s：文字渐隐
-            if (elapsed >= 11 && !readyDispatched) {
+            // 8s：标题与星座名称渐隐，显示密码锁
+            if (elapsed >= INTRO_TIMELINE.finish && !readyDispatched) {
                 readyDispatched = true;
                 textOverlay.style.opacity = '0';
+                leoLabel.style.opacity = '0';
                 setTimeout(function(){
                     if (textOverlay.parentNode) textOverlay.parentNode.removeChild(textOverlay);
+                    if (leoLabel.parentNode) leoLabel.parentNode.removeChild(leoLabel);
                 }, 1500);
                 window.dispatchEvent(new Event('spaceReady'));
                 if (callback) callback();
@@ -474,16 +505,13 @@
     }
 
     /* =================================================================
-       8. 爱心彩蛋逻辑
+       8. 月亮隐藏情书逻辑
        ================================================================= */
     var moonClickCount = 0;
     var heartRef = null;
 
-    function triggerHeartEasterEgg() {
-        if (!heartRef || heartRef.userData.phase !== 'idle') return;
-        heartRef.userData.phase = 'appearing';
-        heartRef.userData.timer = 0;
-        heartRef.userData.targetOpacity = 0.9;
+    function triggerLoveLetter() {
+        window.dispatchEvent(new CustomEvent('loveLetterRequested'));
     }
 
     function updateHeart() {
@@ -603,7 +631,7 @@
                 renderer.setSize(window.innerWidth, window.innerHeight);
             });
 
-            // 月亮点击彩蛋
+            // 月亮点击五次打开隐藏情书
             window.addEventListener('click', function(e){
                 if (!freeMode) return;
                 var mx = e.clientX / window.innerWidth;
@@ -612,7 +640,7 @@
                     moonClickCount++;
                     if (moonClickCount >= 5) {
                         moonClickCount = 0;
-                        triggerHeartEasterEgg();
+                        triggerLoveLetter();
                     }
                 }
             });

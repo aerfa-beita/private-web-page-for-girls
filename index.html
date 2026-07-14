@@ -16,19 +16,20 @@
            CSS 变量（修改配色方案从这里下手）
            ============================================================ */
         :root {
-            --bg-deep: #080817;          /* 星空底色（V2 深邃宇宙） */
-            --bg-card: rgba(255,255,255,0.06);  /* 卡片半透明背景 */
-            --text-primary: #e8e8f0;     /* 主文字色 */
-            --text-secondary: #b0b0c0;   /* 次要文字色 */
-            --accent: #ff9ebb;           /* 强调色（樱花粉） */
-            --accent2: #a8d8ff;          /* 辅助强调色（月光蓝） */
-            --gold: #ffd166;             /* 金色（暖金星星） */
-            --starlight: #fff1f8;        /* 星光白（柔和星光） */
-            --nav-bg: rgba(8,8,23,0.95);
+            --bg-deep: #050510;
+            --bg-card: rgba(248,244,234,0.045);
+            --text-primary: #F8F4EA;
+            --text-secondary: #A8A6B3;
+            --accent: #D8B36A;
+            --accent2: #8D87A4;
+            --gold: #D8B36A;
+            --starlight: #F8F4EA;
+            --nav-bg: rgba(5,5,16,0.92);
             --blur: blur(16px);
             --radius: 16px;
             --transition: 0.3s ease;
-            --font-main: 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', sans-serif;
+            --font-main: 'Noto Sans SC', 'PingFang SC', 'Helvetica Neue', sans-serif;
+            --font-display: 'Playfair Display', 'Noto Serif SC', 'Songti SC', serif;
             /* 底部安全区域 */
             --safe-bottom: env(safe-area-inset-bottom, 0px);
         }
@@ -276,6 +277,16 @@
             box-shadow: 0 12px 40px rgba(0,0,0,0.5);
             animation: fadeSlideIn 0.4s ease;
         }
+        .polaroid-card {
+            background: #fff;
+            border: 8px solid #fff;
+            border-bottom-width: 30px;
+            box-shadow: 0 14px 30px rgba(0,0,0,0.35);
+            color: #3a3040;
+            transform: rotate(var(--tilt, -1deg));
+        }
+        .photo-grid .photo-card:nth-child(even),
+        .timeline-item:nth-child(even) { --tilt: 1.2deg; }
         .photo-grid .photo-card img {
             width: 100%; height: auto;
             aspect-ratio: 1/1;
@@ -439,6 +450,21 @@
             animation: leafAppear 0.6s ease forwards;
             z-index: 2;
         }
+        #star-tree {
+            position: relative; width: min(100%, 320px); height: 260px;
+            margin: 24px auto 0; overflow: hidden;
+            background: radial-gradient(ellipse at 50% 70%, rgba(168,216,255,0.14), transparent 62%);
+        }
+        .star-tree-trunk {
+            position: absolute; left: 50%; bottom: 0; width: 12px; height: 82px;
+            transform: translateX(-50%); border-radius: 8px 8px 0 0;
+            background: linear-gradient(90deg, #5d4037, #9b6d50, #5d4037);
+        }
+        .message-star {
+            position: absolute; color: var(--gold); font-size: 20px;
+            transform: translate(-50%, -50%); text-shadow: 0 0 12px rgba(255,209,102,0.9);
+            cursor: default; animation: twinkle 2.2s ease-in-out infinite;
+        }
         @keyframes leafAppear {
             0%   { opacity: 0; transform: scale(0) rotate(0deg); }
             100% { opacity: 1; transform: scale(1) rotate(var(--rot, 30deg)); }
@@ -476,6 +502,33 @@
             text-align: center; color: var(--text-primary);
         }
         .loading-text { text-align: center; font-size: 13px; color: var(--text-secondary); }
+        #memory-timeline { margin: 40px 0 12px; }
+        .timeline-track { display: grid; gap: 22px; }
+        .timeline-item { padding: 0 0 8px; overflow: hidden; }
+        .timeline-item img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+        .timeline-date, .timeline-text { padding: 0 10px; }
+        .timeline-date { margin-top: 8px; color: #8a6b7a; font-size: 12px; }
+        .timeline-text { margin-top: 4px; font-size: 14px; }
+        #love-letter-modal {
+            position: fixed; inset: 0; z-index: 9000; display: none;
+            align-items: center; justify-content: center; padding: 24px;
+            background: rgba(8,8,23,0.78); backdrop-filter: blur(12px);
+        }
+        #love-letter-modal.active { display: flex; }
+        .love-letter {
+            width: min(480px, 100%); padding: 36px 28px; border-radius: 8px;
+            color: #402f46; background: linear-gradient(135deg, #fffdf6, #fdeaf1);
+            box-shadow: 0 22px 70px rgba(0,0,0,0.5); line-height: 1.9;
+        }
+        .love-letter h2 { color: #bd5278; margin-bottom: 18px; text-align: center; }
+        .love-letter button {
+            display: block; margin: 24px auto 0; padding: 9px 22px; border: 0;
+            border-radius: 20px; color: #fff; background: #bd5278; cursor: pointer;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+            .polaroid-card { transform: none; }
+        }
 
         /* 模块页面容器 —— 去最大宽度限制，让照片区撑满 */
         .module-page {
@@ -493,155 +546,212 @@
         }
 
         /* ============================================================
-           V2 宇宙首页 Hero
+           V3 宇宙首页 Hero：克制的私人叙事
            ============================================================ */
         .universe-home {
             display: flex; flex-direction: column;
             align-items: center;
-            padding: 10px 0 0;
+            min-height: min(720px, calc(100vh - 90px));
+            justify-content: center;
+            padding: 44px 0 36px;
         }
-
-        /* 顶部标题 */
         .universe-title {
-            text-align: center; margin-bottom: 16px;
-            animation: fadeSlideIn 0.8s ease;
-        }
-        .universe-title .title-moon {
-            font-size: 42px; display: block;
-            animation: planetBreath 4s ease-in-out infinite;
+            text-align: center; margin-bottom: 28px; opacity: 0;
         }
         .universe-title h1 {
-            font-size: clamp(24px, 5vw, 36px);
-            font-weight: 600; letter-spacing: 6px;
+            font-family: var(--font-display);
+            font-size: clamp(32px, 6vw, 54px);
+            font-weight: 500; letter-spacing: 0.16em;
             color: var(--text-primary);
-            text-shadow: 0 0 40px rgba(168,216,255,0.4), 0 0 80px rgba(168,216,255,0.15);
-            margin: 4px 0;
+            margin: 0;
+        }
+        .hero-kicker {
+            margin: 11px 0 15px; color: var(--gold); font-family: var(--font-display);
+            font-size: 11px; letter-spacing: 0.28em;
         }
         .universe-title .subtitle {
-            font-size: 14px; color: var(--text-secondary);
-            letter-spacing: 4px;
+            font-size: 13px; color: var(--text-secondary); letter-spacing: 0.16em;
         }
-
-        /* 中央星球区域 */
         .planet-area {
             position: relative;
             display: flex; flex-direction: column;
             align-items: center;
-            margin: 12px 0 24px;
-            animation: fadeSlideIn 0.8s ease 0.2s both;
+            margin: 0 0 34px; opacity: 0;
         }
         .planet {
-            width: 130px; height: 130px;
+            width: 90px; height: 90px;
             border-radius: 50%;
-            background: radial-gradient(circle at 35% 35%, #a8d8ff 0%, #6b8fbf 30%, #2d4a6e 70%, #1a2a40 100%);
+            background: radial-gradient(circle at 35% 35%, #f6e7c2 0%, #b48c46 22%, #3c2f28 58%, #0a0913 100%);
             box-shadow:
-                0 0 60px rgba(168,216,255,0.35),
-                0 0 120px rgba(168,216,255,0.15),
-                inset -10px -10px 30px rgba(0,0,0,0.4);
-            display: flex; align-items: center; justify-content: center;
-            animation: planetBreath 4s ease-in-out infinite;
+                0 0 42px rgba(216,179,106,0.16),
+                inset -14px -12px 26px rgba(0,0,0,0.62);
+            position: relative;
         }
-        .planet .planet-emoji {
-            font-size: 52px;
-            filter: drop-shadow(0 0 8px rgba(255,255,255,0.5));
+        .planet::after {
+            content: ''; position: absolute; inset: -17px; border: 1px solid rgba(216,179,106,0.26);
+            border-radius: 50%; transform: rotate(-22deg) scaleY(0.34);
         }
-        @keyframes planetBreath {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 60px rgba(168,216,255,0.35), 0 0 120px rgba(168,216,255,0.15); }
-            50%      { transform: scale(1.04); box-shadow: 0 0 80px rgba(168,216,255,0.5), 0 0 150px rgba(168,216,255,0.25); }
+        .planet::before {
+            content: '01 · 29'; position: absolute; z-index: 1; left: 50%; top: 50%;
+            transform: translate(-50%, -50%); color: rgba(248,244,234,0.78);
+            font: 10px var(--font-display); letter-spacing: 0.14em; white-space: nowrap;
         }
-
-        /* 相遇天数 */
         .love-days {
-            margin-top: 14px; text-align: center;
+            margin-top: 28px; text-align: center;
         }
         .love-days .days-num {
-            font-size: clamp(40px, 7vw, 56px);
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--accent), var(--gold));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            line-height: 1.1;
+            font-family: var(--font-display); font-size: clamp(38px, 7vw, 58px);
+            font-weight: 500; color: var(--text-primary); line-height: 1;
         }
         .love-days .days-label {
-            font-size: 14px; color: var(--text-secondary);
-            letter-spacing: 2px; margin-top: 2px;
+            font-size: 12px; color: var(--gold); letter-spacing: 0.24em; margin: 9px 0 0 0;
         }
         .love-days .days-poem {
-            font-size: 13px; color: var(--text-secondary);
-            margin-top: 8px; line-height: 1.8;
-            opacity: 0.8;
+            font-size: 13px; color: var(--text-secondary); margin-top: 15px; line-height: 1.9;
         }
-
-        /* 三个星球入口卡片 */
         .space-menu {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 12px;
-            width: 100%; max-width: 600px;
-            margin: 8px 0 10px;
-            animation: fadeSlideIn 0.8s ease 0.4s both;
+            display: flex; gap: 24px; width: auto; margin: 0; opacity: 0;
         }
         .space-menu-card {
-            background: var(--bg-card);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 20px;
-            padding: 18px 10px;
+            background: transparent; border: 0; padding: 0; min-width: 118px;
             text-align: center;
             cursor: pointer;
-            transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+            transition: color 0.3s ease;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
         .space-menu-card:hover {
-            transform: translateY(-3px);
-            border-color: rgba(168,216,255,0.3);
-            box-shadow: 0 8px 30px rgba(168,216,255,0.1);
+            color: var(--gold);
         }
         .space-menu-card:active {
             transform: scale(0.96);
         }
         .space-menu-card .card-icon {
-            font-size: 32px; margin-bottom: 8px; display: block;
+            width: 8px; height: 8px; margin: 0 auto 12px; display: block;
+            border-radius: 50%; background: var(--gold); box-shadow: 0 0 12px rgba(216,179,106,0.45);
         }
         .space-menu-card .card-label {
-            font-size: 14px; font-weight: 600;
-            color: var(--text-primary); letter-spacing: 1px;
-            margin-bottom: 4px;
+            font-family: var(--font-display); font-size: 14px; font-weight: 500;
+            color: var(--text-primary); letter-spacing: 0.06em; margin-bottom: 6px;
         }
         .space-menu-card .card-desc {
-            font-size: 11px; color: var(--text-secondary);
+            font-size: 11px; color: var(--text-secondary); letter-spacing: 0.02em;
             line-height: 1.4;
+        }
+        .hero-enter {
+            display: inline-flex; align-items: center; justify-content: center; min-width: 136px;
+            margin-top: 29px; padding: 11px 20px; color: var(--text-primary); text-decoration: none;
+            border: 1px solid rgba(216,179,106,0.35); border-radius: 999px;
+            background: rgba(248,244,234,0.025); font-size: 13px; letter-spacing: 0.12em;
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+        .hero-enter:hover { background: rgba(216,179,106,0.1); border-color: rgba(216,179,106,0.6); }
+        #app-main.active .universe-title { animation: heroReveal 0.9s ease 0.15s forwards; }
+        #app-main.active .planet-area { animation: heroReveal 0.9s ease 0.55s forwards; }
+        #app-main.active .space-menu { animation: heroReveal 0.9s ease 1s forwards; }
+        @keyframes heroReveal {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* 移动端：卡片更紧凑 */
         @media (max-width: 480px) {
             .space-menu {
-                grid-template-columns: 1fr 1fr 1fr;
-                gap: 8px;
+                gap: 14px;
             }
             .space-menu-card {
-                padding: 14px 6px; border-radius: 16px;
+                min-width: 90px;
             }
-            .space-menu-card .card-icon { font-size: 26px; }
             .space-menu-card .card-label { font-size: 12px; }
             .space-menu-card .card-desc { font-size: 10px; }
-            .planet { width: 110px; height: 110px; }
-            .planet .planet-emoji { font-size: 42px; }
+            .universe-home { padding-top: 28px; }
         }
 
         /* 首页分隔线 */
         .universe-divider {
             width: 60px; height: 1px;
-            background: linear-gradient(to right, transparent, rgba(168,216,255,0.3), transparent);
-            margin: 6px auto 16px;
+            background: linear-gradient(to right, transparent, rgba(216,179,106,0.5), transparent);
+            margin: 0 auto 28px;
+        }
+
+        /* 解锁后的星图静观页 */
+        #constellation-observatory {
+            position: fixed; inset: 0; z-index: 9000; display: none;
+            overflow: auto; color: var(--text-primary); background: #050510;
+        }
+        #constellation-observatory.active { display: block; }
+        .observatory-nebula {
+            position: absolute; inset: 0; pointer-events: none; opacity: 0.72;
+            background:
+                radial-gradient(ellipse 28% 75% at 40% 48%, rgba(190,168,124,0.13), transparent 72%),
+                radial-gradient(ellipse 14% 45% at 46% 52%, rgba(248,244,234,0.08), transparent 74%),
+                radial-gradient(ellipse 22% 52% at 51% 45%, rgba(84,79,112,0.16), transparent 74%),
+                linear-gradient(112deg, transparent 35%, rgba(216,179,106,0.04) 47%, transparent 58%);
+            filter: blur(0.5px);
+        }
+        .observatory-inner {
+            position: relative; width: min(980px, 100%); min-height: 100vh; margin: 0 auto;
+            padding: 54px 28px 42px; display: flex; flex-direction: column; align-items: center;
+        }
+        .observatory-heading { text-align: center; }
+        .observatory-kicker { color: var(--gold); font: 11px var(--font-display); letter-spacing: 0.3em; }
+        .observatory-heading h2 { margin-top: 12px; font: 500 clamp(29px, 5vw, 48px) var(--font-display); letter-spacing: 0.16em; }
+        .observatory-heading p { margin-top: 12px; font-size: 13px; color: var(--text-secondary); letter-spacing: 0.06em; }
+        .leo-chart { width: min(660px, 100%); margin: 26px auto 20px; overflow: visible; cursor: grab; touch-action: none; }
+        .leo-chart.is-dragging { cursor: grabbing; }
+        .leo-chart .line { fill: none; stroke: rgba(216,179,106,0.45); stroke-width: 1.1; }
+        .leo-chart .star { fill: #f8f4ea; stroke: #d8b36a; stroke-width: 2; }
+        .leo-chart .memory-star { fill: #f8f4ea; stroke: #d8b36a; stroke-width: 3; filter: url(#memory-glow); }
+        .leo-chart text { fill: #a8a6b3; font: 12px var(--font-main); letter-spacing: 0.06em; }
+        .leo-chart .date { fill: #d8b36a; font: 12px var(--font-display); letter-spacing: 0.08em; }
+        .observatory-memory-notes {
+            width: min(640px, 100%); display: grid; grid-template-columns: 1fr;
+            gap: 14px; margin: 0 auto 26px; padding-top: 18px; border-top: 1px solid rgba(216,179,106,0.2);
+        }
+        .observatory-memory-notes article {
+            display: grid; grid-template-columns: 104px 1fr; gap: 18px; align-items: baseline; min-width: 0;
+        }
+        .observatory-memory-notes time { color: var(--gold); font: 12px var(--font-display); letter-spacing: 0.08em; }
+        .observatory-memory-notes p { color: var(--text-secondary); font-size: 13px; line-height: 1.8; }
+        .memory-fragment {
+            position: relative; width: 118px; padding: 6px 6px 10px; background: #e8e0d1;
+            color: #3b322c; box-shadow: 0 14px 32px rgba(0,0,0,0.34); transform: rotate(-3deg);
+        }
+        .memory-fragment img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; filter: saturate(0.72) contrast(0.9); }
+        .memory-fragment figcaption { margin-top: 7px; font: 10px var(--font-display); letter-spacing: 0.06em; }
+        .memory-fragment.chongqing { transform: rotate(3deg); }
+        .observatory-memories { display: flex; gap: 30px; justify-content: center; }
+        .observatory-enter {
+            margin-top: 18px; padding: 11px 21px; border: 1px solid rgba(216,179,106,0.4);
+            border-radius: 999px; background: transparent; color: var(--text-primary);
+            font: 13px var(--font-main); letter-spacing: 0.12em; cursor: pointer;
+        }
+        .observatory-enter:hover { background: rgba(216,179,106,0.1); }
+        @media (max-width: 700px) {
+            .observatory-inner { padding: 44px 18px 32px; }
+            .memory-fragment { position: relative; width: min(160px, 43vw); margin: 8px; }
+            .memory-fragment.desert, .memory-fragment.chongqing { left: auto; right: auto; top: auto; bottom: auto; }
+            .observatory-memories { display: flex; justify-content: center; }
+            .observatory-memory-notes article { grid-template-columns: 1fr; gap: 3px; }
+        }
+
+        #unlock-prompt {
+            position: fixed; inset: 0; z-index: 20; display: none; align-items: center; justify-content: center;
+            pointer-events: none; color: var(--text-primary);
+        }
+        #unlock-prompt.active { display: flex; }
+        #unlock-prompt p {
+            padding: 10px 16px; border: 1px solid rgba(216,179,106,0.25); border-radius: 999px;
+            background: rgba(5,5,16,0.3); font-size: 12px; letter-spacing: 0.16em; color: var(--text-secondary);
         }
     </style>
 <script src="config.js"></script>
 <script src="lion_background.js" defer></script>
 <script src="image_carousel.js" defer></script>
+<script src="memory_timeline.js" defer></script>
+<script src="love_letter.js" defer></script>
+<script src="star_tree.js" defer></script>
+<script src="ai_service.js" defer></script>
 </head>
 <body>
 
@@ -649,20 +759,76 @@
          星空背景层（JS 会动态往里面插入星星）
          ===================================================== -->
     <div id="starfield"></div>
+    <div id="unlock-prompt" aria-live="polite"><p>轻触星空，进入我们的宇宙</p></div>
 
     <!-- =====================================================
          密码锁（全屏）
          ===================================================== -->
     <div id="lock-screen" class="hidden">
         <div class="lock-card">
-            <div class="lock-icon">🌙</div>
+            <div class="lock-icon">✦</div>
             <h2>我们的宇宙</h2>
             <p class="lock-hint">输入属于我们的密码</p>
             <input type="password" id="lock-input" placeholder="····" maxlength="20" autocomplete="off">
-            <button class="lock-btn" id="lock-btn">✨ 进入宇宙 ✨</button>
+            <button class="lock-btn" id="lock-btn">进入宇宙</button>
             <p class="error-msg" id="lock-error"></p>
         </div>
     </div>
+
+    <section id="constellation-observatory" hidden aria-labelledby="observatory-title">
+        <div class="observatory-nebula" aria-hidden="true"></div>
+        <div class="observatory-inner">
+            <header class="observatory-heading">
+                <p class="observatory-kicker">A PRIVATE CONSTELLATION</p>
+                <h2 id="observatory-title">狮子座</h2>
+                <p>有些相遇，会成为夜空里不会熄灭的坐标。</p>
+            </header>
+
+            <svg class="leo-chart" id="leo-chart" viewBox="0 0 680 540" role="img" aria-label="由三段共同回忆标记的狮子座星图">
+                <defs>
+                    <filter id="memory-glow" x="-100%" y="-100%" width="300%" height="300%">
+                        <feGaussianBlur stdDeviation="3" result="blur"></feGaussianBlur>
+                        <feMerge><feMergeNode in="blur"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge>
+                    </filter>
+                </defs>
+                <g id="leo-chart-group">
+                    <path class="line" d="M160 130 L228 178 L276 245 L328 292 L414 252 L520 315 L452 406 L328 292"></path>
+                    <path class="line" d="M276 245 L196 327 L230 430"></path>
+                    <circle class="star" cx="160" cy="130" r="4"></circle>
+                    <circle class="star" cx="228" cy="178" r="4"></circle>
+                    <circle class="memory-star" cx="276" cy="245" r="7"></circle>
+                    <circle class="star" cx="328" cy="292" r="4"></circle>
+                    <circle class="memory-star" cx="414" cy="252" r="7"></circle>
+                    <circle class="star" cx="520" cy="315" r="4"></circle>
+                    <circle class="memory-star" cx="452" cy="406" r="7"></circle>
+                    <circle class="star" cx="196" cy="327" r="4"></circle>
+                    <circle class="star" cx="230" cy="430" r="4"></circle>
+                    <text class="date" x="287" y="225">2025.01.29</text>
+                    <text class="date" x="425" y="232">2025.07.06</text>
+                    <text class="date" x="463" y="426">2026.02.10</text>
+                </g>
+            </svg>
+
+            <section class="observatory-memory-notes" aria-label="三段记忆铭文">
+                <article><time>2025.01.29</time><p>那天，我们第一次走进彼此的心里。</p></article>
+                <article><time>2025.07.06</time><p>我们在沙漠里奔跑，把风留在身后。</p></article>
+                <article><time>2026.02.10</time><p>重庆的灯亮起时，我们又回到了彼此身边。</p></article>
+            </section>
+
+            <div class="observatory-memories" aria-label="两段记忆照片">
+                <figure class="memory-fragment desert">
+                    <img src="assets/Photograph/IMG_20260228/IMG_20250706_094730.jpg" alt="2025 年 7 月的回忆">
+                    <figcaption>2025 · 07 · 06</figcaption>
+                </figure>
+                <figure class="memory-fragment chongqing">
+                    <img src="assets/Photograph/IMG_20260228/IMG_20260210_195559.jpg" alt="2026 年 2 月的回忆">
+                    <figcaption>2026 · 02 · 10</figcaption>
+                </figure>
+            </div>
+
+            <button class="observatory-enter" id="observatory-enter" type="button">进入我们的宇宙</button>
+        </div>
+    </section>
 
     <!-- =====================================================
          主应用容器
@@ -684,20 +850,18 @@
         <!-- ========== 模块一：宇宙首页 ========== -->
         <div class="module-page active" id="module-time-machine">
 
-            <!-- ═══════════ V2 宇宙 Hero ═══════════ -->
+            <!-- ═══════════ V3 宇宙 Hero ═══════════ -->
             <section class="universe-home">
                 <!-- 顶部标题 -->
                 <div class="universe-title">
-                    <span class="title-moon">🌙</span>
                     <h1>我们的宇宙</h1>
+                    <p class="hero-kicker">OUR LITTLE UNIVERSE</p>
                     <p class="subtitle">两个人的小世界</p>
                 </div>
 
                 <!-- 中央星球 + 相遇天数 -->
                 <div class="planet-area">
-                    <div class="planet">
-                        <span class="planet-emoji">✨</span>
-                    </div>
+                    <div class="planet" aria-hidden="true"></div>
                     <div class="love-days">
                         <div class="days-num" id="love-days">0</div>
                         <div class="days-label">天</div>
@@ -705,25 +869,26 @@
                             从遇见你的那天开始<br>
                             我的宇宙有了光
                         </p>
+                        <a class="hero-enter" href="#photo-grid">点亮星河</a>
                     </div>
                 </div>
 
                 <!-- 三个星球入口卡片 -->
                 <div class="space-menu">
                     <div class="space-menu-card" data-nav="time-machine-content">
-                        <span class="card-icon">📖</span>
+                        <span class="card-icon" aria-hidden="true"></span>
                         <div class="card-label">时间星河</div>
-                        <div class="card-desc">记录我们的故事</div>
+                        <div class="card-desc">记录我们走过的路</div>
                     </div>
                     <div class="space-menu-card" data-nav="secret-base">
-                        <span class="card-icon">🌱</span>
+                        <span class="card-icon" aria-hidden="true"></span>
                         <div class="card-label">成长星球</div>
-                        <div class="card-desc">保存我们的留言</div>
+                        <div class="card-desc">保存我们的故事</div>
                     </div>
                     <div class="space-menu-card" data-nav="image-carousel">
-                        <span class="card-icon">💌</span>
-                        <div class="card-label">写给你的信</div>
-                        <div class="card-desc">隐藏惊喜</div>
+                        <span class="card-icon" aria-hidden="true"></span>
+                        <div class="card-label">回忆放映机</div>
+                        <div class="card-desc">收藏每一个瞬间</div>
                     </div>
                 </div>
             </section>
@@ -743,6 +908,7 @@
             </div>
             <p class="photo-caption" id="photo-caption"></p>
             <div class="photo-dots" id="photo-dots"></div>
+            <section id="memory-timeline" aria-label="按时间排列的回忆"></section>
 
             <!-- 背景音乐（解锁后自动随机播放） -->
             <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;">
@@ -787,12 +953,19 @@
                 <p class="loading-text">加载留言中…</p>
             </div>
 
-            <!-- CSS 树 -->
-            <div class="tree-container" id="tree-container">
-                <div class="tree-crown" id="tree-crown"></div>
-                <div class="tree-trunk"></div>
-            </div>
-            <p style="text-align:center;font-size:12px;color:var(--text-secondary);" id="leaf-count">🌿 0 片叶子</p>
+            <!-- 留言星星树 -->
+            <div id="star-tree" aria-label="由留言生成的星星树"></div>
+            <p style="text-align:center;font-size:12px;color:var(--text-secondary);" id="star-count">✨ 0 颗留言星星</p>
+
+            <section class="msg-form-card" aria-labelledby="ai-title">
+                <h3 id="ai-title" style="font-size:16px;margin-bottom:8px;">🤖 星语小助手</h3>
+                <p style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;">写下一句心事，让星河替小花先生回应。</p>
+                <textarea id="ai-prompt" placeholder="想对星河说什么？" maxlength="240"></textarea>
+                <div class="msg-form-row">
+                    <button class="send-btn" id="ai-send-btn" type="button">发送心事</button>
+                </div>
+                <p class="loading-text" id="ai-response" aria-live="polite"></p>
+            </section>
 
             <!-- 天气 -->
             <div class="weather-row" id="weather-row">
@@ -806,6 +979,14 @@
         <div class="module-page" id="module-image-carousel">
             <h2 class="section-title">🖼 回忆放映机</h2>
             <!-- 轮播容器由 JS 动态创建 -->
+        </div>
+
+        <div id="love-letter-modal" hidden role="dialog" aria-modal="true" aria-labelledby="love-letter-title">
+            <article class="love-letter">
+                <h2 id="love-letter-title">写给你的信</h2>
+                <p>在浩瀚宇宙里，遇见小花先生是我最温柔的奇迹。愿以后的每一颗星光，都能见证我们一起走过的日子。</p>
+                <button type="button" data-close-letter>把信收好</button>
+            </article>
         </div>
 
         <!-- ========== 底部导航栏 ========== -->
@@ -868,11 +1049,12 @@
             text: "每一刻都值得记住 ✨"
         },
         {
-            url: "assets/Photograph/IMG_20260228/待替换_图片6.jpg",
-            date: "2026-待填",
-            text: "🌸 待自定义..."
+            url: "assets/Photograph/IMG_20260228/IMG_20260228_150244.jpg",
+            date: "2026-02-28",
+            text: "春天也在我们的宇宙里"
         }
     ];
+    window.UNIVERSE_PHOTOS = photos;
 
     // --- Firebase 配置（从 config.js 读取，若无则使用空配置）---
     const FIREBASE_CONFIG = (window.__CONFIG__ && window.__CONFIG__.FIREBASE_CONFIG) || {};
@@ -977,6 +1159,54 @@
     const lockBtn     = $('#lock-btn');
     const lockError   = $('#lock-error');
     const appMain     = $('#app-main');
+    const observatory = $('#constellation-observatory');
+    const observatoryEnter = $('#observatory-enter');
+
+    function showConstellationObservatory() {
+        observatory.hidden = false;
+        observatory.classList.add('active');
+    }
+
+    function closeConstellationObservatory() {
+        observatory.classList.remove('active');
+        observatory.hidden = true;
+    }
+
+    function initConstellationDrag() {
+        const chart = $('#leo-chart');
+        const group = $('#leo-chart-group');
+        if (!chart || !group) return;
+
+        let startX = 0;
+        let startAngle = 0;
+        let angle = 0;
+        let dragging = false;
+
+        function render() {
+            group.setAttribute('transform', `rotate(${angle} 340 270)`);
+        }
+
+        chart.addEventListener('pointerdown', (event) => {
+            dragging = true;
+            startX = event.clientX;
+            startAngle = angle;
+            chart.classList.add('is-dragging');
+            chart.setPointerCapture(event.pointerId);
+        });
+        chart.addEventListener('pointermove', (event) => {
+            if (!dragging) return;
+            angle = Math.max(-18, Math.min(18, startAngle + (event.clientX - startX) * 0.12));
+            render();
+        });
+        function stopDragging(event) {
+            if (!dragging) return;
+            dragging = false;
+            chart.classList.remove('is-dragging');
+            if (chart.hasPointerCapture(event.pointerId)) chart.releasePointerCapture(event.pointerId);
+        }
+        chart.addEventListener('pointerup', stopDragging);
+        chart.addEventListener('pointercancel', stopDragging);
+    }
 
     function checkPassword() {
         const input = lockInput.value.trim();
@@ -984,6 +1214,7 @@
             lockError.textContent = '';
             lockScreen.classList.add('hidden');
             appMain.classList.add('active');
+            showConstellationObservatory();
             // 密码正确后，检测生日
             checkBirthday();
             // 初始化模块
@@ -1007,6 +1238,8 @@
     }
 
     lockBtn.addEventListener('click', checkPassword);
+    observatoryEnter.addEventListener('click', closeConstellationObservatory);
+    initConstellationDrag();
     lockInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') checkPassword();
     });
@@ -1041,7 +1274,14 @@
     document.querySelectorAll('.space-menu-card').forEach(card => {
         card.addEventListener('click', () => {
             const target = card.dataset.nav;
-            if (target) switchModule(target);
+            if (target === 'love-letter' && window.openLoveLetter) {
+                window.openLoveLetter();
+            } else if (target === 'time-machine-content') {
+                switchModule('time-machine');
+                document.getElementById('memory-timeline').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else if (target) {
+                switchModule(target);
+            }
         });
     });
 
@@ -1170,6 +1410,7 @@
         buildCarousel();
         startCarousel();
         initOnlineStatus();
+        if (typeof initMemoryTimeline === 'function') initMemoryTimeline();
     }
 
     /* -- 照片回忆墙（随机洗牌 → 3张一组 → 手动翻页）-- */
@@ -1485,7 +1726,6 @@
        ================================================================= */
     function initSecretBase() {
         initMessageBoard();
-        initCSSTree();
         loadWeather();
     }
 
@@ -1582,8 +1822,10 @@
                         msgList.appendChild(card);
                     });
 
-                    // 更新 CSS 树叶子数
-                    updateTreeLeaves(snapshot.size);
+                    // 留言只读映射为展示星星，不回写 Firestore
+                    if (typeof renderMessageStars === 'function') {
+                        renderMessageStars(snapshot.docs.map((doc) => doc.data()));
+                    }
                 });
 
         } catch (err) {
@@ -1726,22 +1968,29 @@
             initLionBackground();
         }
 
-        // 监听动画完成 → 显示密码锁
+        // 动画完整播放后，等待用户第一次点击再显示密码锁
         let spaceReadyFired = false;
+        function waitForUnlockGesture() {
+            const unlockPrompt = $('#unlock-prompt');
+            unlockPrompt.classList.add('active');
+
+            window.addEventListener('pointerdown', () => {
+                unlockPrompt.classList.remove('active');
+                lockScreen.classList.remove('hidden');
+                lockInput.focus();
+            }, { once: true });
+        }
         window.addEventListener('spaceReady', () => {
             if (spaceReadyFired) return;
             spaceReadyFired = true;
-            // 显示密码锁（带动画过渡）
-            lockScreen.classList.remove('hidden');
-            lockInput.focus();
+            waitForUnlockGesture();
         });
 
-        // 兜底：15 秒后强制显示（防止 Three.js CDN 超时）
+        // 兜底：Three.js 不可用时也等待点击，不直接跳过开场流程
         setTimeout(() => {
             if (!spaceReadyFired) {
                 spaceReadyFired = true;
-                lockScreen.classList.remove('hidden');
-                lockInput.focus();
+                waitForUnlockGesture();
             }
         }, 15000);
     }
