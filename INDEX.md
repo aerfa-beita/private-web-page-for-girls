@@ -3,6 +3,7 @@
 ```
 D:\MY_Project\web-page\
 ├── index.html          # 【核心】主应用（内联 CSS + JS）
+├── firebase-config.js  # Firebase 网页公开连接配置（可随 Vercel 发布）
 ├── lion_background.js  # 宇宙开场动画 + 透明狮子座融合
 ├── image_carousel.js   # 【V2】回忆放映机（图片轮播）
 ├── memory_timeline.js  # 【V2】时间星河（按日期渲染回忆）
@@ -30,7 +31,8 @@ D:\MY_Project\web-page\
 │   ├── 2026-07-19-电影式狮子显影.md        # 开场流星与无跳变显影时序
 │   ├── 2026-07-19-开场与首页收尾.md        # 自动过渡、月亮信件与移动端收尾
 │   ├── 2026-07-19-仓库清理.md               # 删除临时文件与未使用设计源图
-│   └── 2026-07-19-Firestore匿名留言接入.md  # 匿名登录、错误反馈与安全规则
+│   ├── 2026-07-19-Firestore匿名留言接入.md  # 匿名登录、错误反馈与安全规则
+│   └── 2026-07-19-Firebase公开配置部署.md   # Vercel 的 Firebase 公开配置
 ├── tests/
 │   └── site-features.test.js                # 静态功能与安全边界检查
 └── assets/             # 静态资源

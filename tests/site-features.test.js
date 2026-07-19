@@ -22,7 +22,7 @@ test('replaces the sixth photo placeholder with a real asset', () => {
 
 test('uses a versioned cache for all application scripts', () => {
     const serviceWorker = read('sw.js');
-    assert.match(serviceWorker, /CACHE_NAME = 'our-universe-v20-smooth-arrival'/);
+    assert.match(serviceWorker, /CACHE_NAME = 'our-universe-v21-firebase-config'/);
     assert.match(serviceWorker, /lion_background\.js\?v=20/);
     assert.match(serviceWorker, /image_carousel\.js/);
     assert.match(serviceWorker, /memory_timeline\.js/);
@@ -92,7 +92,7 @@ test('uses transparent lion linework with memory-star reveals', () => {
 
 test('refreshes cached visuals and uses a cinematic crescent with traced meteors', () => {
     const serviceWorker = read('sw.js');
-    assert.match(serviceWorker, /our-universe-v20-smooth-arrival/);
+    assert.match(serviceWorker, /our-universe-v21-firebase-config/);
     assert.match(serviceWorker, /isCorePageAsset/);
     assert.match(serviceWorker, /self\.skipWaiting\(\)/);
 
@@ -161,6 +161,10 @@ test('waits for a user gesture before opening the password lock', () => {
 
 test('authenticates anonymous visitors before subscribing to Firestore messages', () => {
     const html = read('index.html');
+    const firebaseConfig = read('firebase-config.js');
+    assert.match(html, /firebase-config\.js/);
+    assert.match(firebaseConfig, /FIREBASE_CONFIG/);
+    assert.match(firebaseConfig, /projectId/);
     assert.match(html, /firebase-auth-compat\.js/);
     assert.match(html, /await auth\.signInAnonymously\(\)/);
     assert.match(html, /authorId: auth\.currentUser\.uid/);

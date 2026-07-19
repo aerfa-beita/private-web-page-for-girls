@@ -103,6 +103,8 @@
 | `MUSIC_PLAYLIST` | 音乐列表 | 7 首 |
 | `AI_ENDPOINT` | AI 同源代理路径（在 `config.js` 中配置） | 未配置 |
 
+`firebase-config.js` 已随项目发布，只保存 Firebase 网页连接配置；`config.js` 继续保持本地私有，用于天气 Key、AI 地址和私人情书扩展。
+
 ### 2. 准备资源
 - `assets/Music/` — 背景音乐文件
 - `assets/Photograph/` — 照片文件

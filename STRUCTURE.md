@@ -22,6 +22,8 @@ main（主工作区）
 ```
 index.html
 │
+├── firebase-config.js  # Firebase 网页公开配置，供线上匿名登录与留言使用
+│
 ├── <head> — 元数据 + PWA 注册 + 外部脚本引用
 │   ├── meta viewport（移动端适配）
 │   ├── link manifest.json
@@ -66,7 +68,7 @@ index.html
     └── <script> — 全部 JS
         ├── 【配置区】— 所有需替换的变量
         ├── 相遇天数系统（updateLoveDays）
-        ├── Firebase SDK CDN 加载
+        ├── Firebase 网页配置 + SDK CDN 加载
         ├── 星空背景生成器（CSS 星星，作为 Three.js 回落）
         ├── 密码锁逻辑（spaceReady 后等待首次点击显示）
         ├── 模块切换（switchModule，供导航栏和首页卡片共用）

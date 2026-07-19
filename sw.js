@@ -5,11 +5,12 @@
    ============================================================ */
 
 // 缓存名称（修改版本号可强制刷新缓存）
-const CACHE_NAME = 'our-universe-v20-smooth-arrival';
+const CACHE_NAME = 'our-universe-v21-firebase-config';
 
 // 需要缓存的静态文件列表
 const CACHE_FILES = [
     'index.html',
+    'firebase-config.js',
     'manifest.json',
     'lion_background.js?v=20',
     'assets/Leo/leo-linework-transparent.png?v=15',

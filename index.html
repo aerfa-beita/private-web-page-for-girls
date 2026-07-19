@@ -708,6 +708,7 @@
             background: rgba(5,5,16,0.3); font-size: 12px; letter-spacing: 0.16em; color: var(--text-secondary);
         }
     </style>
+<script src="firebase-config.js"></script>
 <script src="config.js"></script>
 <script src="lion_background.js?v=20" defer></script>
 <script src="image_carousel.js" defer></script>
@@ -1014,7 +1015,7 @@
     ];
     window.UNIVERSE_PHOTOS = photos;
 
-    // --- Firebase 配置（从 config.js 读取，若无则使用空配置）---
+    // --- Firebase 配置（从 firebase-config.js 读取；本地 config.js 可保留私人扩展）---
     const FIREBASE_CONFIG = (window.__CONFIG__ && window.__CONFIG__.FIREBASE_CONFIG) || {};
 
     // --- OpenWeatherMap（从 config.js 读取，若无则为空字符串）---
