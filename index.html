@@ -1818,19 +1818,30 @@
     }
 
     /* -- 留言板 -- */
-    function initMessageBoard() {
+    let messageBoardStarted = false;
+
+    function showMessageBoardState(message) {
+        const msgList = $('#msg-list');
+        if (msgList) msgList.innerHTML = `<p class="loading-text">${message}</p>`;
+    }
+
+    async function initMessageBoard() {
+        if (messageBoardStarted) return;
         if (typeof firebase === 'undefined') {
-            $('#msg-list').innerHTML = '<p class="loading-text">Firebase 未连接，留言功能不可用</p>';
+            showMessageBoardState('Firebase 未连接，留言功能不可用');
             return;
         }
 
         try {
             if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
-            // Firestore 需额外引入，若未加载则提示
-            if (typeof firebase.firestore === 'undefined') {
-                $('#msg-list').innerHTML = '<p class="loading-text">Firestore SDK 未加载，请检查 CDN</p>';
+            // 留言采用匿名登录：无需账号，但 Firestore 能识别为已认证访问。
+            if (typeof firebase.auth === 'undefined' || typeof firebase.firestore === 'undefined') {
+                showMessageBoardState('留言服务未完整加载，请刷新后重试');
                 return;
             }
+
+            const auth = firebase.auth();
+            if (!auth.currentUser) await auth.signInAnonymously();
 
             const db     = firebase.firestore();
             // TODO: Storage 待开通 Blaze 计划后启用
@@ -1838,6 +1849,7 @@
             const msgList = $('#msg-list');
             const msgInput = $('#msg-input');
             const sendBtn = $('#msg-send-btn');
+            messageBoardStarted = true;
 
             // TODO: 图片上传预览逻辑，待 Storage 开通后恢复
             // let selectedFile = null;
@@ -1859,7 +1871,8 @@
                     await db.collection('messages').add({
                         text: text,
                         // imageUrl 字段预留，待 Storage 开通后启用
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        authorId: auth.currentUser.uid
                     });
 
                     // 清空输入
@@ -1880,6 +1893,9 @@
                 .orderBy('createdAt', 'desc')
                 .onSnapshot((snapshot) => {
                     msgList.innerHTML = '';
+                    if (snapshot.empty) {
+                        showMessageBoardState('还没有留言，写下第一句吧。');
+                    }
                     snapshot.forEach((doc) => {
                         const data = doc.data();
                         const card = document.createElement('div');
@@ -1914,10 +1930,16 @@
                     if (typeof renderMessageStars === 'function') {
                         renderMessageStars(snapshot.docs.map((doc) => doc.data()));
                     }
+                }, (err) => {
+                    console.error('读取留言失败:', err);
+                    messageBoardStarted = false;
+                    showMessageBoardState('留言暂时无法读取，请刷新后重试');
                 });
 
         } catch (err) {
             console.error('Firebase 初始化失败:', err);
+            messageBoardStarted = false;
+            showMessageBoardState('留言服务连接失败，请刷新后重试');
         }
     }
 
@@ -2008,6 +2030,7 @@
             // 动态插入 Firebase CDN script 标签
             const scripts = [
                 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js',
+                'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js',
                 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js',
                 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js',
                 'https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js'
@@ -2017,6 +2040,7 @@
             scripts.forEach(src => {
                 const script = document.createElement('script');
                 script.src = src;
+                script.async = false;
                 script.onload = () => {
                     loaded++;
                     if (loaded === scripts.length) resolve();

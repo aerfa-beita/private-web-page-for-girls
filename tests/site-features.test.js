@@ -158,3 +158,12 @@ test('waits for a user gesture before opening the password lock', () => {
     assert.match(html, /waitForUnlockGesture/);
     assert.match(html, /grid-template-columns:\s*1fr/);
 });
+
+test('authenticates anonymous visitors before subscribing to Firestore messages', () => {
+    const html = read('index.html');
+    assert.match(html, /firebase-auth-compat\.js/);
+    assert.match(html, /await auth\.signInAnonymously\(\)/);
+    assert.match(html, /authorId: auth\.currentUser\.uid/);
+    assert.match(html, /读取留言失败/);
+    assert.match(html, /还没有留言，写下第一句吧/);
+});

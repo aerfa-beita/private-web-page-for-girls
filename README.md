@@ -31,6 +31,7 @@
 
 ### 🌱 成长星球（原秘密基地）
 - 留言板：文字留言（Firebase Firestore）
+- 留言访问：页面自动进行 Firebase 匿名登录，Firestore 仅接收已认证匿名用户的合规请求
 - ~~图片上传~~（🔒 待开通 Firebase Storage）
 - 留言列表实时更新（倒序）、CSS 树 + 叶子动画
 - OpenWeatherMap 双城市天气 + 随机提示语
@@ -77,6 +78,7 @@
 | Three.js r128 (CDN) | WebGL 宇宙开场动画 |
 | Firebase Realtime Database | 在线状态监听 |
 | Firebase Firestore | 留言数据存储 |
+| Firebase Authentication（匿名） | 留言访问身份与 Firestore 规则校验 |
 | ~~Firebase Storage~~ | 🔒 待开通（需绑卡升级 Blaze 计划） |
 | OpenWeatherMap API | 天气数据 |
 | Service Worker + Manifest | PWA 离线支持 |
