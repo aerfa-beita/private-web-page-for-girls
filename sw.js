@@ -5,13 +5,14 @@
    ============================================================ */
 
 // 缓存名称（修改版本号可强制刷新缓存）
-const CACHE_NAME = 'our-universe-v2';
+const CACHE_NAME = 'our-universe-v20-smooth-arrival';
 
 // 需要缓存的静态文件列表
 const CACHE_FILES = [
     'index.html',
     'manifest.json',
-    'lion_background.js',
+    'lion_background.js?v=20',
+    'assets/Leo/leo-linework-transparent.png?v=15',
     'image_carousel.js',
     'memory_timeline.js',
     'love_letter.js',
@@ -39,6 +40,7 @@ self.addEventListener('install', (event) => {
             })
             .then(() => self.skipWaiting())
     );
+    self.skipWaiting();
 });
 
 /* ---- activate：清理旧版本缓存 ---- */
@@ -69,6 +71,24 @@ self.addEventListener('fetch', (event) => {
         url.includes('storage.googleapis.com') ||
         url.includes('openweathermap.org')) {
         return; // 直接走网络
+    }
+
+    const requestUrl = new URL(url);
+    const isCorePageAsset = requestUrl.origin === self.location.origin &&
+        /\.(?:html|js|css)$/.test(requestUrl.pathname);
+
+    // HTML、脚本与样式始终先取最新网络版本，断网时才回退到缓存。
+    if (isCorePageAsset) {
+        event.respondWith(
+            fetch(event.request).then(response => {
+                if (response && response.status === 200 && response.type === 'basic') {
+                    const clone = response.clone();
+                    caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+                }
+                return response;
+            }).catch(() => caches.match(event.request))
+        );
+        return;
     }
 
     event.respondWith(

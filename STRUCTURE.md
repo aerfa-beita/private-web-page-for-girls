@@ -34,7 +34,7 @@ index.html
 │   │   ├── 模块二：成长星球（留言/星星树/天气/AI 入口）
 │   │   ├── 底部导航栏
 │   │   └── 动画（呼吸、心跳、淡入淡出、花瓣飘落）
-│   ├── <script src="lion_background.js" defer>  — V2 宇宙动画
+│   ├── <script src="lion_background.js?v=20" defer>  — 宇宙动画、开场流星、电影式显影与退场卸载
 │   ├── <script src="image_carousel.js" defer>   — 回忆放映机
 │   ├── <script src="memory_timeline.js" defer>  — 时间星河
 │   ├── <script src="love_letter.js" defer>      — 隐藏情书
@@ -45,7 +45,7 @@ index.html
     ├── 星空背景层（#starfield，Three.js 激活时隐藏）
     ├── 点击提示层（#unlock-prompt，spaceReady 后显示，首次点击打开密码锁）
     ├── 密码锁遮罩层（#lock-screen，初始隐藏，首次点击后显示）
-    ├── 狮子座静观页（#constellation-observatory，密码正确后显示，CSS 星云背景 + SVG 拖拽旋转）
+    ├── 狮子座静观页（#constellation-observatory，密码正确后短暂显示后自动上划，CSS 星云背景 + 透明金线星图拖拽旋转）
     ├── 主应用容器（#app-main）
     │   ├── 生日祝福弹窗（#birthday-modal） + Canvas 花瓣
     │   ├── 模块一：宇宙首页（#module-time-machine）
@@ -80,7 +80,7 @@ index.html
 
 | 文件 | 职责 | 加载方式 |
 |------|------|----------|
-| `lion_background.js` | V3 宇宙开场动画（固定狮子座时间轴，Three.js WebGL） | `<script defer>` |
+| `lion_background.js` | 宇宙开场动画（开场流星 + 连续镰刀星轨 + 电影式显影 + 月亮情书） | `<script src="lion_background.js?v=20" defer>` |
 | `image_carousel.js` | 89 张图片轮播（unseen-first） | `<script defer>` |
 | `memory_timeline.js` | 按日期排列照片回忆 | `<script defer>` |
 | `love_letter.js` | 监听月亮事件并控制隐藏情书 | `<script defer>` |
@@ -90,7 +90,7 @@ index.html
 ## 通信协议
 
 ```
-lion_background.js  introAnimation() 9s 完成
+lion_background.js  introAnimation() 9.4s 完成
          │
          │  window.dispatchEvent(new Event("spaceReady"))
          ▼
@@ -102,7 +102,7 @@ index.html  window.addEventListener("spaceReady", () => 显示点击提示)
 ```
 
 ```
-lion_background.js  月亮点击 5 次
+lion_background.js  月亮长按 1.2 秒
          │
          │  dispatchEvent("loveLetterRequested")
          ▼
@@ -131,9 +131,12 @@ bootstrap() → registerSW() → loadFirebaseSDK() → initLionBackground()
                                           正确       错误
                                             │         │
                                             ▼         ▼
-                                    狮子座静观页  抖动 + 提示
+                                    狮子座静观页  短暂停留 + 自动上划
                                             │
-                                      用户主动进入首页
+                                      自动进入首页（触摸/键盘可跳过）
+                                            │
+                                            ▼
+                         mainExperienceEntered → 卸载开场画布与狮子背景
                                             │
                             ┌───────────────┼───────────────┐
                             ▼               ▼               ▼

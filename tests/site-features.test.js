@@ -22,8 +22,8 @@ test('replaces the sixth photo placeholder with a real asset', () => {
 
 test('uses a versioned cache for all application scripts', () => {
     const serviceWorker = read('sw.js');
-    assert.match(serviceWorker, /CACHE_NAME = 'our-universe-v2'/);
-    assert.match(serviceWorker, /lion_background\.js/);
+    assert.match(serviceWorker, /CACHE_NAME = 'our-universe-v20-smooth-arrival'/);
+    assert.match(serviceWorker, /lion_background\.js\?v=20/);
     assert.match(serviceWorker, /image_carousel\.js/);
     assert.match(serviceWorker, /memory_timeline\.js/);
     assert.match(serviceWorker, /love_letter\.js/);
@@ -38,6 +38,7 @@ test('keeps AI requests behind a configured same-origin service endpoint', () =>
 
 test('uses the V3 editorial hero and restrained gold-space palette', () => {
     const html = read('index.html');
+    assert.match(html, /lion_background\.js\?v=20/);
     assert.match(html, /OUR LITTLE UNIVERSE/);
     assert.match(html, /点亮星河/);
     assert.match(html, /--gold:\s*#D8B36A/);
@@ -45,7 +46,7 @@ test('uses the V3 editorial hero and restrained gold-space palette', () => {
 
     const background = read('lion_background.js');
     assert.match(background, /INTRO_TIMELINE/);
-    assert.match(background, /leoLabel/);
+    assert.match(background, /revealSickle/);
 });
 
 test('adds a post-unlock constellation observatory with three memory stars', () => {
@@ -69,6 +70,86 @@ test('keeps the observatory chart readable with a nebula layer and drag rotation
     assert.match(html, /id="leo-chart-group"/);
     assert.match(html, /initConstellationDrag/);
     assert.match(html, /observatory-memory-notes/);
+});
+
+test('uses transparent lion linework with memory-star reveals', () => {
+    const html = read('index.html');
+    assert.match(html, /class="leo-artwork"/);
+    assert.match(html, /leo-linework-transparent\.png\?v=15/);
+    assert.match(html, /id="memory-reveal"/);
+    assert.match(html, /initMemoryStars/);
+    assert.match(html, /data-memory="first"/);
+    assert.match(html, /data-memory="desert"/);
+    assert.match(html, /data-memory="chongqing"/);
+
+    const background = read('lion_background.js');
+    assert.match(background, /Xuanyuan Twelve/);
+    assert.match(background, /createLionSpirit/);
+    assert.match(background, /lionSpiritStart/);
+    assert.match(background, /mountMoonLetterTrigger/);
+    assert.match(background, /moon-letter-trigger/);
+});
+
+test('refreshes cached visuals and uses a cinematic crescent with traced meteors', () => {
+    const serviceWorker = read('sw.js');
+    assert.match(serviceWorker, /our-universe-v20-smooth-arrival/);
+    assert.match(serviceWorker, /isCorePageAsset/);
+    assert.match(serviceWorker, /self\.skipWaiting\(\)/);
+
+    const html = read('index.html');
+    assert.match(html, /presence-dot/);
+    assert.doesNotMatch(html, /class="heart">❤️/);
+
+    const background = read('lion_background.js');
+    assert.match(background, /moonCore/);
+    assert.match(background, /meteorsActive\.push\(m\)/);
+    assert.match(background, /var dust = new THREE\.Points/);
+    assert.match(background, /leo-linework-transparent\.png\?v=15/);
+    assert.match(background, /leo-sickle-overlay/);
+    assert.match(background, /mainExperienceEntered/);
+    assert.match(background, /data-sickle-trace/);
+    assert.match(background, /playOpeningMeteor/);
+    assert.match(background, /smoothProgress/);
+    assert.match(background, /长按月亮，收一封情书/);
+    assert.doesNotMatch(background, /leo-constellation-walking-borderless/);
+});
+
+test('keeps a return path from the password gate', () => {
+    const html = read('index.html');
+    assert.match(html, /id="lock-back-btn"/);
+    assert.match(html, /lockBackBtn\.addEventListener/);
+    assert.match(html, /返回星空/);
+});
+
+test('keeps the completed lion visible while moving the entry prompt below it', () => {
+    const html = read('index.html');
+    assert.match(html, /bottom: 8vh/);
+
+    const background = read('lion_background.js');
+    assert.match(background, /top:4vh/);
+    assert.match(background, /Keep the transparent constellation visible/);
+    assert.match(background, /revealSickle/);
+});
+
+test('starts music on the first permitted gesture and refreshes moon messages', () => {
+    const html = read('index.html');
+    assert.match(html, /function startOpeningMusic/);
+    assert.match(html, /startOpeningMusic\(\);/);
+    assert.match(html, /function getMoonQuote/);
+    assert.match(html, /MOON_LETTERS/);
+    assert.match(html, /v1\.hitokoto\.cn/);
+    assert.match(html, /data-letter-content/);
+
+    const loveLetter = read('love_letter.js');
+    assert.match(loveLetter, /window\.getMoonQuote/);
+    assert.match(loveLetter, /data-letter-source/);
+});
+
+test('uses the observatory as an automatic, skippable transition', () => {
+    const html = read('index.html');
+    assert.match(html, /observatoryExitTimer = setTimeout\(closeConstellationObservatory, 1800\)/);
+    assert.match(html, /observatoryDriftAway/);
+    assert.match(html, /rotate\(\$\{angle\} 350 350\)/);
 });
 
 test('waits for a user gesture before opening the password lock', () => {

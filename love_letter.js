@@ -4,6 +4,19 @@
         if (!modal) return;
         modal.hidden = false;
         modal.classList.add('active');
+        var content = modal.querySelector('[data-letter-content]');
+        var source = modal.querySelector('[data-letter-source]');
+        if (content) content.textContent = '正在从星空里取一句话。';
+        if (source) source.textContent = '';
+        if (typeof window.getMoonQuote === 'function') {
+            window.getMoonQuote().then(function (quote) {
+                if (modal.hidden || !quote) return;
+                if (content) content.textContent = quote.text;
+                if (source) source.textContent = quote.source || '';
+            }).catch(function () {
+                if (content) content.textContent = '今夜的月光，替我陪在你身边。';
+            });
+        }
         var closeButton = modal.querySelector('[data-close-letter]');
         if (closeButton) closeButton.focus();
     }
