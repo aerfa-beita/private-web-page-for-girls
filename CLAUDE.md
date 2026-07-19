@@ -58,6 +58,7 @@ D:\MY_Project\web-page\
 - [2026-07-19 Firestore 匿名留言接入](docs/2026-07-19-Firestore匿名留言接入.md)
 - [2026-07-19 Firebase 公开配置部署](docs/2026-07-19-Firebase公开配置部署.md)
 - [2026-07-19 Storage 占位文案清理](docs/2026-07-19-Storage占位文案清理.md)
+- [2026-07-19 开场降级完整视觉](docs/2026-07-19-开场降级完整视觉.md)
 
 ## 🧠会话交接
 - 当前状态：V3 已合并为主验收基线；V4 逐项改造在独立工作树进行
@@ -66,6 +67,7 @@ D:\MY_Project\web-page\
 - Firestore 留言：已改为匿名登录后再读写，并补充空列表与错误状态；Firebase 控制台仍需发布文档中的 `messages` 规则。
 - Vercel 配置：Firebase 网页公开配置已从私有 `config.js` 拆分为可发布的 `firebase-config.js`；天气 Key、AI 地址与私人内容继续保持本地。
 - Storage 界面：已移除秘密基地内过期的“待开通 Storage”提示；图片上传仍待独立实现。
+- 开场降级：Three.js 不可用时会显示完整的标题、月亮与静态狮子座，避免只剩空星空。
 - ✅ 已完成：
   - V2 lion_background.js 完整宇宙开场动画
   - 首页 Hero（星球 + 相遇天数 + 三个入口卡片）

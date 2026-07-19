@@ -31,6 +31,7 @@
             console.warn('Three.js CDN 加载失败，回落原生星空');
             var sf = document.getElementById('starfield');
             if (sf) sf.style.display = '';
+            if (typeof window.showOpeningFallback === 'function') window.showOpeningFallback();
             window.dispatchEvent(new Event('spaceReady'));
         };
         document.head.appendChild(script);
@@ -714,6 +715,8 @@
     function initLionBackground(){
         var oldStarfield = document.getElementById('starfield');
         if (oldStarfield) oldStarfield.style.display = 'none';
+        var fallback = document.getElementById('opening-fallback');
+        if (fallback) fallback.classList.remove('active');
 
         loadThree(function(){
             var oldContainer = document.getElementById('lion-background');
@@ -745,7 +748,7 @@
                 if (!sceneVisible) return;
                 sceneVisible = false;
 
-                ['intro-text-overlay', 'leo-sickle-overlay', 'leo-linework-overlay', 'moon-letter-trigger'].forEach(function(id) {
+                ['intro-text-overlay', 'leo-sickle-overlay', 'leo-linework-overlay', 'moon-letter-trigger', 'opening-fallback'].forEach(function(id) {
                     var layer = document.getElementById(id);
                     if (!layer) return;
                     layer.style.opacity = '0';

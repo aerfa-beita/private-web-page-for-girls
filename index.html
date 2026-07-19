@@ -707,10 +707,32 @@
             padding: 10px 16px; border: 1px solid rgba(216,179,106,0.25); border-radius: 999px;
             background: rgba(5,5,16,0.3); font-size: 12px; letter-spacing: 0.16em; color: var(--text-secondary);
         }
+        #opening-fallback {
+            position: fixed; inset: 0; z-index: 5; display: none; pointer-events: none; overflow: hidden;
+            color: var(--text-primary); text-align: center;
+        }
+        #opening-fallback.active { display: block; animation: fallbackReveal 1.1s ease both; }
+        .fallback-heading { position: absolute; top: 6vh; left: 50%; width: min(420px, 86vw); transform: translateX(-50%); }
+        .fallback-heading p { margin: 0; }
+        .fallback-heading .fallback-kicker { color: var(--gold); font: 11px var(--font-display); letter-spacing: .34em; }
+        .fallback-heading h1 { margin: 13px 0 10px; font: 500 clamp(30px, 4.2vw, 48px) var(--font-display); letter-spacing: .18em; }
+        .fallback-heading .fallback-subtitle { font-size: 12px; letter-spacing: .12em; color: var(--text-secondary); }
+        .fallback-leo { position: absolute; left: 50%; top: 51%; width: min(620px, 76vw, 58vh); aspect-ratio: 1; transform: translate(-50%, -50%); object-fit: contain; opacity: .95; filter: drop-shadow(0 0 16px rgba(216,179,106,.22)); mix-blend-mode: screen; animation: fallbackLeoBreathe 4.2s ease-in-out infinite; }
+        .fallback-label { position: absolute; left: 50%; top: calc(51% + min(31vw, 29vh)); transform: translateX(-50%); color: var(--gold); font: 11px var(--font-display); letter-spacing: .26em; }
+        .fallback-moon { position: absolute; right: clamp(28px, 8vw, 128px); top: clamp(82px, 12vh, 150px); width: 54px; height: 54px; border-radius: 50%; background: #fff9e8; box-shadow: 0 0 18px 6px rgba(216,179,106,.35), 0 0 50px 12px rgba(216,179,106,.12); }
+        .fallback-moon::after { content: ''; position: absolute; width: 54px; height: 54px; top: -7px; left: -11px; border-radius: 50%; background: var(--bg-deep); }
+        @keyframes fallbackReveal { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fallbackLeoBreathe { 0%,100% { opacity: .78; transform: translate(-50%, -50%) scale(.985); } 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.015); } }
+        @media (max-width: 700px) {
+            .fallback-heading { top: 7vh; }
+            .fallback-heading h1 { margin-top: 11px; }
+            .fallback-moon { top: 17vh; right: 9vw; transform: scale(.8); transform-origin: top right; }
+            .fallback-label { top: calc(51% + min(34vw, 27vh)); }
+        }
     </style>
 <script src="firebase-config.js"></script>
 <script src="config.js"></script>
-<script src="lion_background.js?v=20" defer></script>
+<script src="lion_background.js?v=21" defer></script>
 <script src="image_carousel.js" defer></script>
 <script src="memory_timeline.js" defer></script>
 <script src="love_letter.js" defer></script>
@@ -723,6 +745,16 @@
          星空背景层（JS 会动态往里面插入星星）
          ===================================================== -->
     <div id="starfield"></div>
+    <section id="opening-fallback" aria-hidden="true">
+        <div class="fallback-heading">
+            <p class="fallback-kicker">OUR LITTLE UNIVERSE</p>
+            <h1>我们的宇宙</h1>
+            <p class="fallback-subtitle">两个人的小世界</p>
+        </div>
+        <img class="fallback-leo" src="assets/Leo/leo-linework-transparent.png?v=15" alt="">
+        <span class="fallback-label">LEO · 狮子座</span>
+        <span class="fallback-moon" aria-hidden="true"></span>
+    </section>
     <div id="unlock-prompt" aria-live="polite"><p>轻触星空，进入我们的宇宙</p></div>
 
     <!-- =====================================================
@@ -1136,6 +1168,12 @@
         starfield.appendChild(frag);
     }
     createStars();
+
+    function showOpeningFallback() {
+        const fallback = $('#opening-fallback');
+        if (fallback) fallback.classList.add('active');
+    }
+    window.showOpeningFallback = showOpeningFallback;
 
     /* =================================================================
        2. 密码锁逻辑
@@ -2103,6 +2141,7 @@
         setTimeout(() => {
             if (!spaceReadyFired) {
                 spaceReadyFired = true;
+                showOpeningFallback();
                 waitForUnlockGesture();
             }
         }, 15000);

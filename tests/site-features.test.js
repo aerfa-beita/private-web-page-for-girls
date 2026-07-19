@@ -22,8 +22,8 @@ test('replaces the sixth photo placeholder with a real asset', () => {
 
 test('uses a versioned cache for all application scripts', () => {
     const serviceWorker = read('sw.js');
-    assert.match(serviceWorker, /CACHE_NAME = 'our-universe-v21-firebase-config'/);
-    assert.match(serviceWorker, /lion_background\.js\?v=20/);
+    assert.match(serviceWorker, /CACHE_NAME = 'our-universe-v22-resilient-opening'/);
+    assert.match(serviceWorker, /lion_background\.js\?v=21/);
     assert.match(serviceWorker, /image_carousel\.js/);
     assert.match(serviceWorker, /memory_timeline\.js/);
     assert.match(serviceWorker, /love_letter\.js/);
@@ -38,7 +38,7 @@ test('keeps AI requests behind a configured same-origin service endpoint', () =>
 
 test('uses the V3 editorial hero and restrained gold-space palette', () => {
     const html = read('index.html');
-    assert.match(html, /lion_background\.js\?v=20/);
+    assert.match(html, /lion_background\.js\?v=21/);
     assert.match(html, /OUR LITTLE UNIVERSE/);
     assert.match(html, /点亮星河/);
     assert.match(html, /--gold:\s*#D8B36A/);
@@ -92,7 +92,7 @@ test('uses transparent lion linework with memory-star reveals', () => {
 
 test('refreshes cached visuals and uses a cinematic crescent with traced meteors', () => {
     const serviceWorker = read('sw.js');
-    assert.match(serviceWorker, /our-universe-v21-firebase-config/);
+    assert.match(serviceWorker, /our-universe-v22-resilient-opening/);
     assert.match(serviceWorker, /isCorePageAsset/);
     assert.match(serviceWorker, /self\.skipWaiting\(\)/);
 
@@ -170,4 +170,13 @@ test('authenticates anonymous visitors before subscribing to Firestore messages'
     assert.match(html, /authorId: auth\.currentUser\.uid/);
     assert.match(html, /读取留言失败/);
     assert.match(html, /还没有留言，写下第一句吧/);
+});
+
+test('keeps the opening composition when Three.js cannot load', () => {
+    const html = read('index.html');
+    const background = read('lion_background.js');
+    assert.match(html, /id="opening-fallback"/);
+    assert.match(html, /fallback-leo/);
+    assert.match(html, /function showOpeningFallback/);
+    assert.match(background, /window\.showOpeningFallback/);
 });

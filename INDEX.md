@@ -33,7 +33,8 @@ D:\MY_Project\web-page\
 │   ├── 2026-07-19-仓库清理.md               # 删除临时文件与未使用设计源图
 │   ├── 2026-07-19-Firestore匿名留言接入.md  # 匿名登录、错误反馈与安全规则
 │   ├── 2026-07-19-Firebase公开配置部署.md   # Vercel 的 Firebase 公开配置
-│   └── 2026-07-19-Storage占位文案清理.md    # 移除过期的 Storage 提示
+│   ├── 2026-07-19-Storage占位文案清理.md    # 移除过期的 Storage 提示
+│   └── 2026-07-19-开场降级完整视觉.md       # Three.js 失败时的完整开场
 ├── tests/
 │   └── site-features.test.js                # 静态功能与安全边界检查
 └── assets/             # 静态资源

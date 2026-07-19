@@ -36,7 +36,7 @@ index.html
 │   │   ├── 模块二：成长星球（留言/星星树/天气/AI 入口）
 │   │   ├── 底部导航栏
 │   │   └── 动画（呼吸、心跳、淡入淡出、花瓣飘落）
-│   ├── <script src="lion_background.js?v=20" defer>  — 宇宙动画、开场流星、电影式显影与退场卸载
+│   ├── <script src="lion_background.js?v=21" defer>  — 宇宙动画、完整降级开场、电影式显影与退场卸载
 │   ├── <script src="image_carousel.js" defer>   — 回忆放映机
 │   ├── <script src="memory_timeline.js" defer>  — 时间星河
 │   ├── <script src="love_letter.js" defer>      — 隐藏情书
@@ -45,6 +45,7 @@ index.html
 │
 └── <body>
     ├── 星空背景层（#starfield，Three.js 激活时隐藏）
+    ├── 完整备用开场（#opening-fallback，Three.js 不可用时显示）
     ├── 点击提示层（#unlock-prompt，spaceReady 后显示，首次点击打开密码锁）
     ├── 密码锁遮罩层（#lock-screen，初始隐藏，首次点击后显示）
     ├── 狮子座静观页（#constellation-observatory，密码正确后短暂显示后自动上划，CSS 星云背景 + 透明金线星图拖拽旋转）
