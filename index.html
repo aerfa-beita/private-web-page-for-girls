@@ -1330,7 +1330,7 @@
         lockInput.value = '';
         lockError.textContent = '';
         lockScreen.classList.add('hidden');
-        $('#unlock-prompt').classList.add('active');
+        window.dispatchEvent(new Event('unlockPromptRequested'));
     });
     observatoryEnter.addEventListener('click', closeConstellationObservatory);
     observatory.addEventListener('pointerdown', closeConstellationObservatory, { once: false });
@@ -2131,6 +2131,8 @@
                 lockInput.focus();
             }, { once: true });
         }
+        // 从密码页返回时重新绑定一次“轻触星空”的入口。
+        window.addEventListener('unlockPromptRequested', waitForUnlockGesture);
         window.addEventListener('spaceReady', () => {
             if (spaceReadyFired) return;
             spaceReadyFired = true;

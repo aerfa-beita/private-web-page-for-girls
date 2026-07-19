@@ -71,7 +71,7 @@ index.html
         ├── 相遇天数系统（updateLoveDays）
         ├── Firebase 网页配置 + SDK CDN 加载
         ├── 星空背景生成器（CSS 星星，作为 Three.js 回落）
-        ├── 密码锁逻辑（spaceReady 后等待首次点击显示）
+        ├── 密码锁逻辑（spaceReady 后等待首次点击显示，返回时重绑入口）
         ├── 模块切换（switchModule，供导航栏和首页卡片共用）
         ├── 模块一逻辑（照片轮播/音乐/生日检测/花瓣/在线状态）
         ├── 模块二逻辑（留言 CRUD/星星树/AI 入口/天气 API）

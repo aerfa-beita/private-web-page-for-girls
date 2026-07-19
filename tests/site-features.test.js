@@ -22,7 +22,7 @@ test('replaces the sixth photo placeholder with a real asset', () => {
 
 test('uses a versioned cache for all application scripts', () => {
     const serviceWorker = read('sw.js');
-    assert.match(serviceWorker, /CACHE_NAME = 'our-universe-v22-resilient-opening'/);
+    assert.match(serviceWorker, /CACHE_NAME = 'our-universe-v23-repeatable-unlock'/);
     assert.match(serviceWorker, /lion_background\.js\?v=21/);
     assert.match(serviceWorker, /image_carousel\.js/);
     assert.match(serviceWorker, /memory_timeline\.js/);
@@ -92,7 +92,7 @@ test('uses transparent lion linework with memory-star reveals', () => {
 
 test('refreshes cached visuals and uses a cinematic crescent with traced meteors', () => {
     const serviceWorker = read('sw.js');
-    assert.match(serviceWorker, /our-universe-v22-resilient-opening/);
+    assert.match(serviceWorker, /our-universe-v23-repeatable-unlock/);
     assert.match(serviceWorker, /isCorePageAsset/);
     assert.match(serviceWorker, /self\.skipWaiting\(\)/);
 
@@ -118,6 +118,8 @@ test('keeps a return path from the password gate', () => {
     const html = read('index.html');
     assert.match(html, /id="lock-back-btn"/);
     assert.match(html, /lockBackBtn\.addEventListener/);
+    assert.match(html, /unlockPromptRequested/);
+    assert.match(html, /window\.addEventListener\('unlockPromptRequested', waitForUnlockGesture\)/);
     assert.match(html, /返回星空/);
 });
 
