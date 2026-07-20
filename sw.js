@@ -5,7 +5,7 @@
    ============================================================ */
 
 // 缓存名称（修改版本号可强制刷新缓存）
-const CACHE_NAME = 'our-universe-v23-repeatable-unlock';
+const CACHE_NAME = 'our-universe-v24-message-retry';
 
 // 需要缓存的静态文件列表
 const CACHE_FILES = [

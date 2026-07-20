@@ -22,7 +22,7 @@ test('replaces the sixth photo placeholder with a real asset', () => {
 
 test('uses a versioned cache for all application scripts', () => {
     const serviceWorker = read('sw.js');
-    assert.match(serviceWorker, /CACHE_NAME = 'our-universe-v23-repeatable-unlock'/);
+    assert.match(serviceWorker, /CACHE_NAME = 'our-universe-v24-message-retry'/);
     assert.match(serviceWorker, /lion_background\.js\?v=21/);
     assert.match(serviceWorker, /image_carousel\.js/);
     assert.match(serviceWorker, /memory_timeline\.js/);
@@ -92,7 +92,7 @@ test('uses transparent lion linework with memory-star reveals', () => {
 
 test('refreshes cached visuals and uses a cinematic crescent with traced meteors', () => {
     const serviceWorker = read('sw.js');
-    assert.match(serviceWorker, /our-universe-v23-repeatable-unlock/);
+    assert.match(serviceWorker, /our-universe-v24-message-retry/);
     assert.match(serviceWorker, /isCorePageAsset/);
     assert.match(serviceWorker, /self\.skipWaiting\(\)/);
 
@@ -168,10 +168,14 @@ test('authenticates anonymous visitors before subscribing to Firestore messages'
     assert.match(firebaseConfig, /FIREBASE_CONFIG/);
     assert.match(firebaseConfig, /projectId/);
     assert.match(html, /firebase-auth-compat\.js/);
-    assert.match(html, /await auth\.signInAnonymously\(\)/);
+    assert.match(html, /await waitForMessageBoard\(auth\.signInAnonymously\(\)\)/);
     assert.match(html, /authorId: auth\.currentUser\.uid/);
     assert.match(html, /读取留言失败/);
     assert.match(html, /还没有留言，写下第一句吧/);
+    assert.match(html, /MESSAGE_BOARD_TIMEOUT_MS = 12000/);
+    assert.match(html, /留言加载超时，请检查网络后重试/);
+    assert.match(html, /message-retry-btn/);
+    assert.match(html, /stopMessageBoardSubscription/);
 });
 
 test('keeps the opening composition when Three.js cannot load', () => {

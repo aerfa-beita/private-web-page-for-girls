@@ -474,6 +474,12 @@
             text-align: center; color: var(--text-primary);
         }
         .loading-text { text-align: center; font-size: 13px; color: var(--text-secondary); }
+        .message-retry-btn {
+            display: block; margin: 10px auto 0; padding: 7px 14px;
+            border: 1px solid rgba(216,179,106,0.48); border-radius: 16px;
+            background: transparent; color: var(--gold); font-size: 12px; cursor: pointer;
+        }
+        .message-retry-btn:active { transform: scale(0.97); }
         #memory-timeline { margin: 40px 0 12px; }
         .timeline-track { display: grid; gap: 22px; }
         .timeline-item { padding: 0 0 8px; overflow: hidden; }
@@ -1856,17 +1862,56 @@
     }
 
     /* -- 留言板 -- */
+    const MESSAGE_BOARD_TIMEOUT_MS = 12000;
     let messageBoardStarted = false;
+    let messageBoardUnsubscribe = null;
+    let messageBoardLoadTimer = null;
 
-    function showMessageBoardState(message) {
+    function clearMessageBoardLoadTimer() {
+        clearTimeout(messageBoardLoadTimer);
+        messageBoardLoadTimer = null;
+    }
+
+    function stopMessageBoardSubscription() {
+        clearMessageBoardLoadTimer();
+        if (messageBoardUnsubscribe) messageBoardUnsubscribe();
+        messageBoardUnsubscribe = null;
+    }
+
+    function showMessageBoardState(message, retryable = false) {
         const msgList = $('#msg-list');
-        if (msgList) msgList.innerHTML = `<p class="loading-text">${message}</p>`;
+        if (!msgList) return;
+
+        msgList.replaceChildren();
+        const text = document.createElement('p');
+        text.className = 'loading-text';
+        text.textContent = message;
+        msgList.appendChild(text);
+
+        if (retryable) {
+            const retryBtn = document.createElement('button');
+            retryBtn.className = 'message-retry-btn';
+            retryBtn.type = 'button';
+            retryBtn.textContent = '重新连接';
+            retryBtn.addEventListener('click', initMessageBoard, { once: true });
+            msgList.appendChild(retryBtn);
+        }
+    }
+
+    function waitForMessageBoard(task) {
+        let timer = null;
+        return Promise.race([
+            task,
+            new Promise((_, reject) => {
+                timer = setTimeout(() => reject(new Error('留言服务连接超时')), MESSAGE_BOARD_TIMEOUT_MS);
+            })
+        ]).finally(() => clearTimeout(timer));
     }
 
     async function initMessageBoard() {
         if (messageBoardStarted) return;
         if (typeof firebase === 'undefined') {
-            showMessageBoardState('Firebase 未连接，留言功能不可用');
+            showMessageBoardState('留言服务未连接，请稍后重试', true);
             return;
         }
 
@@ -1874,12 +1919,12 @@
             if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
             // 留言采用匿名登录：无需账号，但 Firestore 能识别为已认证访问。
             if (typeof firebase.auth === 'undefined' || typeof firebase.firestore === 'undefined') {
-                showMessageBoardState('留言服务未完整加载，请刷新后重试');
+                showMessageBoardState('留言服务未完整加载，请稍后重试', true);
                 return;
             }
 
             const auth = firebase.auth();
-            if (!auth.currentUser) await auth.signInAnonymously();
+            if (!auth.currentUser) await waitForMessageBoard(auth.signInAnonymously());
 
             const db     = firebase.firestore();
             // TODO: Storage 待开通 Blaze 计划后启用
@@ -1924,13 +1969,20 @@
                 sendBtn.textContent = '💌 发送';
             }
 
-            sendBtn.addEventListener('click', sendMessage);
+            sendBtn.onclick = sendMessage;
 
             // 实时监听留言（按时间倒序）
-            db.collection('messages')
+            messageBoardLoadTimer = setTimeout(() => {
+                stopMessageBoardSubscription();
+                messageBoardStarted = false;
+                showMessageBoardState('留言加载超时，请检查网络后重试', true);
+            }, MESSAGE_BOARD_TIMEOUT_MS);
+
+            messageBoardUnsubscribe = db.collection('messages')
                 .orderBy('createdAt', 'desc')
                 .onSnapshot((snapshot) => {
-                    msgList.innerHTML = '';
+                    clearMessageBoardLoadTimer();
+                    msgList.replaceChildren();
                     if (snapshot.empty) {
                         showMessageBoardState('还没有留言，写下第一句吧。');
                     }
@@ -1970,14 +2022,16 @@
                     }
                 }, (err) => {
                     console.error('读取留言失败:', err);
+                    stopMessageBoardSubscription();
                     messageBoardStarted = false;
-                    showMessageBoardState('留言暂时无法读取，请刷新后重试');
+                    showMessageBoardState('留言暂时无法读取，请稍后重试', true);
                 });
 
         } catch (err) {
             console.error('Firebase 初始化失败:', err);
+            stopMessageBoardSubscription();
             messageBoardStarted = false;
-            showMessageBoardState('留言服务连接失败，请刷新后重试');
+            showMessageBoardState('留言服务连接失败，请稍后重试', true);
         }
     }
 

@@ -58,7 +58,7 @@ index.html
     │   │   ├── 每日情话
     │   │   └── 在线心跳
     │   ├── 模块二：成长星球（#module-secret-base）
-    │   │   ├── 匿名登录 → 文字留言输入 + 留言列表（Firestore）
+    │   │   ├── 匿名登录 → 文字留言输入 + 留言列表（Firestore，12 秒超时与重试）
     │   │   ├── 留言星星树（Firestore 留言只读映射）
     │   │   ├── AI 互动入口（同源代理）
     │   │   └── 天气卡片 × 2
@@ -83,7 +83,7 @@ index.html
 
 | 文件 | 职责 | 加载方式 |
 |------|------|----------|
-| `lion_background.js` | 宇宙开场动画（开场流星 + 连续镰刀星轨 + 电影式显影 + 月亮情书） | `<script src="lion_background.js?v=20" defer>` |
+| `lion_background.js` | 宇宙开场动画（开场流星 + 连续镰刀星轨 + 电影式显影 + 月亮情书） | `<script src="lion_background.js?v=21" defer>` |
 | `image_carousel.js` | 89 张图片轮播（unseen-first） | `<script defer>` |
 | `memory_timeline.js` | 按日期排列照片回忆 | `<script defer>` |
 | `love_letter.js` | 监听月亮事件并控制隐藏情书 | `<script defer>` |
@@ -93,7 +93,7 @@ index.html
 ## 通信协议
 
 ```
-lion_background.js  introAnimation() 9.4s 完成
+lion_background.js  introAnimation() 9.4s 完成，或 Three.js 失败时启用 #opening-fallback
          │
          │  window.dispatchEvent(new Event("spaceReady"))
          ▼
@@ -102,6 +102,16 @@ index.html  window.addEventListener("spaceReady", () => 显示点击提示)
          │  用户首次 pointerdown
          ▼
 显示密码锁（#lock-screen）
+```
+
+```text
+密码页点击“返回星空”
+         │
+         ▼
+index.html  dispatchEvent("unlockPromptRequested")
+         │
+         ▼
+重新进入等待手势状态 → 再次轻触星空 → 显示密码锁
 ```
 
 ```
@@ -120,12 +130,16 @@ love_letter.js  打开 #love-letter-modal
     ▼
 bootstrap() → registerSW() → loadFirebaseSDK() → initLionBackground()
     │                                                    │
-    │                                              开场动画播放 (9s)
+    │                                              开场动画播放 (9.4s)
     │                                                    │
     │                                          dispatchEvent("spaceReady")
     │                                                    │
     ▼                                                    ▼
-注册 SW + Firebase                          显示密码锁（#lock-screen）
+注册 SW + Firebase                      显示轻触提示（#unlock-prompt）
+                                                 │
+                                       首次或重新轻触星空
+                                                 │
+                                      显示密码锁（#lock-screen）
                                                  │
                                             用户输入密码
                                                  │
@@ -150,7 +164,7 @@ bootstrap() → registerSW() → loadFirebaseSDK() → initLionBackground()
                     ▼       ▼       ▼       ▼               ▼
                   Hero   照片墙  音乐   留言 CRUD        图片轮播
                  相遇天数 情话   心跳   星星树           (JS 动态)
-                                       天气 API
+                                       天气 API / 留言超时重试
 ```
 
 ## 依赖关系
