@@ -5,14 +5,14 @@
    ============================================================ */
 
 // 缓存名称（修改版本号可强制刷新缓存）
-const CACHE_NAME = 'our-universe-v24-message-retry';
+const CACHE_NAME = 'our-universe-v25-reliable-opening';
 
 // 需要缓存的静态文件列表
 const CACHE_FILES = [
     'index.html',
     'firebase-config.js',
     'manifest.json',
-    'lion_background.js?v=21',
+    'lion_background.js?v=22',
     'assets/Leo/leo-linework-transparent.png?v=15',
     'image_carousel.js',
     'memory_timeline.js',

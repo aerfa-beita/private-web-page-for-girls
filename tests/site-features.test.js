@@ -22,8 +22,8 @@ test('replaces the sixth photo placeholder with a real asset', () => {
 
 test('uses a versioned cache for all application scripts', () => {
     const serviceWorker = read('sw.js');
-    assert.match(serviceWorker, /CACHE_NAME = 'our-universe-v24-message-retry'/);
-    assert.match(serviceWorker, /lion_background\.js\?v=21/);
+    assert.match(serviceWorker, /CACHE_NAME = 'our-universe-v25-reliable-opening'/);
+    assert.match(serviceWorker, /lion_background\.js\?v=22/);
     assert.match(serviceWorker, /image_carousel\.js/);
     assert.match(serviceWorker, /memory_timeline\.js/);
     assert.match(serviceWorker, /love_letter\.js/);
@@ -38,7 +38,7 @@ test('keeps AI requests behind a configured same-origin service endpoint', () =>
 
 test('uses the V3 editorial hero and restrained gold-space palette', () => {
     const html = read('index.html');
-    assert.match(html, /lion_background\.js\?v=21/);
+    assert.match(html, /lion_background\.js\?v=22/);
     assert.match(html, /OUR LITTLE UNIVERSE/);
     assert.match(html, /点亮星河/);
     assert.match(html, /--gold:\s*#D8B36A/);
@@ -92,7 +92,7 @@ test('uses transparent lion linework with memory-star reveals', () => {
 
 test('refreshes cached visuals and uses a cinematic crescent with traced meteors', () => {
     const serviceWorker = read('sw.js');
-    assert.match(serviceWorker, /our-universe-v24-message-retry/);
+    assert.match(serviceWorker, /our-universe-v25-reliable-opening/);
     assert.match(serviceWorker, /isCorePageAsset/);
     assert.match(serviceWorker, /self\.skipWaiting\(\)/);
 
@@ -185,4 +185,16 @@ test('keeps the opening composition when Three.js cannot load', () => {
     assert.match(html, /fallback-leo/);
     assert.match(html, /function showOpeningFallback/);
     assert.match(background, /window\.showOpeningFallback/);
+    assert.match(background, /THREE_LOAD_TIMEOUT_MS = 4500/);
+    assert.match(background, /assets\/vendor\/three\.r128\.min\.js/);
+    assert.match(html, /dismissOpeningFallback/);
+    assert.doesNotMatch(html, /}, 15000\);/);
+});
+
+test('keeps mobile browsers out of fullscreen while preserving desktop fullscreen', () => {
+    const html = read('index.html');
+    assert.match(html, /function requestDesktopFullscreen/);
+    assert.match(html, /min-width: 900px\) and \(pointer: fine\)/);
+    assert.match(html, /requestDesktopFullscreen\(\);/);
+    assert.match(html, /firebaseReadyPromise\.then\(initSecretBase\)/);
 });

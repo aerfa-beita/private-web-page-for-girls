@@ -738,7 +738,7 @@
     </style>
 <script src="firebase-config.js"></script>
 <script src="config.js"></script>
-<script src="lion_background.js?v=21" defer></script>
+<script src="lion_background.js?v=22" defer></script>
 <script src="image_carousel.js" defer></script>
 <script src="memory_timeline.js" defer></script>
 <script src="love_letter.js" defer></script>
@@ -1181,6 +1181,14 @@
     }
     window.showOpeningFallback = showOpeningFallback;
 
+    function dismissOpeningFallback() {
+        const fallback = $('#opening-fallback');
+        if (!fallback) return;
+        fallback.style.opacity = '0';
+        setTimeout(() => fallback.remove(), 450);
+    }
+    window.addEventListener('mainExperienceEntered', dismissOpeningFallback, { once: true });
+
     /* =================================================================
        2. 密码锁逻辑
        ================================================================= */
@@ -1193,6 +1201,7 @@
     const observatory = $('#constellation-observatory');
     const observatoryEnter = $('#observatory-enter');
     let observatoryExitTimer = null;
+    let firebaseReadyPromise = Promise.resolve();
 
     function showConstellationObservatory() {
         clearTimeout(observatoryExitTimer);
@@ -1313,15 +1322,14 @@
             checkBirthday();
             // 初始化模块
             initTimeMachine();
-            initSecretBase();
+            firebaseReadyPromise.then(initSecretBase);
             // 更新相遇天数
             updateLoveDays();
             // 解锁后自动随机播一首音乐（用户已点击按钮，浏览器允许播放）
             autoPlayMusic();
             // 获取每日一语
             fetchDailyQuote();
-            // 尝试进入全屏
-            try { document.documentElement.requestFullscreen().catch(() => {}); } catch(e) {}
+            requestDesktopFullscreen();
         } else {
             lockError.textContent = '密码不对哦，再试试吧 🌸';
             lockInput.classList.add('shake');
@@ -2160,17 +2168,18 @@
         }
     }
 
+    function requestDesktopFullscreen() {
+        const desktopViewport = window.matchMedia('(min-width: 900px) and (pointer: fine)').matches;
+        if (!desktopViewport || document.fullscreenElement) return;
+        try { document.documentElement.requestFullscreen().catch(() => {}); } catch (e) {}
+    }
+
     /* =================================================================
        9. 启动入口
        ================================================================= */
     async function bootstrap() {
         registerSW();
-        await loadFirebaseSDK();
-
-        // V2：页面加载立即启动宇宙开场动画
-        if (typeof initLionBackground === 'function') {
-            initLionBackground();
-        }
+        firebaseReadyPromise = loadFirebaseSDK();
 
         // 动画完整播放后，等待用户第一次点击再显示密码锁
         let spaceReadyFired = false;
@@ -2193,14 +2202,15 @@
             waitForUnlockGesture();
         });
 
-        // 兜底：Three.js 不可用时也等待点击，不直接跳过开场流程
-        setTimeout(() => {
-            if (!spaceReadyFired) {
-                spaceReadyFired = true;
-                showOpeningFallback();
-                waitForUnlockGesture();
-            }
-        }, 15000);
+        // 开场不等待 Firebase CDN，避免网络慢时误判为 Three.js 失败。
+        if (typeof initLionBackground === 'function') {
+            initLionBackground();
+        } else {
+            showOpeningFallback();
+            window.dispatchEvent(new Event('spaceReady'));
+        }
+
+        await firebaseReadyPromise;
     }
     bootstrap();
     </script>

@@ -21,20 +21,49 @@
         finish: 9.4
     };
 
-    // 动态加载 Three.js
-    function loadThree(callback) {
-        if (window.THREE) { callback(); return; }
-        var script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
-        script.onload = callback;
-        script.onerror = function(){
-            console.warn('Three.js CDN 加载失败，回落原生星空');
-            var sf = document.getElementById('starfield');
-            if (sf) sf.style.display = '';
-            if (typeof window.showOpeningFallback === 'function') window.showOpeningFallback();
-            window.dispatchEvent(new Event('spaceReady'));
-        };
-        document.head.appendChild(script);
+    // 优先使用本站副本；外部 CDN 只作为尚未放入副本时的临时后备。
+    var THREE_LOAD_TIMEOUT_MS = 4500;
+    var THREE_SOURCES = [
+        'assets/vendor/three.r128.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'
+    ];
+
+    function loadThree(onReady, onUnavailable) {
+        if (window.THREE) { onReady(); return; }
+
+        var sourceIndex = 0;
+        var settled = false;
+
+        function finishUnavailable() {
+            if (settled) return;
+            settled = true;
+            console.warn('Three.js 未在限定时间内加载，使用静态开场');
+            if (onUnavailable) onUnavailable();
+        }
+
+        function loadNextSource() {
+            if (sourceIndex >= THREE_SOURCES.length) {
+                finishUnavailable();
+                return;
+            }
+
+            var script = document.createElement('script');
+            var timeout = setTimeout(finishUnavailable, THREE_LOAD_TIMEOUT_MS);
+            script.src = THREE_SOURCES[sourceIndex++];
+            script.onload = function() {
+                clearTimeout(timeout);
+                if (settled) return;
+                settled = true;
+                onReady();
+            };
+            script.onerror = function() {
+                clearTimeout(timeout);
+                if (!settled) loadNextSource();
+            };
+            document.head.appendChild(script);
+        }
+
+        loadNextSource();
     }
 
     function createScene() {
@@ -823,6 +852,11 @@
                 renderer.setSize(window.innerWidth, window.innerHeight);
             });
 
+        }, function() {
+            var starfield = document.getElementById('starfield');
+            if (starfield) starfield.style.display = '';
+            if (typeof window.showOpeningFallback === 'function') window.showOpeningFallback();
+            window.dispatchEvent(new Event('spaceReady'));
         });
     }
 

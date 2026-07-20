@@ -9,7 +9,7 @@
 ```
 D:\MY_Project\web-page\
 ├── index.html              # 【核心】主应用（内联 CSS + JS）
-├── lion_background.js      # V2 宇宙开场动画系统（Three.js）
+├── lion_background.js      # 宇宙开场动画系统（Three.js + 狮子座）
 ├── image_carousel.js       # 回忆放映机（图片轮播）
 ├── manifest.json           # PWA 应用清单
 ├── sw.js                   # Service Worker（离线缓存）
@@ -36,15 +36,16 @@ D:\MY_Project\web-page\
 - `photos[]` — 照片数组
 - `LOVE_QUOTES[]` — 情话语录
 - `MUSIC_PLAYLIST[]` — 音乐列表
-- `FIREBASE_CONFIG` — Firebase 配置
-- `WEATHER_API_KEY` — OpenWeatherMap API Key
+- `FIREBASE_CONFIG` — Firebase 公开网页配置（`firebase-config.js`）
+  - `WEATHER_API_KEY` — OpenWeatherMap API Key（仅本地私有配置）
 
 ## 📄最新文档
 - [2026-07-13 我们的宇宙项目初始化](docs/2026-07-13-我们的宇宙项目初始化.md)
 - [2026-07-13 V2 升级改造](docs/2026-07-13-V2升级改造.md)
+- [2026-07-20 项目未完成项与修订清单](docs/2026-07-20-项目未完成项与修订清单.md)
 
 ## 🧠会话交接
-- 当前状态：V2 第一阶段主体完成，收尾中
+- 当前状态：主视觉与 Firebase 基础接入已完成，进入线上验收、内容迁移与安全收尾阶段
 - ✅ 已完成：
   - V2 lion_background.js 完整宇宙开场动画
   - 首页 Hero（星球 + 相遇天数 + 三个入口卡片）
@@ -53,15 +54,10 @@ D:\MY_Project\web-page\
   - 留言板（Firestore）/ CSS 树 / 天气 / 在线心跳
   - 图片轮播（89 张）/ PWA
   - Bug：animate() 黑屏 / 文字 11s / LOVE_START_DATE=2025-01-29 / 照片 5→6
-- 🐛 待修复（第一阶段收尾）：
-  - 狮子座星座视觉效果优化
-  - 月亮点击彩蛋改造
-  - 开场动画显示细节
-  - 第 6 张照片待自定义
-- 📋 第二阶段：时间星河 / 拍立得 / 隐藏情书
-- 📋 第三阶段：星星树 / AI 互动
-- 🔒 阻塞：Firebase Storage 需绑定 VISA → 图片上传不可用
-- 待部署：Vercel + xiahuaaitalk.top
+- 🐛 待验收：本地的重复进入密码入口修复尚未成功上线；发布后需做连续回归。
+- 📋 待实现：图片留言上传、真实照片/音乐迁移、Cyber-AI 同源代理、天气代理和服务端访问保护。
+- 🔒 当前限制：私人媒体、私密配置与 AI/天气密钥不能提交到仓库；Storage 已配置但上传前端尚未实现。
+- ✅ 已部署：Vercel 与 `love.xiahuaaitalk.top`；根域名继续保留给 Cyber-AI 项目。
 - 说明：全局偏好在 `C:\Users\yjhdetianxuan\.AGENTS.md`；本文件只维护本项目交接
 
 ## 开发注意事项

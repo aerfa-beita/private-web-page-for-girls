@@ -36,7 +36,7 @@ index.html
 │   │   ├── 模块二：成长星球（留言/星星树/天气/AI 入口）
 │   │   ├── 底部导航栏
 │   │   └── 动画（呼吸、心跳、淡入淡出、花瓣飘落）
-│   ├── <script src="lion_background.js?v=21" defer>  — 宇宙动画、完整降级开场、电影式显影与退场卸载
+│   ├── <script src="lion_background.js?v=22" defer>  — 宇宙动画、本地 Three.js 优先加载、完整降级开场与退场卸载
 │   ├── <script src="image_carousel.js" defer>   — 回忆放映机
 │   ├── <script src="memory_timeline.js" defer>  — 时间星河
 │   ├── <script src="love_letter.js" defer>      — 隐藏情书
@@ -83,7 +83,7 @@ index.html
 
 | 文件 | 职责 | 加载方式 |
 |------|------|----------|
-| `lion_background.js` | 宇宙开场动画（开场流星 + 连续镰刀星轨 + 电影式显影 + 月亮情书） | `<script src="lion_background.js?v=21" defer>` |
+| `lion_background.js` | 宇宙开场动画（本地 Three.js 优先、4.5 秒降级、流星、狮子显影与退场卸载） | `<script src="lion_background.js?v=22" defer>` |
 | `image_carousel.js` | 89 张图片轮播（unseen-first） | `<script defer>` |
 | `memory_timeline.js` | 按日期排列照片回忆 | `<script defer>` |
 | `love_letter.js` | 监听月亮事件并控制隐藏情书 | `<script defer>` |
@@ -128,7 +128,7 @@ love_letter.js  打开 #love-letter-modal
 页面加载
     │
     ▼
-bootstrap() → registerSW() → loadFirebaseSDK() → initLionBackground()
+bootstrap() → registerSW() → initLionBackground()；Firebase SDK 并行加载
     │                                                    │
     │                                              开场动画播放 (9.4s)
     │                                                    │
