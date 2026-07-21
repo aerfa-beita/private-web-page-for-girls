@@ -5,7 +5,7 @@
    ============================================================ */
 
 // 缓存名称（修改版本号可强制刷新缓存）
-const CACHE_NAME = 'our-universe-v37-mirror-caption';
+const CACHE_NAME = 'our-universe-v38-main-media-mp3';
 
 // 需要缓存的静态文件列表
 const CACHE_FILES = [

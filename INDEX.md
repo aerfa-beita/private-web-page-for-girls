@@ -76,7 +76,7 @@ D:\MY_Project\web-page\
 
 | 文件 | 改什么 |
 |------|--------|
-| `index.html` | 改配置变量（搜索 `【配置区】`）、改照片数组、改 CSS 变量 |
+| `index.html` | 改配置变量（搜索 `【配置区】`）、改照片数组、改 MP3 播放列表、改 CSS 变量 |
 | `lion_background.js` | 原生狮子座模块；仅改月亮位置与缩放，其余开场逻辑只引用 |
 | `scripts/opening/cinematic-opening.js` | 改前置文字、第一颗星、原生模块启动事件与进入主页收拢 |
 | `scripts/opening/opening-flow.js` | 改密码层桥接和返回星光后的入口状态 |

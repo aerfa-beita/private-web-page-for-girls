@@ -180,6 +180,12 @@ bootstrap() → registerSW() → openingFlow.init() → 电影黑幕与前置文
 
 ## 依赖关系
 
+## 静态媒体发布
+
+- 主目录 `assets/Music/` 的 MP3 是开场与首页的播放来源；FLAC 保持本地，不参与部署。
+- 主目录 `assets/Photograph/IMG_20260228/` 的 JPG/JPEG/PNG 是照片墙与放映机来源；DNG、视频不参与部署。
+- 媒体文件和代码在主分支一起推送后，由 Vercel 以相对路径提供给页面。
+
 ```
 UI 层（DOM 操作、事件监听、CSS 动画）
     │

@@ -101,7 +101,7 @@
 | `photos` | 照片数组 | 6 张（2 组 × 3） |
 | `LOVE_QUOTES` | 情话语录 | 10 条 |
 | `MOON_LETTERS` | 月亮长按的专属情书（`config.js`） | 可选，优先于 `LOVE_QUOTES` |
-| `MUSIC_PLAYLIST` | 音乐列表 | 7 首 |
+| `MUSIC_PLAYLIST` | 音乐列表 | 8 首 MP3 |
 | `AI_ENDPOINT` | AI 同源代理路径（在 `config.js` 中配置） | 未配置 |
 
 `firebase-config.js` 已随项目发布，只保存 Firebase 网页连接配置；`config.js` 继续保持本地私有，用于天气 Key、AI 地址和私人情书扩展。未配置 Firebase 或天气时，页面会保留浏览体验并显示对应的服务未配置状态。
@@ -131,8 +131,8 @@
 ### 📦 内容上线
 | 事项 | 说明 |
 |------|------|
-| 🖼 照片迁移 | 本地 `assets/Photograph/` 被 Git 忽略，不会自动出现在 Vercel |
-| 🎵 音乐迁移 | 本地音乐被 Git 忽略；上线应使用对象存储和浏览器兼容格式 |
+| 🖼 照片迁移 | `IMG_20260228` 下的 JPG/JPEG/PNG 已允许随主分支部署；DNG 和视频仍不上传 |
+| 🎵 音乐迁移 | `assets/Music/` 下的 MP3 已允许随主分支部署；FLAC 继续忽略 |
 
 ### 📖 第二阶段
 | 事项 | 说明 |

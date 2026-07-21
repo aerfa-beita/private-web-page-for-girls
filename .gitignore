@@ -8,11 +8,15 @@ config.js
 # 音乐
 assets/Music/**
 !assets/Music/.gitkeep
+!assets/Music/*.mp3
 
 # 照片（递归排除所有文件，仅保留 .gitkeep 维持目录结构）
 assets/Photograph/**
 !assets/Photograph/IMG_20260228/
 !assets/Photograph/IMG_20260228/.gitkeep
+!assets/Photograph/IMG_20260228/*.jpg
+!assets/Photograph/IMG_20260228/*.jpeg
+!assets/Photograph/IMG_20260228/*.png
 
 # 视频
 assets/Video/**

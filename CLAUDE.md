@@ -75,11 +75,13 @@ D:\MY_Project\web-page\
 - [2026-07-21 复用既有狮子座实现](docs/2026-07-21-复用既有狮子座实现.md)
 - [2026-07-21 首星启动原生狮子座](docs/2026-07-21-首星启动原生狮子座.md)
 - [2026-07-21 文字聚星与首星对齐](docs/2026-07-21-文字聚星与首星对齐.md)
+- [2026-07-21 主目录媒体部署清单](docs/2026-07-21-主目录媒体部署清单.md)
 
 ## 🧠会话交接
 - 当前状态：主视觉、Firebase 基础接入与自定义域名已完成；进入上线验收和内容迁移阶段
 - 当前 worktree：`.worktrees/modular-opening` 基于 `9fe615c` 创建；其中的开场模块化和交互改动尚未经过视觉验收，不能直接合并回 `main`。
 - 当前开场修正（覆盖下方历史交接）：不再维护自建 SVG。页面只先播放黑幕、艺术文字和首星；第一句字幕会在原位分成克制的镜面两片，短暂停顿后平滑汇聚为居中的首星；不做弹跳或大范围散开。左侧远处光点已删除，第二句固定在首星下方。首星点击派发 `openingRitualFirstLight`，由 `bootstrap()` 在模块外一次性调用原生 `initLionBackground()`，完整播放原有时间轴。前置层 1.15 秒后退出，额外情书月亮按钮在开场时隐藏；原生月亮仅调整至狮头朝向外的右上留白区并缩小。缓存为 `our-universe-v37-mirror-caption`，脚本为 `cinematic-opening.js?v=7`、`lion_background.js?v=5`。
+- 当前媒体发布修正：主目录 `assets/Music/` 已有 8 首 MP3，播放列表改为精确文件名；主目录 `assets/Photograph/IMG_20260228/` 的 93 张可展示图片已与放映机清单一致。`.gitignore` 允许 MP3 与 JPG/JPEG/PNG 随主分支部署，继续排除 FLAC、DNG、视频和私密配置。合并后在主目录执行 `git add assets/Music assets/Photograph` 即可将媒体随一次最终推送部署。缓存为 `our-universe-v38-main-media-mp3`。
 - 本轮开场 V2：`scripts/opening/cinematic-opening.js` 负责黑幕字幕、第一颗星、银河、透明狮子座显影与收拢动画；`scripts/opening/opening-flow.js` 只负责密码层桥接。首屏不再加载 `lion_background.js` 或 Three.js；狮子座改用本地透明线稿 `#cinematic-leo`，在银河稳定后显影。
 - 最近修正：第一颗星点击会立即清空“请亲手点亮它”与“轻轻点一下”的引导文字；已在 `127.0.0.1:5174` 验证狮子座在 `is-galaxy-born` 后出现。
 - 当前开场：透明狮子座整图已移除，改为 `.cinematic-constellation` 内十颗主星和三段连线按顺序显影；前段文字改为“有人，轻轻想起了你。”与“于是，宇宙亮起了第一颗星。”，16 秒后才开放第一次点击。脚本已升级为 `cinematic-opening.js?v=2`，缓存名为 `our-universe-v29-constellation-opening`。

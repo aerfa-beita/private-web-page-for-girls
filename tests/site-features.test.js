@@ -22,7 +22,7 @@ test('replaces the sixth photo placeholder with a real asset', () => {
 
 test('uses a versioned cache for all application scripts', () => {
     const serviceWorker = read('sw.js');
-    assert.match(serviceWorker, /CACHE_NAME = 'our-universe-v37-mirror-caption'/);
+    assert.match(serviceWorker, /CACHE_NAME = 'our-universe-v38-main-media-mp3'/);
     assert.match(serviceWorker, /scripts\/services\/runtime-config\.js\?v=1/);
     assert.match(serviceWorker, /lion_background\.js\?v=5/);
     assert.match(serviceWorker, /scripts\/opening\/cinematic-opening\.js\?v=7/);
@@ -91,7 +91,7 @@ test('uses transparent lion linework with memory-star reveals', () => {
 
 test('refreshes cached visuals and uses a cinematic crescent with traced meteors', () => {
     const serviceWorker = read('sw.js');
-    assert.match(serviceWorker, /our-universe-v37-mirror-caption/);
+    assert.match(serviceWorker, /our-universe-v38-main-media-mp3/);
     assert.match(serviceWorker, /isCorePageAsset/);
     assert.match(serviceWorker, /self\.skipWaiting\(\)/);
 
@@ -146,6 +146,9 @@ test('starts music on the first permitted gesture and refreshes moon messages', 
     const cinematic = read('scripts/opening/cinematic-opening.js');
     assert.match(html, /function startOpeningMusic/);
     assert.match(cinematic, /window\.startOpeningMusic\(\);/);
+    assert.match(html, /MUSIC_PLAYLIST[\s\S]*有愧\(1\)\.mp3/);
+    assert.match(html, /MUSIC_PLAYLIST[\s\S]*잘 알지도 못하면서\.mp3/);
+    assert.doesNotMatch(html, /MUSIC_PLAYLIST[\s\S]*焦迈奇 - 我的名字\.flac/);
     assert.match(html, /function getMoonQuote/);
     assert.match(html, /MOON_LETTERS/);
     assert.match(html, /v1\.hitokoto\.cn/);
