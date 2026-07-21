@@ -94,7 +94,12 @@
             opacity: 0; visibility: hidden; pointer-events: none;
         }
 
-        .lock-card { position: relative; width: min(390px, 85vw); padding: 58px 30px 48px; text-align: center; }
+        .lock-card {
+            position: relative; width: min(390px, 85vw); padding: 58px 30px 48px; text-align: center;
+            border: 1px solid rgba(216,179,106,.2); border-radius: 24px;
+            background: linear-gradient(145deg, rgba(17,16,36,.88), rgba(5,5,16,.8));
+            box-shadow: 0 24px 80px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.04);
+        }
         .lock-card::before, .lock-card::after { content: ''; position: absolute; left: 50%; width: 1px; background: linear-gradient(transparent, rgba(216,179,106,.55), transparent); transform: translateX(-50%); }
         .lock-card::before { top: 0; height: 38px; }
         .lock-card::after { bottom: 0; height: 38px; }
@@ -129,8 +134,8 @@
         .lock-card .lock-back { display: block; margin: 18px auto 0; padding: 3px 0; border: 0; background: transparent; color: var(--text-secondary); font: 11px var(--font-main); letter-spacing: .14em; cursor: pointer; }
         .lock-card .lock-back:hover { color: var(--gold); }
         .lock-card .error-msg {
-            color: #ff6b6b; font-size: 13px; margin-top: 10px;
-            min-height: 20px;
+            color: var(--gold); font-size: 12px; line-height: 1.65; letter-spacing: .06em; margin: 14px auto 0;
+            min-height: 20px; max-width: 250px;
         }
         @keyframes shake {
             0%,100% { transform: translateX(0); }
@@ -703,15 +708,33 @@
             .observatory-memory-notes article { grid-template-columns: 1fr; gap: 3px; }
         }
 
+        #opening-ritual {
+            position: fixed; left: 50%; bottom: clamp(48px, 9vh, 112px); z-index: 21; width: min(340px, 84vw);
+            display: flex; flex-direction: column; align-items: center; text-align: center; transform: translateX(-50%);
+            transition: opacity .36s ease, visibility .36s ease;
+        }
+        #opening-ritual.is-complete { opacity: 0; visibility: hidden; pointer-events: none; }
+        .opening-ritual-kicker { margin: 0 0 10px; color: var(--gold); font: 10px var(--font-display); letter-spacing: .25em; }
+        .opening-ritual-copy { min-height: 42px; margin: 0 0 18px; color: var(--text-secondary); font-size: 13px; line-height: 1.7; letter-spacing: .08em; }
+        .opening-ritual-action {
+            min-width: 174px; padding: 12px 20px; border: 1px solid rgba(216,179,106,.58); border-radius: 999px;
+            background: rgba(5,5,16,.54); color: var(--text-primary); font: 12px var(--font-main); letter-spacing: .16em;
+            cursor: pointer; box-shadow: 0 0 0 1px rgba(255,255,255,.03) inset, 0 0 28px rgba(216,179,106,.1);
+            transition: transform .25s ease, background .25s ease, border-color .25s ease, box-shadow .25s ease;
+        }
+        .opening-ritual-action:hover, .opening-ritual-action:focus-visible {
+            transform: translateY(-2px); border-color: var(--gold); background: rgba(216,179,106,.13);
+            box-shadow: 0 0 34px rgba(216,179,106,.21); outline: none;
+        }
         #unlock-prompt {
             position: fixed; left: 50%; bottom: 8vh; z-index: 20; display: none; align-items: center; justify-content: center;
             transform: translateX(-50%);
-            pointer-events: none; color: var(--text-primary);
+            pointer-events: auto; color: var(--text-primary);
         }
         #unlock-prompt.active { display: flex; }
-        #unlock-prompt p {
+        #unlock-prompt button {
             padding: 10px 16px; border: 1px solid rgba(216,179,106,0.25); border-radius: 999px;
-            background: rgba(5,5,16,0.3); font-size: 12px; letter-spacing: 0.16em; color: var(--text-secondary);
+            background: rgba(5,5,16,0.3); color: var(--text-secondary); font: 12px var(--font-main); letter-spacing: 0.16em; cursor: pointer;
         }
         #opening-fallback {
             position: fixed; inset: 0; z-index: 5; display: none; pointer-events: none; overflow: hidden;
@@ -735,10 +758,170 @@
             .fallback-moon { top: 17vh; right: 9vw; transform: scale(.8); transform-origin: top right; }
             .fallback-label { top: calc(51% + min(34vw, 27vh)); }
         }
+
+        /* ============================================================
+           V2 电影式开场：黑屏字幕 → 第一颗星 → 银河 → 星点密码
+           ============================================================ */
+        #cinematic-opening {
+            position: fixed; inset: 0; z-index: 9000; overflow: hidden; isolation: isolate;
+            background: #05060A; color: #E8E1D5; opacity: 1;
+            transition: opacity 1100ms cubic-bezier(.22,.61,.36,1), visibility 1100ms cubic-bezier(.22,.61,.36,1);
+        }
+        #cinematic-opening::before {
+            content: ''; position: absolute; inset: -30%; opacity: .13; pointer-events: none;
+            background-image: radial-gradient(rgba(255,255,255,.32) .45px, transparent .7px);
+            background-size: 5px 5px; mix-blend-mode: soft-light; animation: cinematicBreath 8s cubic-bezier(.22,.61,.36,1) infinite;
+        }
+        #cinematic-opening::after {
+            content: ''; position: absolute; inset: 0; pointer-events: none;
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,.15) 42%, rgba(0,0,0,.72) 100%);
+        }
+        #cinematic-opening.is-complete { opacity: 0; visibility: hidden; pointer-events: none; }
+        #cinematic-opening.is-awakening { background: transparent; }
+        #cinematic-opening.is-awakening::before, #cinematic-opening.is-awakening::after { opacity: 0; }
+        #cinematic-opening.is-awakening .cinematic-star-field, #cinematic-opening.is-awakening .cinematic-galaxy { opacity: 0; }
+        .cinematic-caption {
+            position: absolute; z-index: 4; left: 7vw; right: 7vw; top: 50%; margin: 0;
+            transform: translate3d(0, -50%, 0) scale(.985); opacity: 0; text-align: center;
+            background: linear-gradient(135deg, #fff8e9 0%, #e4c27e 48%, #fff1cc 100%);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+            filter: drop-shadow(0 0 18px rgba(216,179,106,.24));
+            font: 400 clamp(31px, 3.5vw, 46px)/1.68 var(--font-display);
+            letter-spacing: .13em; white-space: pre-line;
+            transition: opacity 1500ms cubic-bezier(.22,.61,.36,1), transform 1500ms cubic-bezier(.22,.61,.36,1);
+            isolation: isolate;
+        }
+        .cinematic-caption::before {
+            content: ''; position: absolute; z-index: -1; left: 50%; top: 50%; width: min(62vw, 360px); height: 1px;
+            opacity: 0; pointer-events: none; transform: translate3d(-50%, -50%, 0) scaleX(.15);
+            background: linear-gradient(90deg, transparent, rgba(255,239,195,.1) 18%, rgba(246,213,139,.95) 50%, rgba(255,239,195,.1) 82%, transparent);
+            box-shadow: 0 0 10px rgba(216,179,106,.42), 0 0 28px rgba(216,179,106,.18);
+        }
+        .cinematic-caption.is-visible {
+            opacity: 1; transform: translate3d(0, -50%, 0) scale(1);
+            animation: captionFocus 1700ms cubic-bezier(.22,.61,.36,1) both;
+        }
+        .cinematic-caption.is-visible::before { animation: captionStarlight 1900ms cubic-bezier(.22,.61,.36,1) both; }
+        .cinematic-caption__glyph { position: relative; display: inline-block; will-change: transform, opacity, filter; }
+        .cinematic-caption__glyph::before, .cinematic-caption__glyph::after {
+            content: attr(data-char); position: absolute; inset: 0; opacity: 0; color: #f6e7c3;
+            text-shadow: 0 0 9px rgba(255,236,187,.32); pointer-events: none;
+        }
+        .cinematic-caption.is-gathering { pointer-events: none; transition: none; background: none; filter: none; }
+        .cinematic-caption.is-gathering .cinematic-caption__glyph::before {
+            animation: captionMirrorShardA 1300ms cubic-bezier(.22,.61,.36,1) both;
+        }
+        .cinematic-caption.is-gathering .cinematic-caption__glyph::after {
+            animation: captionMirrorShardB 1300ms cubic-bezier(.22,.61,.36,1) both;
+        }
+        .cinematic-origin-star {
+            position: absolute; z-index: 5; left: 50%; top: 50%; width: 72px; height: 72px; padding: 0;
+            border: 0; border-radius: 50%; background: transparent; transform: translate3d(-50%, -50%, 0) scale(.22);
+            opacity: 0; cursor: pointer; pointer-events: none;
+            transition: opacity 900ms cubic-bezier(.22,.61,.36,1), transform 900ms cubic-bezier(.22,.61,.36,1);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .cinematic-origin-star::before {
+            content: ''; position: absolute; inset: 27px; border-radius: 50%; background: #fffaf0;
+            box-shadow: 0 0 8px 2px rgba(255,243,210,.9), 0 0 26px 9px rgba(216,179,106,.42);
+            animation: originBreath 2.8s cubic-bezier(.22,.61,.36,1) infinite;
+        }
+        .cinematic-origin-star span { position: absolute; inset: 0; border-radius: 50%; opacity: 0; }
+        .cinematic-origin-star span:nth-child(1) { border: 1px solid rgba(216,179,106,.48); transform: scale(.52); }
+        .cinematic-origin-star span:nth-child(2) { border: 1px solid rgba(216,179,106,.3); transform: scale(.72); }
+        .cinematic-origin-star span:nth-child(3) { border: 1px solid rgba(216,179,106,.18); transform: scale(.92); }
+        .cinematic-origin-hint {
+            position: absolute; z-index: 5; left: 50%; top: calc(50% + 92px); margin: 0; transform: translate3d(-50%, 8px, 0);
+            opacity: 0; color: #e8c982; font: 400 clamp(15px, 1.2vw, 18px)/1.4 var(--font-display); letter-spacing: .22em;
+            text-shadow: 0 0 16px rgba(216,179,106,.36);
+            transition: opacity 900ms cubic-bezier(.22,.61,.36,1), transform 900ms cubic-bezier(.22,.61,.36,1);
+        }
+        .cinematic-origin-hint::before, .cinematic-origin-hint::after { content: '✦'; display: inline-block; color: rgba(255,232,173,.72); font-size: .8em; vertical-align: .08em; }
+        .cinematic-origin-hint::before { margin-right: .75em; }
+        .cinematic-origin-hint::after { margin-left: .55em; }
+        #cinematic-opening.is-origin-centered .cinematic-origin-star { opacity: 1; transform: translate3d(-50%, -50%, 0) scale(1); }
+        #cinematic-opening.is-origin-message .cinematic-caption { top: calc(50% + 94px); font-size: clamp(21px, 2.2vw, 29px); }
+        #cinematic-opening.is-star-ready .cinematic-origin-star { opacity: 1; pointer-events: auto; transform: translate3d(-50%, -50%, 0) scale(1); }
+        #cinematic-opening.is-star-ready .cinematic-origin-hint { opacity: 1; transform: translate3d(-50%, 0, 0); animation: hintBreath 2.8s cubic-bezier(.22,.61,.36,1) infinite; }
+        #cinematic-opening.is-awakening .cinematic-origin-star { animation: originHeart 980ms cubic-bezier(.22,.61,.36,1) both; }
+        #cinematic-opening.is-awakening .cinematic-origin-star span { animation: originWave 1700ms cubic-bezier(.22,.61,.36,1) both; }
+        #cinematic-opening.is-awakening .cinematic-origin-star span:nth-child(2) { animation-delay: 180ms; }
+        #cinematic-opening.is-awakening .cinematic-origin-star span:nth-child(3) { animation-delay: 360ms; }
+        #cinematic-opening.is-awakening .cinematic-origin-hint { opacity: 0; animation: none; }
+        #cinematic-opening.is-native-running .cinematic-origin-star, #cinematic-opening.is-native-running .cinematic-caption { opacity: 0; pointer-events: none; }
+        #cinematic-opening:not(.is-complete) ~ #moon-letter-trigger { display: none !important; }
+        .cinematic-star-field, .cinematic-galaxy { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+        .cinematic-star-field__star, .cinematic-galaxy__star {
+            position: absolute; left: 50%; top: 50%; width: var(--size); height: var(--size); border-radius: 50%;
+            background: #fffaf0; opacity: 0; transform: translate3d(0, 0, 0) scale(.2);
+            box-shadow: 0 0 6px rgba(255,241,202,.72);
+            transition: opacity 1100ms cubic-bezier(.22,.61,.36,1) var(--delay), transform 1500ms cubic-bezier(.22,.61,.36,1) var(--delay);
+        }
+        #cinematic-opening.is-sky-awake .cinematic-star-field__star { opacity: .9; transform: translate3d(var(--x), var(--y), 0) scale(1); }
+        .cinematic-galaxy { opacity: 0; transform: scale(1.14) rotate(-9deg); transition: opacity 1800ms cubic-bezier(.22,.61,.36,1), transform 7200ms cubic-bezier(.22,.61,.36,1); }
+        .cinematic-galaxy::before { content: ''; position: absolute; left: 50%; top: 50%; width: min(92vw, 1040px); aspect-ratio: 2.1; border-radius: 50%; transform: translate3d(-50%, -50%, 0) rotate(-16deg); background: radial-gradient(ellipse at center, rgba(255,243,214,.16), rgba(177,159,213,.06) 24%, transparent 63%); filter: blur(13px); }
+        #cinematic-opening.is-galaxy-born .cinematic-galaxy { opacity: 1; transform: scale(1) rotate(0deg); }
+        #cinematic-opening.is-galaxy-born .cinematic-galaxy__star { opacity: .96; transform: translate3d(var(--x), var(--y), 0) scale(1); }
+        #cinematic-opening.is-password-ready .cinematic-galaxy { transform: scale(.92) rotate(4deg); }
+        #cinematic-opening.is-password-ready .cinematic-caption { top: 23%; font-size: clamp(16px, 2.1vw, 22px); }
+        #cinematic-opening.is-password-return .cinematic-origin-star { opacity: 1; pointer-events: auto; transform: translate3d(-50%, -50%, 0) scale(.82); }
+        #cinematic-opening.is-password-return .cinematic-origin-hint { opacity: 1; transform: translate3d(-50%, 0, 0); }
+        #cinematic-opening.is-homeward .cinematic-galaxy { transform: scale(.12) rotate(24deg); opacity: .78; transition-duration: 1080ms; }
+        #cinematic-opening.is-homeward .cinematic-star-field, #cinematic-opening.is-homeward .cinematic-caption, #cinematic-opening.is-homeward .cinematic-origin-star { opacity: 0; transition: opacity 700ms cubic-bezier(.22,.61,.36,1); }
+        @keyframes cinematicBreath { 0%,100% { transform: scale(1); opacity: .1; } 50% { transform: scale(1.04); opacity: .16; } }
+        @keyframes captionFocus {
+            0% { opacity: 0; transform: translate3d(0, -50%, 0) scale(.97); filter: blur(10px) drop-shadow(0 0 4px rgba(216,179,106,.16)); }
+            62% { opacity: 1; filter: blur(0) drop-shadow(0 0 24px rgba(216,179,106,.34)); }
+            100% { opacity: 1; transform: translate3d(0, -50%, 0) scale(1); filter: drop-shadow(0 0 18px rgba(216,179,106,.24)); }
+        }
+        @keyframes captionStarlight {
+            0% { opacity: 0; transform: translate3d(-50%, -50%, 0) scaleX(.15); }
+            32% { opacity: .95; transform: translate3d(-50%, -50%, 0) scaleX(1); }
+            72% { opacity: .28; transform: translate3d(-50%, -50%, 0) scaleX(1.12); }
+            100% { opacity: 0; transform: translate3d(-50%, -50%, 0) scaleX(1.16); }
+        }
+        @keyframes captionMirrorShardA {
+            0%, 8% { opacity: .98; transform: translate3d(0, 0, 0) rotate(0deg) scale(1); clip-path: polygon(0 0, 100% 0, 54% 100%, 0 78%); }
+            35% { opacity: .88; transform: translate3d(var(--shard-x), var(--shard-y), 0) rotate(var(--shard-turn)) scale(1.01); clip-path: polygon(0 0, 100% 0, 54% 100%, 0 78%); }
+            100% { opacity: 0; transform: translate3d(var(--gather-x), var(--gather-y), 0) rotate(0deg) scale(.08); clip-path: polygon(0 0, 100% 0, 54% 100%, 0 78%); filter: blur(2.8px); }
+        }
+        @keyframes captionMirrorShardB {
+            0%, 8% { opacity: .98; transform: translate3d(0, 0, 0) rotate(0deg) scale(1); clip-path: polygon(100% 0, 100% 100%, 0 100%, 46% 0); }
+            35% { opacity: .88; transform: translate3d(var(--shard-x-opposite), var(--shard-y-opposite), 0) rotate(var(--shard-turn-opposite)) scale(1.01); clip-path: polygon(100% 0, 100% 100%, 0 100%, 46% 0); }
+            100% { opacity: 0; transform: translate3d(var(--gather-x), var(--gather-y), 0) rotate(0deg) scale(.08); clip-path: polygon(100% 0, 100% 100%, 0 100%, 46% 0); filter: blur(2.8px); }
+        }
+        @keyframes originBreath { 0%,100% { transform: scale(.98); } 50% { transform: scale(1.04); } }
+        @keyframes originHeart { 0% { transform: translate3d(-50%, -50%, 0) scale(1); } 16% { transform: translate3d(-50%, -50%, 0) scale(.88); } 58% { transform: translate3d(-50%, -50%, 0) scale(1.15); } 100% { transform: translate3d(-50%, -50%, 0) scale(1); } }
+        @keyframes originWave { 0% { opacity: .86; transform: scale(.4); } 100% { opacity: 0; transform: scale(3.8); } }
+        @keyframes hintBreath { 0%,100% { opacity: .32; } 50% { opacity: .62; } }
+        #lock-screen { background: rgba(5,5,16,.18); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+        .lock-card { width: min(360px, 84vw); padding: 26px 24px 22px; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+        .lock-card::before, .lock-card::after { display: none; }
+        .lock-card .lock-icon { width: 18px; height: 18px; margin-bottom: 16px; border: 0; background: #fffaf0; box-shadow: 0 0 18px rgba(216,179,106,.78); }
+        .lock-card .lock-icon::before, .lock-card .lock-icon::after { display: none; }
+        .lock-card h2 { margin-bottom: 8px; font-size: 21px; letter-spacing: .13em; }
+        .lock-card .lock-hint { margin-bottom: 22px; line-height: 1.7; }
+        .lock-card input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+        .pin-stars { display: flex; justify-content: center; gap: 18px; margin: 0 auto; }
+        .pin-stars span { width: 12px; height: 12px; border: 1px solid rgba(248,244,234,.62); border-radius: 50%; transition: transform 360ms cubic-bezier(.22,.61,.36,1), background 360ms cubic-bezier(.22,.61,.36,1), box-shadow 360ms cubic-bezier(.22,.61,.36,1); }
+        .pin-stars span.is-filled { transform: scale(1.15); border-color: #fffaf0; background: #fffaf0; box-shadow: 0 0 12px rgba(216,179,106,.88); }
+        .pin-stars.is-error span { animation: pinError 500ms cubic-bezier(.22,.61,.36,1); border-color: #d78b96; }
+        .lock-card .lock-back { margin-top: 28px; color: rgba(255,255,255,.52); }
+        .lock-card .error-msg { margin-top: 13px; color: rgba(255,230,217,.88); }
+        @keyframes pinError { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        @media (max-width: 700px) {
+            .cinematic-caption { left: 6vw; right: 6vw; top: 50%; font-size: clamp(28px, 8vw, 36px); }
+            .cinematic-origin-hint { top: calc(50% + 84px); font-size: 15px; }
+            #cinematic-opening.is-origin-message .cinematic-caption { top: calc(50% + 84px); font-size: 21px; }
+            #cinematic-opening.is-password-ready .cinematic-caption { top: 19%; }
+        }
     </style>
 <script src="firebase-config.js"></script>
 <script src="config.js"></script>
-<script src="lion_background.js?v=22" defer></script>
+<script src="scripts/services/runtime-config.js?v=1"></script>
+<script src="lion_background.js?v=5"></script>
+<script src="scripts/opening/cinematic-opening.js?v=7"></script>
+<script src="scripts/opening/opening-flow.js?v=2"></script>
 <script src="image_carousel.js" defer></script>
 <script src="memory_timeline.js" defer></script>
 <script src="love_letter.js" defer></script>
@@ -751,17 +934,15 @@
          星空背景层（JS 会动态往里面插入星星）
          ===================================================== -->
     <div id="starfield"></div>
-    <section id="opening-fallback" aria-hidden="true">
-        <div class="fallback-heading">
-            <p class="fallback-kicker">OUR LITTLE UNIVERSE</p>
-            <h1>我们的宇宙</h1>
-            <p class="fallback-subtitle">两个人的小世界</p>
-        </div>
-        <img class="fallback-leo" src="assets/Leo/leo-linework-transparent.png?v=15" alt="">
-        <span class="fallback-label">LEO · 狮子座</span>
-        <span class="fallback-moon" aria-hidden="true"></span>
+    <section id="cinematic-opening" aria-live="polite" aria-label="我们的宇宙开场">
+        <div class="cinematic-star-field" id="cinematic-star-field" aria-hidden="true"></div>
+        <div class="cinematic-galaxy" id="cinematic-galaxy" aria-hidden="true"></div>
+        <p class="cinematic-caption" id="cinematic-caption"></p>
+        <button class="cinematic-origin-star" id="cinematic-origin-star" type="button" aria-label="点亮第一颗星" disabled>
+            <span></span><span></span><span></span>
+        </button>
+        <p class="cinematic-origin-hint">轻轻点一下</p>
     </section>
-    <div id="unlock-prompt" aria-live="polite"><p>轻触星空，进入我们的宇宙</p></div>
 
     <!-- =====================================================
          密码锁（全屏）
@@ -769,12 +950,12 @@
     <div id="lock-screen" class="hidden">
         <div class="lock-card">
                 <div class="lock-icon" aria-hidden="true"></div>
-                <h2>只为你开启</h2>
+                <h2>让星光靠岸</h2>
             <p class="lock-hint">输入那串只属于我们的数字</p>
-            <input type="password" id="lock-input" placeholder="— — — —" maxlength="20" autocomplete="off">
-                <button class="lock-btn" id="lock-btn">走进这一夜</button>
-                <button class="lock-back" id="lock-back-btn" type="button">返回星空</button>
-                <p class="error-msg" id="lock-error"></p>
+            <input type="password" id="lock-input" maxlength="20" inputmode="numeric" autocomplete="one-time-code" aria-label="输入密码">
+            <div class="pin-stars" id="pin-stars" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+                <button class="lock-back" id="lock-back-btn" type="button">回到星光里</button>
+                <p class="error-msg" id="lock-error" aria-live="polite"></p>
         </div>
     </div>
 
@@ -1053,10 +1234,13 @@
     window.UNIVERSE_PHOTOS = photos;
 
     // --- Firebase 配置（从 firebase-config.js 读取；本地 config.js 可保留私人扩展）---
-    const FIREBASE_CONFIG = (window.__CONFIG__ && window.__CONFIG__.FIREBASE_CONFIG) || {};
+    const RUNTIME_CONFIG = window.UniverseRuntimeConfig || {};
+    const FIREBASE_CONFIG = RUNTIME_CONFIG.firebaseConfig || {};
+    const HAS_FIREBASE_CONFIG = Boolean(RUNTIME_CONFIG.hasFirebase);
 
     // --- OpenWeatherMap（从 config.js 读取，若无则为空字符串）---
-    const WEATHER_API_KEY = (window.__CONFIG__ && window.__CONFIG__.WEATHER_API_KEY) || "";
+    const WEATHER_API_KEY = RUNTIME_CONFIG.weatherApiKey || "";
+    const HAS_WEATHER_API_KEY = Boolean(RUNTIME_CONFIG.hasWeather);
 
     // --- 天气城市（名称、纬度、经度）---
     const WEATHER_CITIES = [
@@ -1194,9 +1378,9 @@
        ================================================================= */
     const lockScreen  = $('#lock-screen');
     const lockInput   = $('#lock-input');
-    const lockBtn     = $('#lock-btn');
     const lockBackBtn = $('#lock-back-btn');
     const lockError   = $('#lock-error');
+    const pinStars    = $('#pin-stars');
     const appMain     = $('#app-main');
     const observatory = $('#constellation-observatory');
     const observatoryEnter = $('#observatory-enter');
@@ -1309,42 +1493,73 @@
         });
     }
 
+    function buildPinStars() {
+        const count = Math.max(4, SECRET_CODE.length);
+        pinStars.replaceChildren(...Array.from({ length: count }, () => document.createElement('span')));
+    }
+
+    function updatePinStars() {
+        const dots = pinStars.querySelectorAll('span');
+        dots.forEach((dot, index) => dot.classList.toggle('is-filled', index < lockInput.value.length));
+    }
+
+    function enterMainExperience() {
+        appMain.classList.add('active');
+        window.dispatchEvent(new Event('mainExperienceEntered'));
+        // 密码正确后，检测生日
+        checkBirthday();
+        // 初始化模块
+        initTimeMachine();
+        firebaseReadyPromise.then(() => {
+            initOnlineStatus();
+            initSecretBase();
+        });
+        // 更新相遇天数
+        updateLoveDays();
+        // 开场音乐已在点亮第一颗星时淡入；这里接管播放器而不换歌。
+        autoPlayMusic();
+        // 获取每日一语
+        fetchDailyQuote();
+        requestDesktopFullscreen();
+    }
+
     function checkPassword() {
         const input = lockInput.value.trim();
         if (input === SECRET_CODE) {
             lockError.textContent = '';
             lockScreen.classList.add('hidden');
-            appMain.classList.add('active');
-            showConstellationObservatory();
-            // 这是一个短暂的入场星图，不需要额外按钮；稍后自然上划到首页。
-            observatoryExitTimer = setTimeout(closeConstellationObservatory, 1800);
-            // 密码正确后，检测生日
-            checkBirthday();
-            // 初始化模块
-            initTimeMachine();
-            firebaseReadyPromise.then(initSecretBase);
-            // 更新相遇天数
-            updateLoveDays();
-            // 解锁后自动随机播一首音乐（用户已点击按钮，浏览器允许播放）
-            autoPlayMusic();
-            // 获取每日一语
-            fetchDailyQuote();
-            requestDesktopFullscreen();
+            if (window.UniverseOpeningFlow) {
+                window.addEventListener('cinematicHomeReady', enterMainExperience, { once: true });
+                window.UniverseOpeningFlow.completePassword();
+            } else {
+                enterMainExperience();
+            }
         } else {
-            lockError.textContent = '密码不对哦，再试试吧 🌸';
-            lockInput.classList.add('shake');
+            lockError.textContent = '这串数字还没有点亮星河。再试一次，月亮在等你。';
+            pinStars.classList.add('is-error');
             lockInput.value = '';
+            updatePinStars();
             lockInput.focus();
-            setTimeout(() => lockInput.classList.remove('shake'), 500);
+            setTimeout(() => pinStars.classList.remove('is-error'), 520);
         }
     }
 
-    lockBtn.addEventListener('click', checkPassword);
+    buildPinStars();
+    lockInput.addEventListener('input', () => {
+        lockError.textContent = '';
+        updatePinStars();
+        if (lockInput.value.length === SECRET_CODE.length) checkPassword();
+    });
+    lockInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') checkPassword();
+    });
+    pinStars.addEventListener('click', () => lockInput.focus());
     lockBackBtn.addEventListener('click', () => {
         lockInput.value = '';
+        updatePinStars();
         lockError.textContent = '';
         lockScreen.classList.add('hidden');
-        window.dispatchEvent(new Event('unlockPromptRequested'));
+        if (window.UniverseOpeningFlow) window.UniverseOpeningFlow.returnToCinematic();
     });
     observatoryEnter.addEventListener('click', closeConstellationObservatory);
     observatory.addEventListener('pointerdown', closeConstellationObservatory, { once: false });
@@ -1356,9 +1571,6 @@
     lockInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') checkPassword();
     });
-    // 页面加载后自动聚焦密码框
-    lockInput.focus();
-
     /* =================================================================
        3. 底部导航切换
        ================================================================= */
@@ -1381,6 +1593,10 @@
             page.classList.remove('active');
             if (page.id === 'module-' + target) page.classList.add('active');
         });
+
+        if (target === 'image-carousel' && typeof window.initImageCarousel === 'function') {
+            window.initImageCarousel();
+        }
     }
 
     // V2 宇宙首页卡片点击 → 导航切换
@@ -1407,6 +1623,7 @@
     const petalCanvas     = $('#petal-canvas');
     let petalCtx = null;
     let petalAnimId = null;
+    let petalResizeHandler = null;
 
     function checkBirthday() {
         const now = new Date();
@@ -1420,6 +1637,7 @@
     }
 
     function showBirthdayModal() {
+        if (birthdayModal.classList.contains('active')) return;
         birthdayModal.classList.add('active');
         // 初始化 Canvas 花瓣
         initPetals();
@@ -1430,22 +1648,29 @@
         });
     }
 
-    blessCloseBtn.addEventListener('click', () => {
-        blessingAudio.play().catch(() => {});
+    function closeBirthdayModal() {
         birthdayModal.classList.remove('active');
         if (petalAnimId) cancelAnimationFrame(petalAnimId);
+        petalAnimId = null;
+        if (petalResizeHandler) window.removeEventListener('resize', petalResizeHandler);
+        petalResizeHandler = null;
+    }
+
+    blessCloseBtn.addEventListener('click', () => {
+        blessingAudio.play().catch(() => {});
+        closeBirthdayModal();
     });
 
     /* ---- 花瓣粒子系统（Canvas）---- */
     function initPetals() {
         petalCtx = petalCanvas.getContext('2d');
         // Canvas 尺寸匹配屏幕
-        function resizeCanvas() {
+        petalResizeHandler = function resizeCanvas() {
             petalCanvas.width  = window.innerWidth;
             petalCanvas.height = window.innerHeight;
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
+        };
+        petalResizeHandler();
+        window.addEventListener('resize', petalResizeHandler);
 
         // 花瓣粒子数组
         const petals = [];
@@ -1522,7 +1747,6 @@
     function initTimeMachine() {
         buildCarousel();
         startCarousel();
-        initOnlineStatus();
         if (typeof initMemoryTimeline === 'function') initMemoryTimeline();
     }
 
@@ -1815,6 +2039,11 @@
 
     /* -- Firebase 在线状态监听 -- */
     function initOnlineStatus() {
+        if (!HAS_FIREBASE_CONFIG) {
+            console.info('Firebase 未配置，跳过在线状态监听');
+            return;
+        }
+
         // 检查 Firebase SDK 是否加载成功
         if (typeof firebase === 'undefined') {
             console.warn('Firebase SDK 未加载，跳过在线状态监听');
@@ -1865,7 +2094,11 @@
        6. 模块二：秘密基地
        ================================================================= */
     function initSecretBase() {
-        initMessageBoard();
+        if (HAS_FIREBASE_CONFIG) {
+            initMessageBoard();
+        } else {
+            showMessageBoardState('留言服务尚未配置，这片星空仍在等一段故事。');
+        }
         loadWeather();
     }
 
@@ -2092,6 +2325,13 @@
         const weatherRow = $('#weather-row');
         const weatherTip = $('#weather-tip');
 
+        if (!HAS_WEATHER_API_KEY) {
+            weatherRow.innerHTML = '<div class="weather-card"><p class="loading-text">天气服务尚未配置</p></div>'
+                                 + '<div class="weather-card"><p class="loading-text">天气服务尚未配置</p></div>';
+            weatherTip.textContent = '💬 今天的天气先留白，见面时再告诉彼此。';
+            return;
+        }
+
         try {
             const cards = await Promise.all(WEATHER_CITIES.map(async (city) => {
                 const url = `https://api.openweathermap.org/data/2.5/weather?lat=${city.lat}&lon=${city.lon}&appid=${WEATHER_API_KEY}&units=metric&lang=zh_cn`;
@@ -2159,6 +2399,15 @@
        8. Service Worker 注册（PWA）
        ================================================================= */
     function registerSW() {
+        const isLocalPreview = ['127.0.0.1', 'localhost'].includes(location.hostname);
+        if (isLocalPreview) {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    registrations.forEach(registration => registration.unregister());
+                });
+            }
+            return;
+        }
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
@@ -2181,33 +2430,20 @@
         registerSW();
         firebaseReadyPromise = loadFirebaseSDK();
 
-        // 动画完整播放后，等待用户第一次点击再显示密码锁
-        let spaceReadyFired = false;
-        function waitForUnlockGesture() {
-            const unlockPrompt = $('#unlock-prompt');
-            unlockPrompt.classList.add('active');
+        window.addEventListener('openingRitualFirstLight', function() {
+            if (typeof window.initLionBackground === 'function') {
+                window.initLionBackground();
+            }
+        }, { once: true });
 
-            window.addEventListener('pointerdown', () => {
-                unlockPrompt.classList.remove('active');
-                startOpeningMusic();
-                lockScreen.classList.remove('hidden');
-                lockInput.focus();
-            }, { once: true });
-        }
-        // 从密码页返回时重新绑定一次“轻触星空”的入口。
-        window.addEventListener('unlockPromptRequested', waitForUnlockGesture);
-        window.addEventListener('spaceReady', () => {
-            if (spaceReadyFired) return;
-            spaceReadyFired = true;
-            waitForUnlockGesture();
-        });
-
-        // 开场不等待 Firebase CDN，避免网络慢时误判为 Three.js 失败。
-        if (typeof initLionBackground === 'function') {
-            initLionBackground();
+        const openingFlow = window.UniverseOpeningFlow;
+        const hasOpeningFlow = openingFlow && typeof openingFlow.init === 'function';
+        if (hasOpeningFlow) {
+            openingFlow.init();
         } else {
-            showOpeningFallback();
-            window.dispatchEvent(new Event('spaceReady'));
+            // 核心开场脚本不可用时仍给出唯一的密码入口，避免页面无法进入。
+            lockScreen.classList.remove('hidden');
+            lockInput.focus();
         }
 
         await firebaseReadyPromise;

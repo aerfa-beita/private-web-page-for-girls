@@ -5,15 +5,18 @@
    ============================================================ */
 
 // 缓存名称（修改版本号可强制刷新缓存）
-const CACHE_NAME = 'our-universe-v25-reliable-opening';
+const CACHE_NAME = 'our-universe-v37-mirror-caption';
 
 // 需要缓存的静态文件列表
 const CACHE_FILES = [
     'index.html',
     'firebase-config.js',
     'manifest.json',
-    'lion_background.js?v=22',
-    'assets/Leo/leo-linework-transparent.png?v=15',
+    'scripts/services/runtime-config.js?v=1',
+    'lion_background.js?v=5',
+    'assets/vendor/three.r128.min.js',
+    'scripts/opening/cinematic-opening.js?v=7',
+    'scripts/opening/opening-flow.js?v=2',
     'image_carousel.js',
     'memory_timeline.js',
     'love_letter.js',
@@ -115,7 +118,7 @@ self.addEventListener('fetch', (event) => {
                 if (event.request.headers.get('accept')?.includes('text/html')) {
                     return new Response(
                         '<html><body style="background:#0a0a1a;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;"><p>📡 当前离线，请连接网络后重试</p></body></html>',
-                        { headers: { 'Content-Type': 'text/html' } }
+                        { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
                     );
                 }
                 return new Response('', { status: 408 });

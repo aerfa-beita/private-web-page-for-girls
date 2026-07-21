@@ -5,7 +5,13 @@ D:\MY_Project\web-page\
 ├── index.html          # 【核心】主应用（内联 CSS + JS）
 ├── firebase-config.js  # Firebase 网页公开连接配置（可随 Vercel 发布）
 ├── config.js           # 本地私密配置（被 Git 忽略，不随 Vercel 发布）
-├── lion_background.js  # 宇宙开场动画 + 透明狮子座融合
+├── lion_background.js  # 原生 Three.js 狮子座模块（仅保留右上月亮构图与低饱和材质调整）
+├── scripts/
+│   ├── opening/
+│       ├── cinematic-opening.js # 黑幕字幕镜面碎裂聚星、第一颗星与原生模块启动事件
+│       └── opening-flow.js # 密码层桥接与返回星光
+│   └── services/
+│       └── runtime-config.js # Firebase/天气配置有效性与可用状态
 ├── image_carousel.js   # 【V2】回忆放映机（图片轮播）
 ├── memory_timeline.js  # 【V2】时间星河（按日期渲染回忆）
 ├── love_letter.js      # 【V2】隐藏情书弹窗控制器
@@ -44,7 +50,16 @@ D:\MY_Project\web-page\
 │   ├── 2026-07-19-重复进入密码入口.md       # 返回后重绑轻触入口
 │   ├── 2026-07-20-项目未完成项与修订清单.md # 当前唯一收尾清单与验收顺序
 │   ├── 2026-07-20-Firestore留言超时与重试.md # 留言连接超时、重试与缓存更新
-│   └── 2026-07-20-可靠开场与设备全屏策略.md # Three.js 加载、开场降级与设备全屏策略
+│   ├── 2026-07-20-可靠开场与设备全屏策略.md # Three.js 加载、开场降级与设备全屏策略
+│   ├── 2026-07-20-开场模块化与交互待办.md # 开场状态拆分、UI 与逻辑待办
+│   ├── 2026-07-20-本地预览缓存与编码修复.md # 本地 PWA 缓存隔离与 UTF-8 离线页
+│   ├── 2026-07-20-运行配置降级与页面生命周期.md # 配置降级、轮播按需初始化与花瓣清理
+│   └── 2026-07-20-电影式仪式开场V2.md # 电影开场、星点密码与模块边界
+│   └── 2026-07-20-狮子座回归与点击清场.md # 狮子座显影与首星点击后的文案清场
+│   ├── 2026-07-21-星点狮子座与发现式开场.md # 历史自建 SVG 方案（已替换）
+│   └── 2026-07-21-复用既有狮子座实现.md # 当前 Three.js 狮子座复用方案
+│   └── 2026-07-21-首星启动原生狮子座.md # 首星触发原生时间轴与双月亮处理
+│   └── 2026-07-21-文字聚星与首星对齐.md # 前置字幕镜面碎裂与首星对齐
 ├── tests/
 │   └── site-features.test.js                # 静态功能与安全边界检查
 └── assets/             # 静态资源
@@ -62,13 +77,16 @@ D:\MY_Project\web-page\
 | 文件 | 改什么 |
 |------|--------|
 | `index.html` | 改配置变量（搜索 `【配置区】`）、改照片数组、改 CSS 变量 |
-| `lion_background.js` | 改粒子数量、动画时间轴、镰刀星与透明狮子座线稿 |
+| `lion_background.js` | 原生狮子座模块；仅改月亮位置与缩放，其余开场逻辑只引用 |
+| `scripts/opening/cinematic-opening.js` | 改前置文字、第一颗星、原生模块启动事件与进入主页收拢 |
+| `scripts/opening/opening-flow.js` | 改密码层桥接和返回星光后的入口状态 |
+| `scripts/services/runtime-config.js` | 改 Firebase/天气配置的读取与有效性判断，不放私密 Key |
 | `image_carousel.js` | 改图片路径 `ALL_IMAGES` 数组 |
 | `memory_timeline.js` | 改时间星河的照片排序和卡片渲染 |
 | `love_letter.js` | 改隐藏情书的打开与关闭逻辑 |
 | `star_tree.js` | 改 Firestore 留言到星星的展示映射 |
 | `ai_service.js` | 改同源 AI 代理请求和失败提示 |
-| `serve-local.js` | 本地预览站点；不影响 Vercel 部署 |
+| `serve-local.js` | 本地预览站点；支持端口参数并禁用浏览器缓存，不影响 Vercel 部署 |
 | `流星雨.html` | 独立原型；删除前须确认未再使用 |
 | `manifest.json` | 改 `name`、`short_name`、图标路径 |
 | `sw.js` | 改缓存策略、改缓存文件列表 `CACHE_FILES` |

@@ -22,8 +22,11 @@ test('replaces the sixth photo placeholder with a real asset', () => {
 
 test('uses a versioned cache for all application scripts', () => {
     const serviceWorker = read('sw.js');
-    assert.match(serviceWorker, /CACHE_NAME = 'our-universe-v25-reliable-opening'/);
-    assert.match(serviceWorker, /lion_background\.js\?v=22/);
+    assert.match(serviceWorker, /CACHE_NAME = 'our-universe-v37-mirror-caption'/);
+    assert.match(serviceWorker, /scripts\/services\/runtime-config\.js\?v=1/);
+    assert.match(serviceWorker, /lion_background\.js\?v=5/);
+    assert.match(serviceWorker, /scripts\/opening\/cinematic-opening\.js\?v=7/);
+    assert.match(serviceWorker, /scripts\/opening\/opening-flow\.js\?v=2/);
     assert.match(serviceWorker, /image_carousel\.js/);
     assert.match(serviceWorker, /memory_timeline\.js/);
     assert.match(serviceWorker, /love_letter\.js/);
@@ -38,15 +41,11 @@ test('keeps AI requests behind a configured same-origin service endpoint', () =>
 
 test('uses the V3 editorial hero and restrained gold-space palette', () => {
     const html = read('index.html');
-    assert.match(html, /lion_background\.js\?v=22/);
     assert.match(html, /OUR LITTLE UNIVERSE/);
     assert.match(html, /点亮星河/);
     assert.match(html, /--gold:\s*#D8B36A/);
     assert.match(html, /class="hero-kicker"/);
 
-    const background = read('lion_background.js');
-    assert.match(background, /INTRO_TIMELINE/);
-    assert.match(background, /revealSickle/);
 });
 
 test('adds a post-unlock constellation observatory with three memory stars', () => {
@@ -92,7 +91,7 @@ test('uses transparent lion linework with memory-star reveals', () => {
 
 test('refreshes cached visuals and uses a cinematic crescent with traced meteors', () => {
     const serviceWorker = read('sw.js');
-    assert.match(serviceWorker, /our-universe-v25-reliable-opening/);
+    assert.match(serviceWorker, /our-universe-v37-mirror-caption/);
     assert.match(serviceWorker, /isCorePageAsset/);
     assert.match(serviceWorker, /self\.skipWaiting\(\)/);
 
@@ -114,29 +113,39 @@ test('refreshes cached visuals and uses a cinematic crescent with traced meteors
     assert.doesNotMatch(background, /leo-constellation-walking-borderless/);
 });
 
-test('keeps a return path from the password gate', () => {
+test('keeps a return path from the star-point password gate', () => {
     const html = read('index.html');
+    const openingFlow = read('scripts/opening/opening-flow.js');
     assert.match(html, /id="lock-back-btn"/);
     assert.match(html, /lockBackBtn\.addEventListener/);
-    assert.match(html, /unlockPromptRequested/);
-    assert.match(html, /window\.addEventListener\('unlockPromptRequested', waitForUnlockGesture\)/);
-    assert.match(html, /返回星空/);
+    assert.match(html, /回到星光里/);
+    assert.match(openingFlow, /returnToCinematic/);
+    assert.match(openingFlow, /UniverseCinematicOpening\.returnToPassword/);
 });
 
-test('keeps the completed lion visible while moving the entry prompt below it', () => {
+test('uses a silent black-screen opening before revealing the first star', () => {
     const html = read('index.html');
-    assert.match(html, /bottom: 8vh/);
-
-    const background = read('lion_background.js');
-    assert.match(background, /top:4vh/);
-    assert.match(background, /Keep the transparent constellation visible/);
-    assert.match(background, /revealSickle/);
+    const cinematic = read('scripts/opening/cinematic-opening.js');
+    assert.match(html, /id="cinematic-opening"/);
+    assert.match(html, /id="cinematic-origin-star"/);
+    assert.doesNotMatch(cinematic, /is-distant-star/);
+    assert.doesNotMatch(html, /translate3d\(-30vw, -19vh, 0\)/);
+    assert.match(cinematic, /is-origin-centered/);
+    assert.match(cinematic, /function gatherCaptionIntoStar/);
+    assert.match(cinematic, /later\(gatherCaptionIntoStar, 8200\)/);
+    assert.match(html, /cinematic-caption__glyph/);
+    assert.match(html, /captionMirrorShardA/);
+    assert.match(html, /captionMirrorShardB/);
+    assert.match(cinematic, /shard-x/);
+    assert.match(cinematic, /later\(showInvitation, 16000\)/);
+    assert.match(cinematic, /startOpeningMusic/);
 });
 
 test('starts music on the first permitted gesture and refreshes moon messages', () => {
     const html = read('index.html');
+    const cinematic = read('scripts/opening/cinematic-opening.js');
     assert.match(html, /function startOpeningMusic/);
-    assert.match(html, /startOpeningMusic\(\);/);
+    assert.match(cinematic, /window\.startOpeningMusic\(\);/);
     assert.match(html, /function getMoonQuote/);
     assert.match(html, /MOON_LETTERS/);
     assert.match(html, /v1\.hitokoto\.cn/);
@@ -147,17 +156,33 @@ test('starts music on the first permitted gesture and refreshes moon messages', 
     assert.match(loveLetter, /data-letter-source/);
 });
 
-test('uses the observatory as an automatic, skippable transition', () => {
+test('morphs the galaxy into the homepage after a correct password', () => {
     const html = read('index.html');
-    assert.match(html, /observatoryExitTimer = setTimeout\(closeConstellationObservatory, 1800\)/);
-    assert.match(html, /observatoryDriftAway/);
-    assert.match(html, /rotate\(\$\{angle\} 350 350\)/);
+    const cinematic = read('scripts/opening/cinematic-opening.js');
+    assert.match(html, /cinematicHomeReady/);
+    assert.match(html, /function enterMainExperience\(\)/);
+    assert.match(cinematic, /is-homeward/);
+    assert.match(cinematic, /later\(function \(\) \{\s*elements\.root\.classList\.add\('is-complete'\)/);
 });
 
-test('waits for a user gesture before opening the password lock', () => {
+test('uses one origin-star gesture, then a cinematic star-point password gate', () => {
     const html = read('index.html');
-    assert.match(html, /id="unlock-prompt"/);
-    assert.match(html, /waitForUnlockGesture/);
+    const openingFlow = read('scripts/opening/opening-flow.js');
+    const cinematic = read('scripts/opening/cinematic-opening.js');
+    const serviceWorker = read('sw.js');
+    assert.match(html, /id="cinematic-origin-star"/);
+    assert.match(html, /lion_background\.js\?v=5/);
+    assert.match(html, /id="pin-stars"/);
+    assert.match(html, /这串数字还没有点亮星河。再试一次，月亮在等你。/);
+    assert.match(html, /lion_background\.js\?v=5[\s\S]*scripts\/opening\/cinematic-opening\.js\?v=7[\s\S]*scripts\/opening\/opening-flow\.js\?v=2/);
+    assert.match(openingFlow, /cinematicPasswordRequested/);
+    assert.match(cinematic, /cinematicFirstLight/);
+    assert.match(cinematic, /setCaption\('', false\);/);
+    assert.match(cinematic, /openingRitualFirstLight/);
+    assert.match(cinematic, /is-native-running/);
+    assert.match(cinematic, /cinematicPasswordRequested/);
+    assert.match(cinematic, /cinematicHomeReady/);
+    assert.match(serviceWorker, /scripts\/opening\/cinematic-opening\.js\?v=7/);
     assert.match(html, /grid-template-columns:\s*1fr/);
 });
 
@@ -178,17 +203,18 @@ test('authenticates anonymous visitors before subscribing to Firestore messages'
     assert.match(html, /stopMessageBoardSubscription/);
 });
 
-test('keeps the opening composition when Three.js cannot load', () => {
+test('keeps the established Leo sequence while refining the moon composition', () => {
     const html = read('index.html');
-    const background = read('lion_background.js');
-    assert.match(html, /id="opening-fallback"/);
-    assert.match(html, /fallback-leo/);
-    assert.match(html, /function showOpeningFallback/);
-    assert.match(background, /window\.showOpeningFallback/);
-    assert.match(background, /THREE_LOAD_TIMEOUT_MS = 4500/);
-    assert.match(background, /assets\/vendor\/three\.r128\.min\.js/);
-    assert.match(html, /dismissOpeningFallback/);
-    assert.doesNotMatch(html, /}, 15000\);/);
+    const lionBackground = read('lion_background.js');
+    assert.match(html, /lion_background\.js\?v=5/);
+    assert.match(html, /window\.initLionBackground\(\)/);
+    assert.match(html, /openingRitualFirstLight[\s\S]*window\.initLionBackground\(\)/);
+    assert.match(lionBackground, /function createLeoConstellation/);
+    assert.match(lionBackground, /leo-linework-transparent\.png/);
+    assert.match(lionBackground, /lionOverlay\.style\.opacity = String\(.035 \+ smoothProgress \* \.925\)/);
+    assert.match(lionBackground, /moonGroup\.position\.set\(470, 300, -250\)/);
+    assert.match(lionBackground, /moonGroup\.scale\.setScalar\(0\.68\)/);
+    assert.doesNotMatch(lionBackground, /openingRitualFirstLight/);
 });
 
 test('keeps mobile browsers out of fullscreen while preserving desktop fullscreen', () => {
@@ -196,5 +222,53 @@ test('keeps mobile browsers out of fullscreen while preserving desktop fullscree
     assert.match(html, /function requestDesktopFullscreen/);
     assert.match(html, /min-width: 900px\) and \(pointer: fine\)/);
     assert.match(html, /requestDesktopFullscreen\(\);/);
-    assert.match(html, /firebaseReadyPromise\.then\(initSecretBase\)/);
+    assert.match(html, /firebaseReadyPromise\.then\(\(\) => \{\s*initOnlineStatus\(\);\s*initSecretBase\(\);/);
+});
+
+test('keeps local previews isolated from PWA caches and preserves UTF-8 offline text', () => {
+    const html = read('index.html');
+    const serviceWorker = read('sw.js');
+    const localServer = read('serve-local.js');
+
+    assert.match(html, /const isLocalPreview = \['127\.0\.0\.1', 'localhost'\]/);
+    assert.match(html, /navigator\.serviceWorker\.getRegistrations\(\)/);
+    assert.match(serviceWorker, /Content-Type': 'text\/html; charset=utf-8'/);
+    assert.match(localServer, /process\.argv\[2\] \|\| process\.env\.PORT \|\| '5173'/);
+    assert.match(localServer, /'Cache-Control': 'no-store'/);
+});
+
+test('initializes the image carousel only when its module is first opened', () => {
+    const html = read('index.html');
+    const carousel = read('image_carousel.js');
+
+    assert.match(html, /target === 'image-carousel' && typeof window\.initImageCarousel === 'function'/);
+    assert.match(html, /window\.initImageCarousel\(\);/);
+    assert.match(carousel, /var isInitialized = false;/);
+    assert.match(carousel, /if \(isInitialized\) return true;/);
+    assert.match(carousel, /window\.initImageCarousel = initImageCarousel;/);
+    assert.doesNotMatch(carousel, /DOMContentLoaded', initImageCarousel/);
+});
+
+test('degrades optional Firebase and weather services without invalid requests', () => {
+    const html = read('index.html');
+    const runtimeConfig = read('scripts/services/runtime-config.js');
+
+    assert.match(html, /scripts\/services\/runtime-config\.js\?v=1/);
+    assert.match(html, /const HAS_FIREBASE_CONFIG = Boolean\(RUNTIME_CONFIG\.hasFirebase\);/);
+    assert.match(html, /if \(!HAS_FIREBASE_CONFIG\) \{/);
+    assert.match(html, /留言服务尚未配置/);
+    assert.match(html, /if \(!HAS_WEATHER_API_KEY\) \{/);
+    assert.match(html, /天气服务尚未配置/);
+    assert.match(html, /firebaseReadyPromise\.then\(\(\) => \{\s*initOnlineStatus\(\);\s*initSecretBase\(\);/);
+    assert.match(runtimeConfig, /hasRequiredFirebaseFields/);
+    assert.match(runtimeConfig, /hasWeather: Boolean\(weatherApiKey\)/);
+});
+
+test('cleans up the birthday petal animation and resize listener when closed', () => {
+    const html = read('index.html');
+
+    assert.match(html, /let petalResizeHandler = null;/);
+    assert.match(html, /function closeBirthdayModal\(\)/);
+    assert.match(html, /window\.removeEventListener\('resize', petalResizeHandler\)/);
+    assert.match(html, /petalResizeHandler = null;/);
 });

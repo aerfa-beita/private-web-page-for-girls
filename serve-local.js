@@ -3,6 +3,7 @@ const http = require('node:http');
 const path = require('node:path');
 
 const root = process.cwd();
+const port = Number.parseInt(process.argv[2] || process.env.PORT || '5173', 10);
 const types = {
     '.css': 'text/css; charset=utf-8',
     '.flac': 'audio/flac',
@@ -15,7 +16,7 @@ const types = {
     '.png': 'image/png'
 };
 
-http.createServer((request, response) => {
+const server = http.createServer((request, response) => {
     let url = decodeURIComponent(request.url.split('?')[0]);
     if (url === '/') url = '/index.html';
     const file = path.resolve(root, `.${url}`);
@@ -30,7 +31,19 @@ http.createServer((request, response) => {
             response.end('Not found');
             return;
         }
-        response.writeHead(200, { 'Content-Type': types[path.extname(file).toLowerCase()] || 'application/octet-stream' });
+        response.writeHead(200, {
+            'Content-Type': types[path.extname(file).toLowerCase()] || 'application/octet-stream',
+            'Cache-Control': 'no-store'
+        });
         response.end(data);
     });
-}).listen(5173, '127.0.0.1');
+});
+
+server.on('error', (error) => {
+    console.error(`[local] ${error.message}`);
+    process.exitCode = 1;
+});
+
+server.listen(port, '127.0.0.1', () => {
+    console.log(`[local] http://127.0.0.1:${port}`);
+});

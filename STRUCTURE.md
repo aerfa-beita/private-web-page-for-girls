@@ -36,7 +36,10 @@ index.html
 │   │   ├── 模块二：成长星球（留言/星星树/天气/AI 入口）
 │   │   ├── 底部导航栏
 │   │   └── 动画（呼吸、心跳、淡入淡出、花瓣飘落）
-│   ├── <script src="lion_background.js?v=22" defer>  — 宇宙动画、本地 Three.js 优先加载、完整降级开场与退场卸载
+│   ├── <script src="scripts/services/runtime-config.js?v=1"> — 运行配置有效性与服务降级状态
+│   ├── <script src="lion_background.js?v=5"> — 原生 Three.js 狮子座场景；首星事件后启动，月亮位于右上留白区
+│   ├── <script src="scripts/opening/cinematic-opening.js?v=7"> — 艺术字幕镜面碎裂、第一颗星、首次点击与主页收拢
+│   ├── <script src="scripts/opening/opening-flow.js?v=2"> — 密码层桥接与返回星光
 │   ├── <script src="image_carousel.js" defer>   — 回忆放映机
 │   ├── <script src="memory_timeline.js" defer>  — 时间星河
 │   ├── <script src="love_letter.js" defer>      — 隐藏情书
@@ -44,10 +47,10 @@ index.html
 │   └── <script src="ai_service.js" defer>       — 同源 AI 代理客户端
 │
 └── <body>
-    ├── 星空背景层（#starfield，Three.js 激活时隐藏）
-    ├── 完整备用开场（#opening-fallback，Three.js 不可用时显示）
-    ├── 点击提示层（#unlock-prompt，spaceReady 后显示，首次点击打开密码锁）
-    ├── 密码锁遮罩层（#lock-screen，初始隐藏，首次点击后显示）
+    ├── 星空背景层（#starfield，主页背景）
+    ├── Three.js 宇宙层（#lion-background：首星点击后创建的原生狮子座模块，内部逻辑不改动）
+    ├── 电影开场层（#cinematic-opening：黑幕、艺术字幕、第一颗星；点击后退出）
+    ├── 密码锁遮罩层（#lock-screen，银河稳定后显示星点密码）
     ├── 狮子座静观页（#constellation-observatory，密码正确后短暂显示后自动上划，CSS 星云背景 + 透明金线星图拖拽旋转）
     ├── 主应用容器（#app-main）
     │   ├── 生日祝福弹窗（#birthday-modal） + Canvas 花瓣
@@ -69,22 +72,25 @@ index.html
     └── <script> — 全部 JS
         ├── 【配置区】— 所有需替换的变量
         ├── 相遇天数系统（updateLoveDays）
-        ├── Firebase 网页配置 + SDK CDN 加载
+        ├── 运行配置读取 + Firebase SDK CDN 加载
         ├── 星空背景生成器（CSS 星星，作为 Three.js 回落）
-        ├── 密码锁逻辑（spaceReady 后等待首次点击显示，返回时重绑入口）
+        ├── 密码锁逻辑（星点显示、密码校验、银河收拢后进入主页）
         ├── 模块切换（switchModule，供导航栏和首页卡片共用）
         ├── 模块一逻辑（照片轮播/音乐/生日检测/花瓣/在线状态）
         ├── 模块二逻辑（留言 CRUD/星星树/AI 入口/天气 API）
-        ├── 启动入口（bootstrap：注册 SW → 加载 Firebase → 启动 lion_background → 等待 spaceReady）
-        └── Service Worker 注册
+        ├── 启动入口（bootstrap：线上注册 SW → 初始化电影开场；Firebase 并行加载）
+        └── Service Worker 注册（127.0.0.1 / localhost 预览时注销并跳过）
 ```
 
 ## 外部脚本
 
 | 文件 | 职责 | 加载方式 |
 |------|------|----------|
-| `lion_background.js` | 宇宙开场动画（本地 Three.js 优先、4.5 秒降级、流星、狮子显影与退场卸载） | `<script src="lion_background.js?v=22" defer>` |
-| `image_carousel.js` | 89 张图片轮播（unseen-first） | `<script defer>` |
+| `scripts/services/runtime-config.js` | Firebase/天气配置有效性与服务降级状态 | 同步加载，位于配置文件之后 |
+| `lion_background.js` | 原生 Three.js 星野、银河和透明主视觉狮子座；月亮右上留白构图 | 同步加载，首星事件后初始化 |
+| `scripts/opening/cinematic-opening.js` | 艺术字幕镜面碎裂、第一颗星、光波、点击事件与主页收拢 | 同步加载，先于流程桥接 |
+| `scripts/opening/opening-flow.js` | 密码层桥接、返回星光、密码正确后的收拢 | 同步加载，位于电影开场之后 |
+| `image_carousel.js` | 89 张图片轮播（unseen-first） | `<script defer>`，首次打开模块时初始化 |
 | `memory_timeline.js` | 按日期排列照片回忆 | `<script defer>` |
 | `love_letter.js` | 监听月亮事件并控制隐藏情书 | `<script defer>` |
 | `star_tree.js` | Firestore 留言展示为星星 | `<script defer>` |
@@ -93,25 +99,31 @@ index.html
 ## 通信协议
 
 ```
-lion_background.js  introAnimation() 9.4s 完成，或 Three.js 失败时启用 #opening-fallback
+cinematic-opening.js  用户点击第一颗星
          │
-         │  window.dispatchEvent(new Event("spaceReady"))
-         ▼
-index.html  window.addEventListener("spaceReady", () => 显示点击提示)
+         ├── window.dispatchEvent(new Event("cinematicFirstLight"))
          │
-         │  用户首次 pointerdown
+         └── window.dispatchEvent(new Event("openingRitualFirstLight"))
+                     │
+                     ▼
+          bootstrap() 调用原生 initLionBackground()
+                     │
          ▼
-显示密码锁（#lock-screen）
+电影开场退出；原生流星、星野、镰刀星与透明狮子座从零播放；音乐渐入
+         │
+         │  window.dispatchEvent(new Event("cinematicPasswordRequested"))
+         ▼
+opening-flow.js  显示星点密码层（#lock-screen）
 ```
 
 ```text
-密码页点击“返回星空”
+密码页点击“回到星光里”
          │
          ▼
-index.html  dispatchEvent("unlockPromptRequested")
+opening-flow.js  调用 cinematic-opening.returnToPassword()
          │
          ▼
-重新进入等待手势状态 → 再次轻触星空 → 显示密码锁
+再次点击中心恒星 → 重新显示密码锁
 ```
 
 ```
@@ -128,18 +140,15 @@ love_letter.js  打开 #love-letter-modal
 页面加载
     │
     ▼
-bootstrap() → registerSW() → initLionBackground()；Firebase SDK 并行加载
-    │                                                    │
-    │                                              开场动画播放 (9.4s)
-    │                                                    │
-    │                                          dispatchEvent("spaceReady")
-    │                                                    │
-    ▼                                                    ▼
-注册 SW + Firebase                      显示轻触提示（#unlock-prompt）
-                                                 │
-                                       首次或重新轻触星空
-                                                 │
-                                      显示密码锁（#lock-screen）
+bootstrap() → registerSW() → openingFlow.init() → 电影黑幕与前置文字；Firebase SDK 并行加载
+             （本地预览跳过 SW）
+    │                                                         │
+    │                                              黑幕字幕后显示第一颗星
+    │                                                         │
+    │                                  点击第一颗星 → initLionBackground() → 原生狮子座时间轴
+    │                                                         │
+    ▼                                                         ▼
+注册 SW + Firebase                                  显示星点密码（#lock-screen）
                                                  │
                                             用户输入密码
                                                  │
@@ -148,9 +157,11 @@ bootstrap() → registerSW() → initLionBackground()；Firebase SDK 并行加�
                                           正确       错误
                                             │         │
                                             ▼         ▼
-                                    狮子座静观页  短暂停留 + 自动上划
+                                    银河收拢为主页
                                             │
                                       自动进入首页（触摸/键盘可跳过）
+                                            │
+                              firebaseReadyPromise → 在线心跳 + 秘密基地初始化
                                             │
                                             ▼
                          mainExperienceEntered → 卸载开场画布与狮子背景
@@ -172,8 +183,10 @@ bootstrap() → registerSW() → initLionBackground()；Firebase SDK 并行加�
 ```
 UI 层（DOM 操作、事件监听、CSS 动画）
     │
-    ├── lion_background.js（独立运行，通过 CustomEvent 通信）
-    ├── image_carousel.js（独立运行，注入 CSS + DOM）
+    ├── lion_background.js（原生 Three.js 狮子座数据、显影与渲染；开场模块只覆盖）
+    ├── scripts/opening/cinematic-opening.js（只管理电影开场视觉、文字与首星点击时机）
+    ├── scripts/opening/opening-flow.js（只管理密码层桥接与返回入口）
+    ├── image_carousel.js（首次切换到放映机时注入 CSS + DOM）
     ├── memory_timeline.js（读取照片配置，渲染时间线）
     ├── love_letter.js（监听隐藏情书事件）
     ├── star_tree.js（留言数据到星星展示）
@@ -183,5 +196,5 @@ UI 层（DOM 操作、事件监听、CSS 动画）
 业务逻辑层（轮播、星图静观页、生日检测、留言管理、天气、相遇天数）
     │
     ▼
-数据层（photos[]、Firebase SDK、fetch API、Three.js CDN）
+服务/数据层（runtime-config、photos[]、Firebase SDK、fetch API、Three.js CDN）
 ```

@@ -105,12 +105,19 @@
     var autoScrollTimer = null;
     var currentSlideIdx = 0; // 当前滚动到的卡片索引（0/1/2）
     var isHovering = false;
+    var isInitialized = false;
+    var cssInjected = false;
 
     /* =================================================================
        CSS 注入
        ================================================================= */
     function injectCSS() {
+        if (cssInjected || document.getElementById('image-carousel-styles')) {
+            cssInjected = true;
+            return;
+        }
         var style = document.createElement('style');
+        style.id = 'image-carousel-styles';
         style.textContent =
             '#module-image-carousel { text-align: center; }' +
             '.carousel-container {' +
@@ -221,6 +228,7 @@
                 '.carousel-next-btn { padding: 10px 24px; font-size: 14px; }' +
             '}';
         document.head.appendChild(style);
+        cssInjected = true;
     }
 
     /* =================================================================
@@ -350,14 +358,16 @@
     }
 
     /* =================================================================
-       初始化（页面加载后自动绑定事件）
+       初始化（首次进入“回忆放映机”时调用）
        ================================================================= */
     function initImageCarousel() {
-        injectCSS();
+        if (isInitialized) return true;
 
         // 查找或创建 UI
         var module = document.getElementById('module-image-carousel');
-        if (!module) return;
+        if (!module) return false;
+
+        injectCSS();
 
         // 确保有容器结构
         if (!document.getElementById('carousel-container')) {
@@ -415,19 +425,22 @@
             var images = getNextGroup(3);
             renderCarousel(images);
         }
+
+        isInitialized = true;
+        return true;
     }
 
     // 暴露给全局
     window.initImageCarousel = initImageCarousel;
     window.refreshCarousel = function(){
+        if (!isInitialized && !initImageCarousel()) return;
         var images = getNextGroup(3);
         renderCarousel(images);
     };
 
-    // 自动初始化（DOM 就绪后）
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initImageCarousel);
-    } else {
+    // 如果脚本加载前用户已经切到该模块，补上这一次初始化。
+    var carouselModule = document.getElementById('module-image-carousel');
+    if (carouselModule && carouselModule.classList.contains('active')) {
         initImageCarousel();
     }
 })();

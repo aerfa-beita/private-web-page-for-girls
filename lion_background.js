@@ -327,10 +327,12 @@
     function createMoon(scene) {
         var moonGroup = new THREE.Group();
         moonGroup.name = 'moon';
-        moonGroup.position.set(320, 240, -200);
+        // Keep the crescent above and beyond Leo's right-facing head, not beside it.
+        moonGroup.position.set(470, 300, -250);
+        moonGroup.scale.setScalar(0.68);
 
         var moonGeo = new THREE.SphereGeometry(28, 32, 32);
-        var moonMat = new THREE.MeshBasicMaterial({ color: 0xe2ba68, transparent: true, opacity: 0, depthWrite: false });
+        var moonMat = new THREE.MeshBasicMaterial({ color: 0xe6d3ab, transparent: true, opacity: 0, depthWrite: false });
         var moonCore = new THREE.Mesh(moonGeo, moonMat);
         moonGroup.add(moonCore);
 
@@ -342,11 +344,11 @@
         moonGroup.add(shadow);
 
         var h1g = new THREE.SphereGeometry(38, 32, 32);
-        var h1m = new THREE.MeshBasicMaterial({ color: 0xe2ba68, transparent: true, opacity: 0, depthWrite: false });
+        var h1m = new THREE.MeshBasicMaterial({ color: 0xc7ab7c, transparent: true, opacity: 0, depthWrite: false });
         moonGroup.add(new THREE.Mesh(h1g, h1m));
 
         var h2g = new THREE.SphereGeometry(52, 32, 32);
-        var h2m = new THREE.MeshBasicMaterial({ color: 0x9c7137, transparent: true, opacity: 0, depthWrite: false });
+        var h2m = new THREE.MeshBasicMaterial({ color: 0x6d5944, transparent: true, opacity: 0, depthWrite: false });
         moonGroup.add(new THREE.Mesh(h2g, h2m));
 
         moonGroup.userData = { targetOpacity: 0, core: moonCore, shadow: shadow };
@@ -559,11 +561,11 @@
 
         function setMoonOpacity(val) {
             moon.userData.targetOpacity = val;
-            moon.userData.core.material.opacity = val * 0.88;
+            moon.userData.core.material.opacity = val * 0.72;
             moon.userData.shadow.material.opacity = val;
             moon.traverse(function(child){
                 if (child.material && child.material.transparent && child !== moon.userData.core && child !== moon.userData.shadow) {
-                    child.material.opacity = val * 0.12;
+                    child.material.opacity = val * 0.07;
                 }
             });
         }

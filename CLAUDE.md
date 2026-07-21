@@ -11,6 +11,7 @@ D:\MY_Project\web-page\
 ├── index.html              # 【核心】主应用（内联 CSS + JS）
 ├── lion_background.js      # V2 宇宙开场动画系统（Three.js）
 ├── image_carousel.js       # 回忆放映机（图片轮播）
+├── scripts/services/runtime-config.js # 外部配置有效性与服务可用状态
 ├── manifest.json           # PWA 应用清单
 ├── sw.js                   # Service Worker（离线缓存）
 ├── README.md               # 项目概述 + 快速开始
@@ -65,9 +66,31 @@ D:\MY_Project\web-page\
 - [2026-07-20 项目未完成项与修订清单](docs/2026-07-20-项目未完成项与修订清单.md)
 - [2026-07-20 Firestore 留言超时与重试](docs/2026-07-20-Firestore留言超时与重试.md)
 - [2026-07-20 可靠开场与设备全屏策略](docs/2026-07-20-可靠开场与设备全屏策略.md)
+- [2026-07-20 开场模块化与交互待办](docs/2026-07-20-开场模块化与交互待办.md)
+- [2026-07-20 本地预览缓存与编码修复](docs/2026-07-20-本地预览缓存与编码修复.md)
+- [2026-07-20 运行配置降级与页面生命周期](docs/2026-07-20-运行配置降级与页面生命周期.md)
+- [2026-07-20 电影式仪式开场 V2](docs/2026-07-20-电影式仪式开场V2.md)
+- [2026-07-20 狮子座回归与点击清场](docs/2026-07-20-狮子座回归与点击清场.md)
+- [2026-07-21 星点狮子座与发现式开场](docs/2026-07-21-星点狮子座与发现式开场.md)
+- [2026-07-21 复用既有狮子座实现](docs/2026-07-21-复用既有狮子座实现.md)
+- [2026-07-21 首星启动原生狮子座](docs/2026-07-21-首星启动原生狮子座.md)
+- [2026-07-21 文字聚星与首星对齐](docs/2026-07-21-文字聚星与首星对齐.md)
 
 ## 🧠会话交接
 - 当前状态：主视觉、Firebase 基础接入与自定义域名已完成；进入上线验收和内容迁移阶段
+- 当前 worktree：`.worktrees/modular-opening` 基于 `9fe615c` 创建；其中的开场模块化和交互改动尚未经过视觉验收，不能直接合并回 `main`。
+- 当前开场修正（覆盖下方历史交接）：不再维护自建 SVG。页面只先播放黑幕、艺术文字和首星；第一句字幕会在原位分成克制的镜面两片，短暂停顿后平滑汇聚为居中的首星；不做弹跳或大范围散开。左侧远处光点已删除，第二句固定在首星下方。首星点击派发 `openingRitualFirstLight`，由 `bootstrap()` 在模块外一次性调用原生 `initLionBackground()`，完整播放原有时间轴。前置层 1.15 秒后退出，额外情书月亮按钮在开场时隐藏；原生月亮仅调整至狮头朝向外的右上留白区并缩小。缓存为 `our-universe-v37-mirror-caption`，脚本为 `cinematic-opening.js?v=7`、`lion_background.js?v=5`。
+- 本轮开场 V2：`scripts/opening/cinematic-opening.js` 负责黑幕字幕、第一颗星、银河、透明狮子座显影与收拢动画；`scripts/opening/opening-flow.js` 只负责密码层桥接。首屏不再加载 `lion_background.js` 或 Three.js；狮子座改用本地透明线稿 `#cinematic-leo`，在银河稳定后显影。
+- 最近修正：第一颗星点击会立即清空“请亲手点亮它”与“轻轻点一下”的引导文字；已在 `127.0.0.1:5174` 验证狮子座在 `is-galaxy-born` 后出现。
+- 当前开场：透明狮子座整图已移除，改为 `.cinematic-constellation` 内十颗主星和三段连线按顺序显影；前段文字改为“有人，轻轻想起了你。”与“于是，宇宙亮起了第一颗星。”，16 秒后才开放第一次点击。脚本已升级为 `cinematic-opening.js?v=2`，缓存名为 `our-universe-v29-constellation-opening`。
+- 密码入口：真实密码输入在视觉上呈现为 `#pin-stars`；密码长度跟随 `SECRET_CODE`，正确后等待 `cinematicHomeReady` 再进入主页。
+- 本地开场验收：已在 `127.0.0.1:5174` 验证首段字幕、第一颗星、银河到密码层与返回星光路径；仍需小花先生确认实际美术节奏后才合并。
+- 本地预览：不要复用 `127.0.0.1:5173`；使用 `node serve-local.js 5174`，本地会禁用并注销 Service Worker，避免旧 worktree 缓存和离线乱码页干扰。
+- 运行配置：`scripts/services/runtime-config.js` 是 `firebase-config.js` / 本地 `config.js` 的只读校验边界；Firebase 或天气未配置时页面要显示可理解的降级状态，不能发送空配置请求。
+- Firebase 时序：在线心跳与秘密基地都必须在 `firebaseReadyPromise` 完成后初始化，避免用户较早解锁时永久跳过在线状态。
+- 回忆放映机：只在首次切换到 `image-carousel` 模块时运行 `window.initImageCarousel()`；不要恢复页面加载时自动初始化。
+- 生日弹窗：统一从 `closeBirthdayModal()` 关闭，以释放花瓣动画和窗口 `resize` 回调。
+- 旧 worktree：`.worktrees/ui-desktop-polish` 基于旧快照，仅保留为试验记录，不再继续开发或合并。
 - 最近完成：密码正确后星图短暂停留并自动上划退场；开场节奏收束为流星、连续主星、狮子显形；月亮信件优先读取 `MOON_LETTERS`，首页与移动端排版同步收尾。
 - 仓库清理：旧开场实验、临时分析文件与未使用狮子源图已删除；私人媒体、私密配置与 Git 工作树保留在本地且不提交。
 - Firestore 留言：已改为匿名登录后再读写；登录与首次订阅均有 12 秒超时和页面内重试，仍需发布 `messages` 规则并完成线上读写验收。
@@ -98,6 +121,7 @@ D:\MY_Project\web-page\
   - Storage 图片上传、照片/音乐线上迁移
   - Cyber-AI 同源代理、天气服务端代理、真实访问保护
   - 移动端、弱网、缓存与开场节奏的整体回归
+  - 当前 worktree 的轮播延迟初始化、配置未设置降级提示与生日弹窗重复开关
 - 🔁 工作流：主工作区只保留已验收版本；V4 草稿在 `.worktrees/` 独立开发，未验收不合并
 - 🔒 当前阻塞：
 - Vercel 自动部署与真实域名验收尚未完成
@@ -106,8 +130,8 @@ D:\MY_Project\web-page\
 - 说明：全局偏好在 `C:\Users\yjhdetianxuan\.claude.md`；本文件只维护本项目交接
 
 ## 开发注意事项
-- 单文件架构，CSS 和 JS 均在 index.html 内联
-- lion_background.js 和 image_carousel.js 为外部脚本（`defer` 加载）
+- CSS 保留在 `index.html`；JavaScript 正逐步按开场、服务、照片等功能域拆到外部模块。
+- 开场脚本按 `lion_background.js` → `cinematic-opening.js` → `opening-flow.js` 同步加载；首星事件在 `bootstrap()` 中启动原生狮子座模块，狮子座时间轴与主视觉不得改写；仅保留用户已验收的右上月亮构图参数调整。`image_carousel.js` 仍为延迟脚本，但只在页面模块激活后初始化。
 - Three.js 通过 CDN 动态加载（r128），失败自动回落
 - 移动端自动检测 (`window.innerWidth < 600`) 降级粒子数
 - 修改颜色方案：改 `:root` CSS 变量即可全局生效
