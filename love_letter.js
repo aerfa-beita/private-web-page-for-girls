@@ -47,7 +47,7 @@
             }
             stopTypewriter();
             if (parts.source) parts.source.textContent = quote.source || '';
-        }, 46);
+        }, 100);
     }
 
     /* ----------------------------------------------------------
