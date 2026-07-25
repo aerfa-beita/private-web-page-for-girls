@@ -5,7 +5,7 @@
    ============================================================ */
 
 // 缓存名称（修改版本号可强制刷新所有客户端缓存）
-const CACHE_NAME = 'our-universe-v64-dissolved-night-sides';
+const CACHE_NAME = 'our-universe-v67-cosmic-letter';
 
 // 需要预缓存的静态文件列表
 const CACHE_FILES = [
@@ -17,7 +17,7 @@ const CACHE_FILES = [
     'assets/vendor/three.r128.min.js',
     'scripts/opening/cinematic-opening.js?v=8',
     'scripts/opening/opening-flow.js?v=2',
-    'image_carousel.js?v=3',
+    'image_carousel.js?v=4',
     'love_letter.js',
     'scripts/ui/presence-heart.js?v=2',
     'scripts/ui/earth-atlas.js?v=12',
@@ -29,7 +29,9 @@ const CACHE_FILES = [
     'assets/planets/first-light-v2.png',
     'assets/planets/dream-realm-moon-v4.png',
     'assets/planets/heart-trace-v2.png',
-    'assets/planets/eternal-pact-v2.png'
+    'assets/planets/eternal-pact-v2.png',
+    'components/cosmic-envelope/envelope.css?v=7',
+    'components/cosmic-envelope/envelope.js?v=7'
 ];
 
 /* ---- install：预缓存所有静态文件 ---- */

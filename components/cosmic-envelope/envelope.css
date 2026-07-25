@@ -1,0 +1,280 @@
+/* ============================================================
+   Cosmic Letter Module v7
+   真实信封六部件：back + left fold + right fold + bottom fold + top fold + wax seal
+
+   层级（后→前）：
+     0 → overlay        1 → envelope-back
+     5 → letter-paper   6 → folds (left/right)
+     7 → fold-bottom   20 → flap
+    30 → wax seal      40 → letter-paper(打开后)
+   ============================================================ */
+
+/* ===== 全屏容器 ===== */
+.cosmic-envelope {
+    position: fixed; inset: 0; z-index: 500;
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: none; opacity: 0;
+    transition: opacity 0.7s ease;
+}
+.cosmic-envelope.active { opacity: 1; pointer-events: auto; }
+
+/* 半透明遮罩 — 银河背景始终可见 */
+.envelope-overlay {
+    position: absolute; inset: 0; z-index: 0;
+    background: rgba(2, 8, 20, 0.48);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+
+/* 关闭按钮 */
+.envelope-close {
+    position: absolute; right: 50px; top: 30px; z-index: 50;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: none;
+    border: 1px solid rgba(220, 180, 90, 0.5);
+    color: #dcb45a; font-size: 24px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: color 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+.envelope-close:hover {
+    color: #fff; border-color: rgba(240, 200, 120, 0.9);
+    box-shadow: 0 0 20px rgba(220, 180, 90, 0.35);
+}
+
+/* ============================================================
+   信封 — 居中，六部件真实结构
+   ============================================================ */
+.envelope {
+    position: relative;
+    width: 620px; height: 380px;
+    z-index: 10;
+    transform: scale(0.3);
+    transition: transform 1.4s cubic-bezier(0.2,0.8,0.2,1);
+}
+.cosmic-envelope.active .envelope { transform: scale(1); }
+
+/* ==== 信封背面底板 ==== */
+.envelope-back {
+    position: absolute; inset: 0; z-index: 1;
+    background:
+        /* 银河星尘 */
+        radial-gradient(1px 1px at 10% 20%, rgba(255,215,135,0.5) 50%, transparent 50%),
+        radial-gradient(1px 1px at 30% 50%, rgba(255,200,110,0.4) 50%, transparent 50%),
+        radial-gradient(1px 1px at 55% 30%, rgba(255,210,125,0.45) 50%, transparent 50%),
+        radial-gradient(1px 1px at 75% 55%, rgba(255,195,105,0.4) 50%, transparent 50%),
+        radial-gradient(1px 1px at 88% 35%, rgba(255,205,115,0.45) 50%, transparent 50%),
+        radial-gradient(1px 1px at 20% 70%, rgba(255,190,100,0.35) 50%, transparent 50%),
+        radial-gradient(1px 1px at 65% 65%, rgba(255,200,110,0.38) 50%, transparent 50%),
+        /* 基底 */
+        linear-gradient(145deg, #101f3a, #050b18);
+    border: 1px solid #b9964a;
+    box-shadow: 0 0 70px rgba(180,140,70,0.12), 0 10px 40px rgba(0,0,0,0.5);
+}
+
+/* ==== 左右折页 — 覆盖信封上半两侧 ==== */
+.envelope-fold {
+    position: absolute; bottom: 0; z-index: 6;
+    background: linear-gradient(180deg, #0d1b33, #071229);
+    border-top: 1px solid rgba(185,150,75,0.3);
+}
+.fold-left {
+    left: 0; width: 50%; height: 220px;
+    clip-path: polygon(0 0, 100% 100%, 0 100%);
+    border-right: 1px solid rgba(160,130,70,0.15);
+}
+.fold-right {
+    right: 0; width: 50%; height: 220px;
+    clip-path: polygon(100% 0, 100% 100%, 0 100%);
+    border-left: 1px solid rgba(160,130,70,0.15);
+}
+
+/* ==== 下折页 — 底部 V 形折叠 ==== */
+.fold-bottom {
+    left: 0; bottom: 0; width: 100%; height: 140px; z-index: 7;
+    clip-path: polygon(0 100%, 50% 15%, 100% 100%);
+    background: linear-gradient(180deg, #0a162b, #061025);
+    border-top: 1px solid rgba(185,150,75,0.25);
+}
+
+/* ==== 上盖 — 梯形折面（非尖三角） ==== */
+.envelope-flap {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 220px; z-index: 20;
+    clip-path: polygon(0 0, 100% 0, 50% 72%);
+    background:
+        radial-gradient(1px 1px at 20% 25%, rgba(255,215,135,0.45) 50%, transparent 50%),
+        radial-gradient(1px 1px at 55% 20%, rgba(255,200,110,0.4) 50%, transparent 50%),
+        radial-gradient(1px 1px at 75% 40%, rgba(255,210,125,0.42) 50%, transparent 50%),
+        linear-gradient(180deg, #1b2d4d, #0b162b);
+    filter: drop-shadow(0 5px 18px rgba(0,0,0,0.5));
+    /* 中央压线 */
+    border-bottom: 1px solid rgba(190,155,80,0.2);
+    transform-origin: top center;
+    transition: transform 1.0s cubic-bezier(0.4,0,0.2,1);
+    backface-visibility: hidden;
+}
+/* 上盖打开 → 3D 翻转 */
+.cosmic-envelope.open .envelope-flap {
+    transform: rotateX(180deg);
+}
+
+/* ==== 封蜡星徽 ==== */
+.envelope-seal {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 86px; height: 86px; border-radius: 50%; z-index: 30;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    background:
+        radial-gradient(circle at 38% 32%, rgba(70,90,140,0.45) 0%, transparent 38%),
+        radial-gradient(circle at 45% 40%, #263858 0%, #0d1a30 50%, #050b18 100%);
+    border: 3px solid #d8ad52;
+    box-shadow:
+        0 0 0 2px rgba(160,130,70,0.35),
+        0 0 50px rgba(216,173,82,0.7),
+        0 0 90px rgba(216,173,82,0.2),
+        inset 0 1px 0 rgba(255,255,255,0.1),
+        inset 0 -2px 4px rgba(0,0,0,0.4);
+    animation: sealPulse 4s ease-in-out infinite;
+    transition: box-shadow 0.6s ease, transform 0.6s cubic-bezier(0.22,0.61,0.36,1);
+}
+.envelope-seal span {
+    font-size: 36px; color: #f5d27a; position: relative; z-index: 1;
+    text-shadow: 0 0 12px rgba(255,215,125,0.6);
+}
+/* 内圈纹理 */
+.envelope-seal::before {
+    content: ""; position: absolute; inset: 9px; border-radius: 50%;
+    border: 1px solid rgba(200,160,90,0.25);
+    pointer-events: none;
+}
+
+@keyframes sealPulse {
+    0%,100% { box-shadow: 0 0 0 2px rgba(160,130,70,0.35), 0 0 50px rgba(216,173,82,0.7), 0 0 90px rgba(216,173,82,0.2), inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -2px 4px rgba(0,0,0,0.4); }
+    50% { box-shadow: 0 0 0 2px rgba(180,150,85,0.45), 0 0 65px rgba(245,210,125,0.85), 0 0 110px rgba(245,210,125,0.3), inset 0 1px 0 rgba(255,255,255,0.14), inset 0 -2px 4px rgba(0,0,0,0.4); }
+}
+.envelope-seal:hover {
+    box-shadow: 0 0 0 3px rgba(200,170,100,0.55), 0 0 70px rgba(255,225,145,0.9), 0 0 130px rgba(255,225,145,0.35), inset 0 1px 0 rgba(255,255,255,0.16), inset 0 -2px 4px rgba(0,0,0,0.4);
+}
+
+/* 激活爆亮 */
+.cosmic-envelope.activating .envelope-seal { animation: sealBurst 0.6s ease-out forwards; }
+@keyframes sealBurst {
+    0%   { box-shadow: 0 0 0 2px rgba(160,130,70,0.35), 0 0 50px rgba(216,173,82,0.7); transform: translate(-50%, -50%) scale(1); }
+    40%  { box-shadow: 0 0 0 5px rgba(220,190,120,0.7), 0 0 100px rgba(255,235,165,1), 0 0 200px rgba(255,225,145,0.6); transform: translate(-50%, -50%) scale(1.12); }
+    100% { box-shadow: 0 0 0 1px rgba(170,140,80,0.3), 0 0 18px rgba(200,160,85,0.3); transform: translate(-50%, -50%) scale(0.55); }
+}
+/* 打开后缩小 */
+.cosmic-envelope.open .envelope-seal {
+    animation: none; width: 44px; height: 44px;
+    box-shadow: 0 0 0 1px rgba(170,140,80,0.25), 0 0 12px rgba(180,140,70,0.3);
+}
+.cosmic-envelope.open .envelope-seal span { font-size: 18px; }
+
+/* ============================================================
+   信纸 — 从信封内部升起
+   初始完全隐藏在信封内部，打开后升到信封上方
+   ============================================================ */
+.letter-paper {
+    position: absolute;
+    width: 560px; height: 480px;
+    left: 50%; bottom: 50px;
+    transform: translate(-50%, 300px);
+    opacity: 0; z-index: 5;
+    background: #f3ead6;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    transition: transform 1.4s cubic-bezier(0.2,0.8,0.2,1),
+                opacity 1.1s ease,
+                z-index 0s;
+}
+/* 打开 → 信纸从信封内部升到上方 */
+.cosmic-envelope.open .letter-paper {
+    opacity: 1;
+    transform: translate(-50%, -260px);
+    z-index: 40;
+    transition: transform 1.3s cubic-bezier(0.2,0.8,0.2,1) 0.15s,
+                opacity 0.7s ease 0.15s,
+                z-index 0s 0.15s;
+}
+
+/* ---- 信纸内边距装饰 ---- */
+.paper-inner {
+    position: absolute; inset: 30px;
+    border: 1px solid rgba(150, 120, 60, 0.3);
+    padding: 45px 45px 35px;
+    overflow: hidden;
+}
+/* 四角金色暗纹 */
+.paper-inner::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background:
+        linear-gradient(135deg, rgba(180,145,90,0.18) 0%, transparent 10%),
+        linear-gradient(315deg, rgba(180,145,90,0.14) 0%, transparent 10%);
+}
+/* 星云水印 */
+.paper-inner::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background:
+        radial-gradient(ellipse at 85% 10%, rgba(200,170,120,0.08) 0%, transparent 35%),
+        radial-gradient(ellipse at 10% 85%, rgba(180,150,100,0.06) 0%, transparent 30%);
+}
+
+/* ---- 信纸文字 ---- */
+.paper-star {
+    text-align: center; font-size: 20px; color: #b58b35;
+    position: relative; z-index: 1;
+}
+.paper-inner h1 {
+    text-align: center; font-family: "STKaiti","KaiTi","楷体",serif;
+    font-size: 32px; font-weight: 400; letter-spacing: 10px;
+    color: #33281c; margin-top: 4px;
+    position: relative; z-index: 1;
+}
+.paper-subtitle {
+    display: block; text-align: center; letter-spacing: 7px;
+    font-size: 12px; color: #a67c2c; margin-top: 6px;
+    position: relative; z-index: 1;
+}
+.paper-divider {
+    width: 60px; height: 1px;
+    margin: 20px auto;
+    background: linear-gradient(90deg, transparent, #c49b40, transparent);
+    position: relative; z-index: 1;
+}
+.paper-text {
+    font-family: "STKaiti","KaiTi","楷体",Georgia,serif;
+    font-size: 19px; line-height: 2.1; color: #403426;
+    white-space: pre-line;
+    position: relative; z-index: 1;
+}
+.paper-signature {
+    position: absolute; right: 40px; bottom: 30px;
+    font-family: "Georgia","KaiTi",cursive,serif;
+    font-size: 22px; color: #a67c2c;
+    z-index: 1;
+}
+
+/* ============================================================
+   移动端
+   ============================================================ */
+@media (max-width: 700px) {
+    .envelope-close { right: 16px; top: 16px; width: 34px; height: 34px; font-size: 20px; }
+    .envelope { width: 88vw; height: 56vw; }
+    .envelope-flap { height: 58%; }
+    .fold-left, .fold-right { height: 58%; }
+    .fold-bottom { height: 38%; }
+    .envelope-seal { width: 14vw; height: 14vw; }
+    .envelope-seal span { font-size: 6vw; }
+    .cosmic-envelope.open .envelope-seal { width: 7.5vw; height: 7.5vw; }
+    .cosmic-envelope.open .envelope-seal span { font-size: 3vw; }
+    .letter-paper { width: 80vw; height: 70vw; bottom: 8vw; transform: translate(-50%, 46vw); }
+    .cosmic-envelope.open .letter-paper { transform: translate(-50%, -38vw); }
+    .paper-inner { inset: 5vw; padding: 7vw 6vw 5vw; }
+    .paper-inner h1 { font-size: 5vw; letter-spacing: 5px; }
+    .paper-subtitle { font-size: 2.4vw; }
+    .paper-text { font-size: 3vw; }
+    .paper-signature { right: 6vw; bottom: 5vw; font-size: 3.6vw; }
+}
+@media (max-width: 380px) {
+    .envelope { width: 94vw; height: 62vw; }
+    .letter-paper { width: 88vw; height: 78vw; }
+    .cosmic-envelope.open .letter-paper { transform: translate(-50%, -40vw); }
+}

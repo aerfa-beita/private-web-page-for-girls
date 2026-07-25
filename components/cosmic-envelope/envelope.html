@@ -1,0 +1,52 @@
+<!--
+  Cosmic Letter Module v7
+  真实信封六部件结构：back + left fold + right fold + bottom fold + top fold + wax seal
+  信纸从信封内部升起，信封保持在底部
+  触发：长按月亮 → showEnvelope() → 点击封蜡 → 打开
+-->
+<div class="cosmic-envelope" id="cosmicEnvelope">
+
+    <!-- 全屏半透明遮罩 -->
+    <div class="envelope-overlay"></div>
+
+    <!-- 关闭按钮 -->
+    <button class="envelope-close" type="button" aria-label="关闭">✕</button>
+
+    <!-- ====== 信纸（在信封内部，从信封升起） ====== -->
+    <div class="letter-paper" id="letterPaper">
+        <div class="paper-inner">
+            <div class="paper-star">✦</div>
+            <h1>致你的一封信</h1>
+            <span class="paper-subtitle">A LETTER FOR YOU</span>
+            <div class="paper-divider"></div>
+            <p class="paper-text" id="letterContent"></p>
+            <div class="paper-signature">For You &nbsp;✦</div>
+        </div>
+    </div>
+
+    <!-- ====== 信封 ====== -->
+    <div class="envelope" id="envelopeBody">
+
+        <!-- 信封背面底板 -->
+        <div class="envelope-back"></div>
+
+        <!-- 左折页 -->
+        <div class="envelope-fold fold-left"></div>
+
+        <!-- 右折页 -->
+        <div class="envelope-fold fold-right"></div>
+
+        <!-- 下折页 -->
+        <div class="envelope-fold fold-bottom"></div>
+
+        <!-- 上盖（梯形折面） -->
+        <div class="envelope-flap"></div>
+
+        <!-- 封蜡星徽 -->
+        <div class="envelope-seal" id="envelopeSeal">
+            <span>✦</span>
+        </div>
+
+    </div>
+
+</div>
