@@ -22,6 +22,8 @@ const CACHE_FILES = [
     'scripts/ui/presence-heart.js?v=2',
     'scripts/ui/earth-atlas.js?v=12',
     'scripts/ui/stardust-trail.js?v=3',
+    'components/cosmic-envelope/envelope.css?v=7',
+    'components/cosmic-envelope/envelope.js?v=7',
     'assets/blessing.mp3',
     'assets/icon-192.png',
     'assets/icon-512.png',
@@ -29,9 +31,7 @@ const CACHE_FILES = [
     'assets/planets/first-light-v2.png',
     'assets/planets/dream-realm-moon-v4.png',
     'assets/planets/heart-trace-v2.png',
-    'assets/planets/eternal-pact-v2.png',
-    'components/cosmic-envelope/envelope.css?v=7',
-    'components/cosmic-envelope/envelope.js?v=7'
+    'assets/planets/eternal-pact-v2.png'
 ];
 
 /* ---- install：预缓存所有静态文件 ---- */

@@ -13,6 +13,103 @@
     var isInitialized = false;
     var cssInjected = false;
     var archiveImages = [];
+    // 完整回忆档案首先由 Vercel 静态文件提供。Firebase 仅保留给以后新增或投稿照片，
+    // 因而网络、规则或 SDK 异常都不会让既有 93 张回忆消失。
+    var STATIC_ARCHIVE_FILES = [
+        'IMG_20250704_133728.jpg',
+        'IMG_20250704_133732.jpg',
+        'IMG_20250704_133746.jpg',
+        'IMG_20250704_133748.jpg',
+        'IMG_20250704_133857.jpg',
+        'IMG_20250704_162208.jpg',
+        'IMG_20250704_172316.jpg',
+        'IMG_20250704_172321.jpg',
+        'IMG_20250705_201215.jpg',
+        'IMG_20250705_201239.jpg',
+        'IMG_20250705_224634.jpg',
+        'IMG_20250705_231720.jpg',
+        'IMG_20250706_094730.jpg',
+        'IMG_20250706_100100.jpg',
+        'IMG_20250706_123939.jpg',
+        'IMG_20250706_123947.jpg',
+        'IMG_20250706_203015.jpg',
+        'IMG_20250706_203357.jpg',
+        'IMG_20250706_203528.jpg',
+        'IMG_20250706_203532.jpg',
+        'IMG_20250707_055600.jpg',
+        'IMG_20250707_072410.jpg',
+        'IMG_20250707_162203.jpg',
+        'IMG_20250707_163821.jpg',
+        'IMG_20250707_163824.jpg',
+        'IMG_20250708_194815.jpg',
+        'IMG_20250708_222305.jpg',
+        'IMG_20250710_163620.jpg',
+        'IMG_20250711_195806.jpg',
+        'IMG_20250711_205020.jpg',
+        'IMG_20250811_182749.jpg',
+        'IMG_20250811_184702.jpg',
+        'IMG_20250811_191741.jpg',
+        'IMG_20250826_144739.jpg',
+        'IMG_20250826_153328.jpg',
+        'IMG_20250826_194549.jpg',
+        'IMG_20250829_233503.jpg',
+        'IMG_20260123_181528.jpg',
+        'IMG_20260204_183142.jpg',
+        'IMG_20260204_183143.jpg',
+        'IMG_20260204_183329.jpg',
+        'IMG_20260204_183332.jpg',
+        'IMG_20260204_183426.jpg',
+        'IMG_20260204_183620.jpg',
+        'IMG_20260204_213723.jpg',
+        'IMG_20260204_213724.jpg',
+        'IMG_20260204_221813.jpg',
+        'IMG_20260210_190213.jpg',
+        'IMG_20260210_195559.jpg',
+        'IMG_20260210_195642.jpg',
+        'IMG_20260210_200135.jpg',
+        'IMG_20260210_200230.jpg',
+        'IMG_20260210_200439.jpg',
+        'IMG_20260210_200502.jpg',
+        'IMG_20260210_200504.jpg',
+        'IMG_20260211_144655.jpg',
+        'IMG_20260211_185447.jpg',
+        'IMG_20260211_185506.jpg',
+        'IMG_20260211_185522.jpg',
+        'IMG_20260211_185551.jpg',
+        'IMG_20260211_190135.jpg',
+        'IMG_20260211_190139.jpg',
+        'IMG_20260211_190144.jpg',
+        'IMG_20260211_190201.jpg',
+        'IMG_20260212_104811.jpg',
+        'IMG_20260213_203353.jpg',
+        'IMG_20260223_155511.jpg',
+        'IMG_20260223_164415.jpg',
+        'IMG_20260223_164433.jpg',
+        'IMG_20260223_194704.jpg',
+        'IMG_20260223_213643.jpg',
+        'IMG_20260223_214357.jpg',
+        'IMG_20260228_150244.jpg',
+        'IMG_20260228_152231.jpg',
+        'IMG_20260228_152519.jpg',
+        'IMG_20260228_153817.jpg',
+        'IMG_20260228_153822.jpg',
+        'IMG_20260228_154231.jpg',
+        'IMG_20260228_154704.jpg',
+        'IMG_20260228_160837.jpg',
+        'IMG_20260228_161800.jpg',
+        'IMG_20260228_170339.jpg',
+        'mmexport1743751159291.jpg',
+        'mmexport1743751535249.jpg',
+        'mmexport1746149751988.jpg',
+        'mmexport1747482750764.jpg',
+        'mmexport1754626092562.jpg',
+        'mmexport1754626095415.jpg',
+        'mmexport1754626099506.jpg',
+        'mmexport1754626102323.jpg',
+        'mmexport1771611774437.jpg',
+        'Screenshot_20250404_152545_com.tencent.mm.jpg',
+        'Screenshot_20250502_093500_com.huawei.himovie.local.jpg'
+    ];
     var approvedImages = [];
     var archivePhotoUnsubscribe = null;
     var carouselPhotoUnsubscribe = null;
@@ -236,8 +333,15 @@
         }).filter(Boolean);
     }
 
+    function getStaticArchiveImages() {
+        return STATIC_ARCHIVE_FILES.map(function(fileName) {
+            return 'assets/Photograph/IMG_20260228/' + fileName;
+        });
+    }
+
     function getArchiveImages() {
-        return archiveImages.length ? archiveImages : getFallbackImages();
+        var staticImages = getStaticArchiveImages();
+        return staticImages.length ? staticImages : (archiveImages.length ? archiveImages : getFallbackImages());
     }
 
     function getAllImages() {

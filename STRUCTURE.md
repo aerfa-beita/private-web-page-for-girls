@@ -8,8 +8,8 @@
 
 回忆页 6 张纵向拍立得
 
-档案模块 ──首次进入──> image_carousel.js ──> Firestore archivePhotos ──> Firebase Storage archive/
-                                  └─Firebase 不可用时回退到首页 6 张照片
+档案模块 ──首次进入──> image_carousel.js ──> Vercel 静态 assets/Photograph/IMG_20260228/（93 张）
+                                  └─Firebase 仅保留给未来新增或朋友投稿；不可用不影响既有档案
                                   │
 朋友图片 ──浏览器压缩──> Firebase Storage 待审核路径
                                   │
@@ -76,7 +76,7 @@ index.html
 │   ├── <script src="scripts/opening/opening-flow.js?v=2"> — 密码层桥接与返回星光
 │   ├── <script src="scripts/ui/earth-atlas.js?v=12" defer> — 全视口流动星河、渐隐暗面的真实天体、行星彩蛋与私密情话
 │   ├── <script src="scripts/ui/stardust-trail.js?v=3" defer> — 全局单粒低负载金银星尘轨迹
-│   ├── <script src="image_carousel.js" defer>   — 回忆放映机
+│   ├── <script src="image_carousel.js?v=4" defer> — 回忆放映机（93 张 Vercel 静态照片）
 │   ├── <script src="memory_timeline.js" defer>  — 时间星河
 │   ├── <script src="love_letter.js" defer>      — 隐藏情书
 │   ├── <script src="star_tree.js" defer>        — 留言星星树
@@ -100,7 +100,7 @@ index.html
     │   │   ├── 留言星星树（Firestore 留言只读映射）
     │   │   └── 天气卡片 × 2（独立于 Firebase SDK）
     │   ├── 模块三：回忆放映机（#module-image-carousel）
-    │   │   └── 89 张图片轮播（JS 动态创建）
+    │   │   └── 93 张 Vercel 静态照片轮播（JS 动态创建）
     │   └── 底部导航栏（时间星河 / 成长星球 / 回忆放映机）
     │
     └── <script> — 全部 JS
@@ -126,7 +126,7 @@ index.html
 | `scripts/opening/opening-flow.js` | 密码层桥接、返回星光、密码正确后的收拢 | 同步加载，位于电影开场之后 |
 | `scripts/ui/earth-atlas.js` | 全视口流动星河、透明真实天体资产、CSS 光晕/轨道、粒子爆发、左侧地图抽屉 | `<script defer>`，解锁后作为默认模块显示 |
 | `scripts/ui/stardust-trail.js` | 低密度金银指针/手指星尘轨迹 | `<script defer>`，主体验解锁后生效 |
-| `image_carousel.js` | Firebase 完整档案轮播与首页照片回退（unseen-first） | `<script defer>`，首次打开模块时初始化 |
+| `image_carousel.js` | 93 张 Vercel 静态完整档案轮播与朋友投稿扩展（unseen-first） | `<script defer>`，首次打开模块时初始化 |
 | `scripts/media/migrate-archive-to-firebase.js` | 将本地完整档案上传为 `archive/` 并写入 `archivePhotos` | 仅由项目所有者在仓库外服务账号凭据下手动运行 |
 | `memory_timeline.js` | 按日期排列照片回忆 | `<script defer>` |
 | `love_letter.js` | 监听月亮事件并控制隐藏情书 | `<script defer>` |
@@ -232,7 +232,7 @@ UI 层（DOM 操作、事件监听、CSS 动画）
     ├── scripts/ui/stardust-trail.js（全局金银星尘轨迹）
     ├── image_carousel.js（首次切换到放映机时注入 CSS + DOM）
     ├── memory_timeline.js（读取照片配置，渲染时间线）
-    ├── love_letter.js（监听隐藏情书事件）
+    ├── love_letter.js（监听月亮长按事件；先显示信封，点击后展开信纸）
     ├── star_tree.js（留言数据到星星展示）
     │
     ▼

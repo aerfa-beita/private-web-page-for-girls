@@ -88,8 +88,10 @@ D:\MY_Project\web-page\
 - [2026-07-23 星尘轨迹与流动星河](docs/2026-07-23-星尘轨迹与流动星河.md)
 - [2026-07-25 真实天体视觉资产接入](docs/2026-07-25-真实天体视觉资产接入.md)
 - [2026-07-25 天体暗面融合与低负载星尘](docs/2026-07-25-天体暗面融合与低负载星尘.md)
+- [2026-07-25 宇宙信封 v4 高级质感](docs/2026-07-25-宇宙信封v4高级质感.md)
 
 ## 🧠会话交接
+- 2026-07-25 信封 v4 重写：`components/cosmic-envelope/` 三个文件全部重写。上盖改用 `clip-path: polygon()` + `filter: drop-shadow()` + 3D `rotateX`，废弃旧 `border-left/border-right 310px` 大三角 hack。信封主体 (`envelope-body`) 深蓝黑底色 + 10 颗 radial-gradient 金色星尘 + 微弱星云纹理 + 顶部金线压纹。左右折页改为小 clip-path 三角（50×65px）。星徽改为火漆蜡封质感、`sealBurst` 爆亮动画后缩小。动画级联：click → `.activating`(0.6s) → `.open`(0.7s触发，上盖翻转) → `.reveal`(2.2s，信纸升 70%+打字)。信纸初始 `translateY(220px)` 完全隐藏在信封主体后。`showEnvelope()` 接口和背景/月亮/长按逻辑不变。CSS/JS 版本号 v4，SW 缓存 `our-universe-v66-cosmic-envelope`。未做视觉验收，不能合并 main。
 - 当前状态：主视觉、Firebase 基础接入与自定义域名已完成；进入上线验收和内容迁移阶段
 - 当前 worktree：`.worktrees/modular-opening` 基于 `9fe615c` 创建；其中的开场模块化和交互改动尚未经过视觉验收，不能直接合并回 `main`。
 - 当前开场修正（覆盖下方历史交接）：不再维护自建 SVG。页面只先播放黑幕、艺术文字和首星；第一句字幕会在原位分成克制的镜面两片，短暂停顿后平滑汇聚为居中的首星；不做弹跳或大范围散开。左侧远处光点已删除，第二句固定在首星下方。首星点击派发 `openingRitualFirstLight`，由 `bootstrap()` 在模块外一次性调用原生 `initLionBackground()`，完整播放原有时间轴。前置层 1.15 秒后退出，额外情书月亮按钮在开场时隐藏；原生月亮仅调整至狮头朝向外的右上留白区并缩小。缓存为 `our-universe-v37-mirror-caption`，脚本为 `cinematic-opening.js?v=7`、`lion_background.js?v=5`。

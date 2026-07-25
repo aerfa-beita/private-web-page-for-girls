@@ -8,7 +8,7 @@ const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 
 test('registers the memory archive and love-letter modules', () => {
     const html = read('index.html');
-    assert.match(html, /image_carousel\.js\?v=3/);
+    assert.match(html, /image_carousel\.js\?v=4/);
     assert.match(html, /love_letter\.js/);
     assert.match(html, /id="memory-archive"/);
     assert.match(html, /id="module-memory-archive"/);
@@ -24,12 +24,12 @@ test('replaces the sixth photo placeholder with a real asset', () => {
 
 test('uses a versioned cache for all application scripts', () => {
     const serviceWorker = read('sw.js');
-    assert.match(serviceWorker, /our-universe-v64-dissolved-night-sides/);
+    assert.match(serviceWorker, /our-universe-v65-static-memory-archive/);
     assert.match(serviceWorker, /scripts\/services\/runtime-config\.js\?v=1/);
     assert.match(serviceWorker, /lion_background\.js\?v=5/);
     assert.match(serviceWorker, /scripts\/opening\/cinematic-opening\.js\?v=8/);
     assert.match(serviceWorker, /scripts\/opening\/opening-flow\.js\?v=2/);
-    assert.match(serviceWorker, /image_carousel\.js\?v=3/);
+    assert.match(serviceWorker, /image_carousel\.js\?v=4/);
     assert.match(serviceWorker, /love_letter\.js/);
     assert.match(serviceWorker, /scripts\/ui\/presence-heart\.js\?v=2/);
     assert.match(serviceWorker, /scripts\/ui\/earth-atlas\.js\?v=12/);
@@ -93,7 +93,7 @@ test('uses transparent lion linework with memory-star reveals', () => {
 
 test('refreshes cached visuals and uses a cinematic crescent with traced meteors', () => {
     const serviceWorker = read('sw.js');
-    assert.match(serviceWorker, /our-universe-v64-dissolved-night-sides/);
+    assert.match(serviceWorker, /our-universe-v65-static-memory-archive/);
     assert.match(serviceWorker, /isCorePageAsset/);
     assert.match(serviceWorker, /self\.skipWaiting\(\)/);
 
@@ -151,6 +151,8 @@ test('starts music on the first permitted gesture and refreshes moon messages', 
     assert.match(html, /window\.addEventListener\('cinematicFirstLight', startOpeningMusic, \{ once: true \}\)/);
     assert.match(html, /const OPENING_TRACK = "Music\/如果这份爱 - 罗森涛\.mp3"/);
     assert.match(html, /function createRandomQueue\(excludeTrack\)/);
+    assert.match(html, /audio\.dataset\.playerInitialized === 'true'/);
+    assert.match(html, /首次允许播放的手势只对应开场曲/);
     assert.match(html, /MUSIC_PLAYLIST[\s\S]*有愧 - LBI利比（时柏尘）\.mp3/);
     assert.match(html, /MUSIC_PLAYLIST[\s\S]*잘 알지도 못하면서 - 림킴/);
     assert.doesNotMatch(html, /MUSIC_PLAYLIST[\s\S]*焦迈奇 - 我的名字\.flac/);
@@ -280,15 +282,20 @@ test('initializes the memory archive only when its own module is opened', () => 
     assert.doesNotMatch(carousel, /DOMContentLoaded', initImageCarousel/);
 });
 
-test('loads the full memory archive from Firebase while keeping six local fallbacks', () => {
+test('loads all 93 remembered photos from Vercel static assets without depending on Firebase', () => {
     const carousel = read('image_carousel.js');
     const firestoreRules = read('firebase/firestore.rules');
     const storageRules = read('firebase/storage.rules');
     const migration = read('scripts/media/migrate-archive-to-firebase.js');
-    const gitignore = read('.gitignore');
 
     assert.match(carousel, /function getFallbackImages\(\)/);
     assert.match(carousel, /window\.UNIVERSE_PHOTOS/);
+    assert.match(carousel, /var STATIC_ARCHIVE_FILES = \[/);
+    assert.match(carousel, /function getStaticArchiveImages\(\)/);
+    assert.match(carousel, /return staticImages\.length \? staticImages/);
+    const staticArchive = carousel.match(/var STATIC_ARCHIVE_FILES = \[([\s\S]*?)\n    \];/);
+    assert.ok(staticArchive);
+    assert.equal((staticArchive[1].match(/\.jpg/g) || []).length, 93);
     assert.match(carousel, /db\.collection\('archivePhotos'\)/);
     assert.match(carousel, /orderBy\('sortOrder', 'asc'\)/);
     assert.doesNotMatch(carousel, /var ALL_IMAGES/);
@@ -296,8 +303,6 @@ test('loads the full memory archive from Firebase while keeping six local fallba
     assert.match(storageRules, /match \/archive\/\{fileName\}/);
     assert.match(migration, /--execute/);
     assert.match(migration, /firebaseStorageDownloadTokens/);
-    assert.match(gitignore, /IMG_20250704_133728\.jpg/);
-    assert.match(gitignore, /IMG_20260228_150244\.jpg/);
 });
 
 test('returns the CSS background and uses a flowing milky-way with planet secrets after unlock', () => {

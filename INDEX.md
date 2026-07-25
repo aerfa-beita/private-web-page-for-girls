@@ -15,7 +15,7 @@
 | `assets/planets/` | 第一束光、梦境之境、心动轨迹、永恒之约四颗天体的透明 PNG 视觉资产；最暗区域渐隐，梦境之境的月面与 CSS 后层紫雾分离。 |
 | `scripts/ui/stardust-trail.js` | 主体验解锁后以单粒、低密度的金银星尘绘制指针/手指轨迹，限制粒子数以减少连续移动时的绘制负担。 |
 | `assets/backgrounds/celestial-atlas-cloud-drift.png` + `index.html` 的 `#starfield` | 全站默认背景；生成星图直接在 CSS 中声明，预加载后以低幅度漂移呈现云层流动。 |
-| `firebase.json` / `.firebaserc` | Firebase 规则发布配置，目标项目为 `new-univese`。 |
+| `components/cosmic-envelope/` | 宇宙信封组件（v4）：clip-path 三角形上盖 + 深蓝黑银河纹理主体 + 火漆星徽封印 + 3D 翻转打开 + 信纸升起 70%；由长按月亮触发 `showEnvelope()`。 |
 
 `memory_timeline.js` 与 `star_tree.js` 仍作为历史文件保留，但不再由公开页面加载。留言数据不会由网站代码自动清空；正式发布清理步骤见 `docs/2026-07-22-记忆档案与此刻页面重构.md`。
 

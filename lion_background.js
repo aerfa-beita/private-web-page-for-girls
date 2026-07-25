@@ -677,8 +677,8 @@
         var trigger = document.createElement('button');
         trigger.id = 'moon-letter-trigger';
         trigger.type = 'button';
-        trigger.setAttribute('aria-label', '长按月亮，取出一封信');
-        trigger.innerHTML = '<span aria-hidden="true"></span><i aria-hidden="true"></i><em>长按月亮，取出一封信</em>';
+        trigger.setAttribute('aria-label', '长按月亮，打开隐藏情书');
+        trigger.innerHTML = '<span aria-hidden="true"></span><i aria-hidden="true"></i><em>长按月亮，收一封情书</em>';
         trigger.style.cssText =
             'position:fixed;top:8vh;right:9vw;z-index:16;width:74px;height:74px;padding:0;border:0;border-radius:50%;' +
             'background:radial-gradient(circle at 38% 34%,#fffdf3 0 12%,#f8f4ea 31%,#d8b36a 32%,rgba(216,179,106,.13) 56%,transparent 70%);' +

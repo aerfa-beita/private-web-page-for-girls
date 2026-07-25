@@ -4,8 +4,8 @@
     var GALAXY_PLANETS = [
         { id: 'first-light', cardClass: 'planet-one', asset: 'assets/planets/first-light-v2.png', name: '第一束光', tag: 'UNICA', record: '星辰手记 · ORIGIN', position: { x: 19, y: 48 }, size: 190, message: '在所有晨光之前，\n这一点微亮，\n已经朝向小花先生。' },
         { id: 'dream-realm', cardClass: 'planet-two', asset: 'assets/planets/dream-realm-moon-v4.png', name: '梦境之境', tag: 'DREAMORA', record: '星辰手记 · VEIL', position: { x: 43, y: 70 }, size: 220, message: '雾气经过时，\n有一颗小星，\n替我们记得。' },
-        { id: 'heart-trace', cardClass: 'planet-three', asset: 'assets/planets/heart-trace-v2.png', name: '心动轨迹', tag: 'HEARTORA', record: '星辰手记 · ORBIT', position: { x: 76, y: 48 }, size: 190, message: '靠近不是喧响，\n是漫长星夜里，\n同频的一次微光。' },
-        { id: 'eternal-pact', cardClass: 'planet-four', asset: 'assets/planets/eternal-pact-v2.png', name: '永恒之约', tag: 'AETERNUM', record: '星辰手记 · DISTANT', position: { x: 82, y: 73 }, size: 330, message: '再远的天体，\n也有一束微光，\n留给彼此辨认。' }
+        { id: 'heart-trace', cardClass: 'planet-three', asset: 'assets/planets/heart-trace-v2.png', name: '心动轨迹', tag: 'HEARTORA', record: '星辰手记 · ORBIT', position: { x: 58, y: 48 }, size: 190, message: '靠近不是喧响，\n是漫长星夜里，\n同频的一次微光。' },
+        { id: 'eternal-pact', cardClass: 'planet-four', asset: 'assets/planets/eternal-pact-v2.png', name: '永恒之约', tag: 'AETERNUM', record: '星辰手记 · DISTANT', position: { x: 82, y: 52 }, size: 330, message: '再远的天体，\n也有一束微光，\n留给彼此辨认。' }
     ];
 
     var galaxyFrame = 0;

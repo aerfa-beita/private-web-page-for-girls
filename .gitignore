@@ -33,15 +33,4 @@ Thumbs.db
 
 # Agent isolation worktrees
 .worktrees/
-
-# The full memory archive lives in Firebase Storage. Keep only the six
-# first-screen Polaroid fallbacks in the Vercel source tree.
-assets/Photograph/IMG_20260228/**
-!assets/Photograph/IMG_20260228/
-!assets/Photograph/IMG_20260228/.gitkeep
-!assets/Photograph/IMG_20260228/IMG_20250704_133728.jpg
-!assets/Photograph/IMG_20260228/IMG_20250704_133732.jpg
-!assets/Photograph/IMG_20260228/IMG_20250706_094730.jpg
-!assets/Photograph/IMG_20260228/IMG_20260204_183142.jpg
-!assets/Photograph/IMG_20260228/IMG_20260211_144655.jpg
-!assets/Photograph/IMG_20260228/IMG_20260228_150244.jpg
+assets/Photograph/IMG_20260228/*_tmp.*

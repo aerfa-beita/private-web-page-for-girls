@@ -155,6 +155,7 @@
     }
 
     function startIntroTimeline() {
+        // 【小花先生改开场第一句话】保留 \n 可分两行显示。
         later(function () {
             setCaption('有人，\n轻轻想起了你。', true);
         }, 560);
@@ -162,6 +163,7 @@
             setCaption('', false);
             later(function () {
                 elements.root.classList.add('is-origin-message');
+                // 【小花先生改开场第二句话】
                 setCaption('于是，宇宙亮起了第一颗星。', true);
             }, 520);
         }, 4800);
