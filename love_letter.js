@@ -1,4 +1,9 @@
-﻿(function () {
+/* ============================================================
+   月光情书 · 每日一句话弹窗
+   交互：长按月亮 → 弹窗 + 打字机 → 点击"收下" → 银河信封
+   ============================================================ */
+
+(function () {
     var typewriterTimer = null;
 
     function stopTypewriter() {
@@ -6,100 +11,96 @@
         typewriterTimer = null;
     }
 
-    function getLetterParts(modal) {
+    function getParts(modal) {
         return {
             content: modal.querySelector('[data-letter-content]'),
-            source: modal.querySelector('[data-letter-source]'),
-            envelope: modal.querySelector('[data-open-letter]')
+            source: modal.querySelector('[data-letter-source]')
         };
     }
 
-    function setLetterQuote(modal, quote) {
+    /* 设置情话内容，并自动开始打字 */
+    function setQuote(modal, quote) {
         modal._letterQuote = quote || {
             text: '今夜的月光，替我陪在你身边。',
             source: '—— 月光替我收好'
         };
-        if (modal.classList.contains('is-open')) typeLetter(modal);
+        startTyping(modal);
     }
 
-    function typeLetter(modal) {
+    /* 打字机效果 */
+    function startTyping(modal) {
         stopTypewriter();
-        var parts = getLetterParts(modal);
+        var parts = getParts(modal);
         var quote = modal._letterQuote;
-        if (!parts.content || !quote) return;
-        var characters = Array.from(quote.text || '今夜的月光，替我陪在你身边。');
+        if (!parts.content) return;
+
+        var chars = Array.from(quote.text || '');
         var index = 0;
         parts.content.textContent = '';
         if (parts.source) parts.source.textContent = '';
+
         typewriterTimer = window.setInterval(function () {
-            parts.content.textContent += characters[index] || '';
+            parts.content.textContent += chars[index] || '';
             index += 1;
-            if (index < characters.length) return;
+            if (index < chars.length) {
+                return;
+            }
             stopTypewriter();
             if (parts.source) parts.source.textContent = quote.source || '';
         }, 46);
     }
 
+    /* ----------------------------------------------------------
+       长按月亮 → loveLetterRequested 事件 → 显示弹窗 + 自动打字
+       ---------------------------------------------------------- */
     function openLoveLetter() {
         var modal = document.getElementById('love-letter-modal');
         if (!modal) return;
         stopTypewriter();
         modal.hidden = false;
         modal.classList.add('active');
-        modal.classList.remove('is-open');
         modal._letterQuote = null;
 
-        var parts = getLetterParts(modal);
+        var parts = getParts(modal);
         if (parts.content) parts.content.textContent = '';
         if (parts.source) parts.source.textContent = '';
-        if (parts.envelope) {
-            parts.envelope.setAttribute('aria-expanded', 'false');
-            parts.envelope.focus();
-        }
 
         if (typeof window.getMoonQuote !== 'function') {
-            setLetterQuote(modal);
+            setQuote(modal);
             return;
         }
         window.getMoonQuote().then(function (quote) {
             if (modal.hidden) return;
-            setLetterQuote(modal, quote);
+            setQuote(modal, quote);
         }).catch(function () {
-            if (!modal.hidden) setLetterQuote(modal);
+            if (!modal.hidden) setQuote(modal);
         });
     }
 
-    function revealLoveLetter() {
-        var modal = document.getElementById('love-letter-modal');
-        if (!modal || modal.hidden || modal.classList.contains('is-open')) return;
-        modal.classList.add('is-open');
-        var parts = getLetterParts(modal);
-        if (parts.envelope) parts.envelope.setAttribute('aria-expanded', 'true');
-        window.setTimeout(function () {
-            if (!modal.hidden) typeLetter(modal);
-        }, 720);
-        // 打字完成后关闭情书弹窗，弹出银河信封
-        window.setTimeout(function () {
-            closeLoveLetter();
-            if (typeof showEnvelope === 'function') showEnvelope();
-        }, 2200);
-    }
-
+    /* ----------------------------------------------------------
+       点击"收下这句话" → 关闭弹窗 → 弹出银河信封
+       ---------------------------------------------------------- */
     function closeLoveLetter() {
         var modal = document.getElementById('love-letter-modal');
         if (!modal) return;
         stopTypewriter();
-        modal.classList.remove('is-open', 'active');
+        modal.classList.remove('active');
         modal.hidden = true;
+
+        // 弹出银河信封
+        window.setTimeout(function () {
+            if (typeof showEnvelope === 'function') showEnvelope();
+        }, 400);
     }
 
+    /* ---- 事件绑定 ---- */
     document.addEventListener('DOMContentLoaded', function () {
         var modal = document.getElementById('love-letter-modal');
         if (!modal) return;
-        var closeButton = modal.querySelector('[data-close-letter]');
-        var envelope = modal.querySelector('[data-open-letter]');
-        if (closeButton) closeButton.addEventListener('click', closeLoveLetter);
-        if (envelope) envelope.addEventListener('click', revealLoveLetter);
+
+        var closeBtn = modal.querySelector('[data-close-letter]');
+        if (closeBtn) closeBtn.addEventListener('click', closeLoveLetter);
+
         modal.addEventListener('click', function (event) {
             if (event.target === modal) closeLoveLetter();
         });
