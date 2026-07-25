@@ -6,11 +6,13 @@ const test = require('node:test');
 const root = path.resolve(__dirname, '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 
-test('registers the memory timeline and love-letter modules', () => {
+test('registers the memory archive and love-letter modules', () => {
     const html = read('index.html');
-    assert.match(html, /memory_timeline\.js/);
+    assert.match(html, /image_carousel\.js\?v=3/);
     assert.match(html, /love_letter\.js/);
-    assert.match(html, /id="memory-timeline"/);
+    assert.match(html, /id="memory-archive"/);
+    assert.match(html, /id="module-memory-archive"/);
+    assert.doesNotMatch(html, /memory_timeline\.js/);
     assert.match(html, /id="love-letter-modal"/);
 });
 
@@ -22,21 +24,21 @@ test('replaces the sixth photo placeholder with a real asset', () => {
 
 test('uses a versioned cache for all application scripts', () => {
     const serviceWorker = read('sw.js');
-    assert.match(serviceWorker, /CACHE_NAME = 'our-universe-v38-main-media-mp3'/);
+    assert.match(serviceWorker, /our-universe-v64-dissolved-night-sides/);
     assert.match(serviceWorker, /scripts\/services\/runtime-config\.js\?v=1/);
     assert.match(serviceWorker, /lion_background\.js\?v=5/);
-    assert.match(serviceWorker, /scripts\/opening\/cinematic-opening\.js\?v=7/);
+    assert.match(serviceWorker, /scripts\/opening\/cinematic-opening\.js\?v=8/);
     assert.match(serviceWorker, /scripts\/opening\/opening-flow\.js\?v=2/);
-    assert.match(serviceWorker, /image_carousel\.js/);
-    assert.match(serviceWorker, /memory_timeline\.js/);
+    assert.match(serviceWorker, /image_carousel\.js\?v=3/);
     assert.match(serviceWorker, /love_letter\.js/);
-});
-
-test('keeps AI requests behind a configured same-origin service endpoint', () => {
-    const aiService = read('ai_service.js');
-    assert.match(aiService, /AI_ENDPOINT/);
-    assert.match(aiService, /credentials: 'same-origin'/);
-    assert.doesNotMatch(aiService, /sk-[A-Za-z0-9]/);
+    assert.match(serviceWorker, /scripts\/ui\/presence-heart\.js\?v=2/);
+    assert.match(serviceWorker, /scripts\/ui\/earth-atlas\.js\?v=12/);
+    assert.match(serviceWorker, /scripts\/ui\/stardust-trail\.js\?v=3/);
+    assert.match(serviceWorker, /assets\/backgrounds\/celestial-atlas-cloud-drift\.png\?v=2/);
+    assert.match(serviceWorker, /assets\/planets\/first-light-v2\.png/);
+    assert.match(serviceWorker, /assets\/planets\/dream-realm-moon-v4\.png/);
+    assert.match(serviceWorker, /assets\/planets\/heart-trace-v2\.png/);
+    assert.match(serviceWorker, /assets\/planets\/eternal-pact-v2\.png/);
 });
 
 test('uses the V3 editorial hero and restrained gold-space palette', () => {
@@ -91,12 +93,13 @@ test('uses transparent lion linework with memory-star reveals', () => {
 
 test('refreshes cached visuals and uses a cinematic crescent with traced meteors', () => {
     const serviceWorker = read('sw.js');
-    assert.match(serviceWorker, /our-universe-v38-main-media-mp3/);
+    assert.match(serviceWorker, /our-universe-v64-dissolved-night-sides/);
     assert.match(serviceWorker, /isCorePageAsset/);
     assert.match(serviceWorker, /self\.skipWaiting\(\)/);
 
     const html = read('index.html');
-    assert.match(html, /presence-dot/);
+    assert.match(html, /class="presence-heart(?: is-solo)?"/);
+    assert.match(html, /scripts\/ui\/presence-heart\.js\?v=2/);
     assert.doesNotMatch(html, /class="heart">❤️/);
 
     const background = read('lion_background.js');
@@ -130,28 +133,31 @@ test('uses a silent black-screen opening before revealing the first star', () =>
     assert.match(html, /id="cinematic-origin-star"/);
     assert.doesNotMatch(cinematic, /is-distant-star/);
     assert.doesNotMatch(html, /translate3d\(-30vw, -19vh, 0\)/);
-    assert.match(cinematic, /is-origin-centered/);
-    assert.match(cinematic, /function gatherCaptionIntoStar/);
-    assert.match(cinematic, /later\(gatherCaptionIntoStar, 8200\)/);
-    assert.match(html, /cinematic-caption__glyph/);
-    assert.match(html, /captionMirrorShardA/);
-    assert.match(html, /captionMirrorShardB/);
-    assert.match(cinematic, /shard-x/);
-    assert.match(cinematic, /later\(showInvitation, 16000\)/);
+    assert.match(cinematic, /function startIntroTimeline/);
+    assert.match(cinematic, /document\.visibilityState !== 'visible'/);
+    assert.doesNotMatch(cinematic, /gatherCaptionIntoStar/);
+    assert.doesNotMatch(cinematic, /fragmentable/);
+    assert.match(cinematic, /later\(showInvitation, 9400\)/);
     assert.match(cinematic, /startOpeningMusic/);
 });
 
 test('starts music on the first permitted gesture and refreshes moon messages', () => {
     const html = read('index.html');
+    assert.match(html, /background-image:\s*url\('assets\/backgrounds\/celestial-atlas-cloud-drift\.png\?v=2'\)/);
+    assert.match(html, /rel="preload" as="image" href="assets\/backgrounds\/celestial-atlas-cloud-drift\.png\?v=2"/);
     const cinematic = read('scripts/opening/cinematic-opening.js');
     assert.match(html, /function startOpeningMusic/);
-    assert.match(cinematic, /window\.startOpeningMusic\(\);/);
-    assert.match(html, /MUSIC_PLAYLIST[\s\S]*有愧\(1\)\.mp3/);
-    assert.match(html, /MUSIC_PLAYLIST[\s\S]*잘 알지도 못하면서\.mp3/);
+    assert.match(cinematic, /emit\('cinematicFirstLight'\)/);
+    assert.match(html, /window\.addEventListener\('cinematicFirstLight', startOpeningMusic, \{ once: true \}\)/);
+    assert.match(html, /const OPENING_TRACK = "Music\/如果这份爱 - 罗森涛\.mp3"/);
+    assert.match(html, /function createRandomQueue\(excludeTrack\)/);
+    assert.match(html, /MUSIC_PLAYLIST[\s\S]*有愧 - LBI利比（时柏尘）\.mp3/);
+    assert.match(html, /MUSIC_PLAYLIST[\s\S]*잘 알지도 못하면서 - 림킴/);
     assert.doesNotMatch(html, /MUSIC_PLAYLIST[\s\S]*焦迈奇 - 我的名字\.flac/);
     assert.match(html, /function getMoonQuote/);
-    assert.match(html, /MOON_LETTERS/);
-    assert.match(html, /v1\.hitokoto\.cn/);
+    assert.match(html, /function getMoonLetterPool/);
+    assert.match(html, /return configured\.length \? configured : LOVE_QUOTES/);
+    assert.match(html, /没有专属情书时，始终回退到站内预设文案/);
     assert.match(html, /data-letter-content/);
 
     const loveLetter = read('love_letter.js');
@@ -177,7 +183,7 @@ test('uses one origin-star gesture, then a cinematic star-point password gate', 
     assert.match(html, /lion_background\.js\?v=5/);
     assert.match(html, /id="pin-stars"/);
     assert.match(html, /这串数字还没有点亮星河。再试一次，月亮在等你。/);
-    assert.match(html, /lion_background\.js\?v=5[\s\S]*scripts\/opening\/cinematic-opening\.js\?v=7[\s\S]*scripts\/opening\/opening-flow\.js\?v=2/);
+    assert.match(html, /lion_background\.js\?v=5[\s\S]*scripts\/opening\/cinematic-opening\.js\?v=8[\s\S]*scripts\/opening\/opening-flow\.js\?v=2/);
     assert.match(openingFlow, /cinematicPasswordRequested/);
     assert.match(cinematic, /cinematicFirstLight/);
     assert.match(cinematic, /setCaption\('', false\);/);
@@ -185,18 +191,18 @@ test('uses one origin-star gesture, then a cinematic star-point password gate', 
     assert.match(cinematic, /is-native-running/);
     assert.match(cinematic, /cinematicPasswordRequested/);
     assert.match(cinematic, /cinematicHomeReady/);
-    assert.match(serviceWorker, /scripts\/opening\/cinematic-opening\.js\?v=7/);
+    assert.match(serviceWorker, /scripts\/opening\/cinematic-opening\.js\?v=8/);
     assert.match(html, /grid-template-columns:\s*1fr/);
 });
 
-test('authenticates anonymous visitors before subscribing to Firestore messages', () => {
+test('keeps the public message board graceful while preserving its Firebase test path', () => {
     const html = read('index.html');
     const firebaseConfig = read('firebase-config.js');
     assert.match(html, /firebase-config\.js/);
     assert.match(firebaseConfig, /FIREBASE_CONFIG/);
     assert.match(firebaseConfig, /projectId/);
     assert.match(html, /firebase-auth-compat\.js/);
-    assert.match(html, /await waitForMessageBoard\(auth\.signInAnonymously\(\)\)/);
+    assert.match(html, /waitForMessageBoard\(auth\.signInAnonymously\(\)\)/);
     assert.match(html, /authorId: auth\.currentUser\.uid/);
     assert.match(html, /读取留言失败/);
     assert.match(html, /还没有留言，写下第一句吧/);
@@ -204,6 +210,15 @@ test('authenticates anonymous visitors before subscribing to Firestore messages'
     assert.match(html, /留言加载超时，请检查网络后重试/);
     assert.match(html, /message-retry-btn/);
     assert.match(html, /stopMessageBoardSubscription/);
+    assert.match(html, /isLocalMessageTestHost/);
+    assert.match(html, /ENABLE_MESSAGE_TESTING = isLocalMessageTestHost && rawConfig\.ENABLE_MESSAGE_TESTING === true/);
+    assert.match(html, /id="message-testing-panel" hidden/);
+    assert.match(html, /function initMemoryArchive\(\)/);
+    assert.match(html, /messageWall\.hidden = !HAS_FIREBASE_CONFIG/);
+    assert.match(html, /id="module-memory-archive"/);
+    assert.match(html, /function hidePublicMessageBoard\(\)/);
+    assert.match(html, /MESSAGE_PAGE_SIZE = 12/);
+    assert.match(html, /appendOlderMessagesButton/);
 });
 
 test('keeps the established Leo sequence while refining the moon composition', () => {
@@ -240,16 +255,114 @@ test('keeps local previews isolated from PWA caches and preserves UTF-8 offline 
     assert.match(localServer, /'Cache-Control': 'no-store'/);
 });
 
-test('initializes the image carousel only when its module is first opened', () => {
+test('reloads an existing page only after a new service worker takes control', () => {
+    const html = read('index.html');
+
+    assert.match(html, /const hadServiceWorkerController = Boolean\(navigator\.serviceWorker\.controller\)/);
+    assert.match(html, /navigator\.serviceWorker\.addEventListener\('controllerchange'/);
+    assert.match(html, /if \(!hadServiceWorkerController \|\| reloadedForNewController\) return/);
+    assert.match(html, /const activateNewWorker = \(worker\)/);
+    assert.match(html, /等待接管后刷新/);
+});
+
+test('initializes the memory archive only when its own module is opened', () => {
     const html = read('index.html');
     const carousel = read('image_carousel.js');
 
-    assert.match(html, /target === 'image-carousel' && typeof window\.initImageCarousel === 'function'/);
+    assert.match(html, /id="module-memory-archive"/);
+    assert.match(html, /if \(target === 'memory-archive'\) initMemoryArchive\(\);/);
+    assert.match(html, /function initMemoryArchive\(\)/);
     assert.match(html, /window\.initImageCarousel\(\);/);
     assert.match(carousel, /var isInitialized = false;/);
     assert.match(carousel, /if \(isInitialized\) return true;/);
     assert.match(carousel, /window\.initImageCarousel = initImageCarousel;/);
+    assert.match(carousel, /document\.getElementById\('memory-archive'\)/);
     assert.doesNotMatch(carousel, /DOMContentLoaded', initImageCarousel/);
+});
+
+test('loads the full memory archive from Firebase while keeping six local fallbacks', () => {
+    const carousel = read('image_carousel.js');
+    const firestoreRules = read('firebase/firestore.rules');
+    const storageRules = read('firebase/storage.rules');
+    const migration = read('scripts/media/migrate-archive-to-firebase.js');
+    const gitignore = read('.gitignore');
+
+    assert.match(carousel, /function getFallbackImages\(\)/);
+    assert.match(carousel, /window\.UNIVERSE_PHOTOS/);
+    assert.match(carousel, /db\.collection\('archivePhotos'\)/);
+    assert.match(carousel, /orderBy\('sortOrder', 'asc'\)/);
+    assert.doesNotMatch(carousel, /var ALL_IMAGES/);
+    assert.match(firestoreRules, /match \/archivePhotos\/\{photoId\}/);
+    assert.match(storageRules, /match \/archive\/\{fileName\}/);
+    assert.match(migration, /--execute/);
+    assert.match(migration, /firebaseStorageDownloadTokens/);
+    assert.match(gitignore, /IMG_20250704_133728\.jpg/);
+    assert.match(gitignore, /IMG_20260228_150244\.jpg/);
+});
+
+test('returns the CSS background and uses a flowing milky-way with planet secrets after unlock', () => {
+    const html = read('index.html');
+    const earthAtlas = read('scripts/ui/earth-atlas.js');
+    const lionBackground = read('lion_background.js');
+
+    assert.match(html, /id="module-earth-atlas"/);
+    assert.match(html, /module-earth-atlas"\><\/div\>/);
+    assert.match(html, /scripts\/ui\/earth-atlas\.js\?v=12/);
+    assert.match(html, /celestial-atlas-cloud-drift\.png\?v=2/);
+    assert.match(html, /starfield\.style\.display = ''/);
+    assert.match(lionBackground, /restoredStarfield\.style\.display = ''/);
+    assert.match(html, /window\.switchModule = switchModule/);
+    assert.match(earthAtlas, /class="space"/);
+    assert.match(earthAtlas, /id="stars"/);
+    assert.match(earthAtlas, /galaxy-flow-canvas/);
+    assert.match(earthAtlas, /function buildStars/);
+    assert.match(earthAtlas, /starCount = window\.matchMedia\('\(max-width: 700px\)'\)\.matches \? 220 : 450/);
+    assert.match(earthAtlas, /star\.y -= star\.speed/);
+    assert.match(earthAtlas, /rgba\(255,255,255,/);
+    assert.match(earthAtlas, /function buildGalaxyDust/);
+    assert.match(earthAtlas, /dustCount = window\.matchMedia\('\(max-width: 700px\)'\)\.matches \? 360 : 960/);
+    assert.match(earthAtlas, /dust\.x \+= dust\.speed/);
+    assert.match(earthAtlas, /GALAXY_PLANETS/);
+    assert.match(earthAtlas, /planet-card/);
+    assert.match(earthAtlas, /planet-light/);
+    assert.match(earthAtlas, /planet-asset/);
+    assert.match(earthAtlas, /assets\/planets\/first-light-v2\.png/);
+    assert.match(earthAtlas, /assets\/planets\/dream-realm-moon-v4\.png/);
+    assert.match(earthAtlas, /assets\/planets\/heart-trace-v2\.png/);
+    assert.match(earthAtlas, /assets\/planets\/eternal-pact-v2\.png/);
+    assert.match(earthAtlas, /planet-light/);
+    assert.match(earthAtlas, /orbit/);
+    assert.match(earthAtlas, /planet-info/);
+    assert.match(earthAtlas, /planet\.cardClass/);
+    assert.match(earthAtlas, /星辰手记/);
+    assert.match(earthAtlas, /object-fit: contain/);
+    assert.match(earthAtlas, /planet-card:hover \.planet-asset/);
+    assert.match(earthAtlas, /planet-four \.orbit \{ width: 148%/);
+    assert.match(earthAtlas, /function explodeAtViewport/);
+    assert.match(earthAtlas, /planetCards\.forEach/);
+    assert.match(earthAtlas, /window\.addEventListener\('pointermove', moveSpace/);
+    assert.match(earthAtlas, /scale\(1\.03\)/);
+    assert.match(earthAtlas, /#module-earth-atlas\.module-page \{ width: 100%; max-width: none/);
+    assert.match(earthAtlas, /earth-drawer-tab/);
+});
+
+test('creates a non-blocking gold and silver stardust trail after unlock', () => {
+    const html = read('index.html');
+    const stardustTrail = read('scripts/ui/stardust-trail.js');
+
+    assert.match(html, /id="stardust-trail-canvas"/);
+    assert.match(html, /scripts\/ui\/stardust-trail\.js\?v=3/);
+    assert.match(html, /#stardust-trail-canvas[\s\S]*?pointer-events: none/);
+    assert.match(stardustTrail, /PARTICLE_LIFETIME_MIN = 3200/);
+    assert.match(stardustTrail, /PARTICLE_LIFETIME_MAX = 5000/);
+    assert.match(stardustTrail, /pointermove/);
+    assert.match(stardustTrail, /getCoalescedEvents/);
+    assert.match(stardustTrail, /PARTICLE_LIMIT/);
+    assert.match(stardustTrail, /SAMPLE_DISTANCE = 42/);
+    assert.match(stardustTrail, /SAMPLE_INTERVAL = 80/);
+    assert.match(stardustTrail, /PARTICLE_LIMIT = window\.matchMedia\('\(max-width: 700px\)'\)\.matches \? 52 : 82/);
+    assert.match(stardustTrail, /samplePoint\(points\[points\.length - 1\]\)/);
+    assert.match(stardustTrail, /appMain\.classList\.contains\('active'\)/);
 });
 
 test('degrades optional Firebase and weather services without invalid requests', () => {
@@ -257,14 +370,95 @@ test('degrades optional Firebase and weather services without invalid requests',
     const runtimeConfig = read('scripts/services/runtime-config.js');
 
     assert.match(html, /scripts\/services\/runtime-config\.js\?v=1/);
-    assert.match(html, /const HAS_FIREBASE_CONFIG = Boolean\(RUNTIME_CONFIG\.hasFirebase\);/);
-    assert.match(html, /if \(!HAS_FIREBASE_CONFIG\) \{/);
-    assert.match(html, /留言服务尚未配置/);
+    assert.match(html, /function refreshRuntimeConfig\(\)/);
+    assert.match(html, /let HAS_FIREBASE_CONFIG = false;/);
+    assert.match(html, /let ENABLE_MESSAGE_TESTING = false;/);
+    assert.match(html, /if \(HAS_FIREBASE_CONFIG\) initMessageBoard\(\);/);
     assert.match(html, /if \(!HAS_WEATHER_API_KEY\) \{/);
-    assert.match(html, /天气服务尚未配置/);
+    assert.match(html, /天空暂时留白/);
     assert.match(html, /firebaseReadyPromise\.then\(\(\) => \{\s*initOnlineStatus\(\);\s*initSecretBase\(\);/);
     assert.match(runtimeConfig, /hasRequiredFirebaseFields/);
     assert.match(runtimeConfig, /hasWeather: Boolean\(weatherApiKey\)/);
+});
+
+test('keeps the memory projector upload copy readable before its service is ready', () => {
+    const carousel = read('image_carousel.js');
+    assert.match(carousel, /把这一刻留在放映机/);
+    assert.match(carousel, /\.carousel-upload-button:disabled[\s\S]*?opacity: 1;/);
+});
+
+test('uses the particle heart only after a verified second active visitor', () => {
+    const html = read('index.html');
+    const presenceHeart = read('scripts/ui/presence-heart.js');
+
+    assert.match(html, /const together = activeVisitors\.length >= 2;/);
+    assert.match(html, /window\.renderPresenceHeart\(together\)/);
+    assert.match(html, /window\.hidePresenceHeart\(\)/);
+    assert.match(presenceHeart, /presence-heart/);
+    assert.match(presenceHeart, /此刻，心跳同频/);
+    assert.match(presenceHeart, /另一颗星光，正在路上/);
+    assert.match(presenceHeart, /panel\.classList\.toggle\('is-together'/);
+    assert.match(html, /presence-heart-left/);
+    assert.match(html, /presence-heart-right/);
+    assert.match(html, /presence-pulse-left/);
+    assert.match(html, /presence-pulse-right/);
+    assert.match(html, /presence-heartbeat-signal/);
+    assert.match(html, /@keyframes heartbeatTravel/);
+    assert.match(html, /@keyframes heartReceive/);
+    assert.match(html, /weather-illustration/);
+    assert.match(html, /WEATHER_CITY_NOTES/);
+});
+
+test('uses a fixed six-photo polaroid preview and a separate full archive', () => {
+    const html = read('index.html');
+
+    assert.match(html, /photos\.slice\(0, 6\)/);
+    assert.match(html, /className = 'photo-card polaroid-card'/);
+    assert.match(html, /#module-memory-archive/);
+    assert.match(html, /grid-template-columns:\s*minmax\(0, 1fr\)/);
+    assert.match(html, /border: 22px solid #0a1d36/);
+    assert.match(html, /grid-template-columns: 156px minmax\(210px, \.85fr\) minmax\(0, 1\.45fr\)/);
+    assert.match(html, /className = 'photo-copy'/);
+    assert.doesNotMatch(html, /id="memory-archive-open"/);
+    assert.doesNotMatch(html, /autoCarouselTimer/);
+    assert.doesNotMatch(html, /data-module="image-carousel"/);
+});
+
+test('keeps Firebase presence alive without counting browser tabs twice', () => {
+    const html = read('index.html');
+
+    assert.match(html, /const HEARTBEAT_INTERVAL_MS = 45 \* 1000;/);
+    assert.match(html, /firebase\.database\.ServerValue\.TIMESTAMP/);
+    assert.match(html, /statusRef\.child\(browserId\)\.child\(tabId\)/);
+    assert.match(html, /Object\.values\(visitor\)\.some/);
+    assert.match(html, /myRef\.onDisconnect\(\)\.remove\(\)/);
+    assert.doesNotMatch(html, /statusRef\.update\(updates\)/);
+});
+
+test('loads remote configuration without blocking the opening and excludes it from SW caches', () => {
+    const html = read('index.html');
+    const serviceWorker = read('sw.js');
+    const apiConfig = read('api/config.js');
+    const gitignore = read('.gitignore');
+
+    assert.match(html, /fetch\('\/api\/config'/);
+    assert.match(html, /universeRemoteConfigReady/);
+    assert.doesNotMatch(html, /xhr\.open\('GET', '\/api\/config', false\)/);
+    assert.doesNotMatch(html, /remote\.SECRET_CODE/);
+    assert.match(serviceWorker, /requestUrl\.pathname\.startsWith\('\/api\/'\)/);
+    assert.doesNotMatch(apiConfig, /SECRET_CODE/);
+    assert.match(gitignore, /!api\/config\.js/);
+    assert.match(gitignore, /node_modules\//);
+});
+
+test('times out Firebase SDK and weather requests instead of leaving loading states forever', () => {
+    const html = read('index.html');
+
+    assert.match(html, /const FIREBASE_SDK_TIMEOUT_MS = 12000;/);
+    assert.match(html, /function fetchWithTimeout/);
+    assert.match(html, /const WEATHER_REQUEST_TIMEOUT_MS = 8000;/);
+    assert.match(html, /fetchWithTimeout\(url, \{ cache: 'no-store' \}, WEATHER_REQUEST_TIMEOUT_MS\)/);
+    assert.match(html, /firebaseSdkReady/);
 });
 
 test('cleans up the birthday petal animation and resize listener when closed', () => {

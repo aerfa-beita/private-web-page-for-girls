@@ -1,14 +1,35 @@
 # 📇 文件索引
 
+## 2026-07-22 当前界面模块
+
+| 文件 | 作用 |
+| --- | --- |
+| `index.html` | 可见后再计时的开场、星图背景、六张纵向拍立得、“此刻”双列布局，以及独立档案模块的入口与静默降级。 |
+| `image_carousel.js` | Firebase `archivePhotos` 完整档案、朋友投稿的压缩/限额/待审核流程；只在访客进入“档案”模块后初始化。 |
+| `scripts/ui/presence-heart.js` | 根据已确认的双访客状态控制左侧星尘心形：在线侧光点抵达时短促震颤，双人时补全心形。 |
+| `scripts/ui/stardust-trail.js` | 主体验解锁后在不拦截操作的 Canvas 上低密度绘制金银星尘指针/手指轨迹。 |
+| `firebase/firestore.rules` | 留言测试、照片投稿限额、待审核记录与公开已审核照片的 Firestore 规则草案。 |
+| `firebase/storage.rules` | `carousel-submissions/` 图片上传路径、类型、体积及删除权限的 Storage 规则草案。 |
+| `scripts/media/migrate-archive-to-firebase.js` | 完整回忆档案迁移工具；默认预演，显式 `--execute` 后才写 Firebase Storage 与 Firestore。 |
+| `scripts/ui/earth-atlas.js` | 密码后的全视口横向流动星河主页面；隔离旧 `.planet` 样式，加载渐隐暗面的四颗真实天体资产，以星辰手记呈现，点击后显示各自轨道、粒子爆发与私密情话；保留左侧地图导航。 |
+| `assets/planets/` | 第一束光、梦境之境、心动轨迹、永恒之约四颗天体的透明 PNG 视觉资产；最暗区域渐隐，梦境之境的月面与 CSS 后层紫雾分离。 |
+| `scripts/ui/stardust-trail.js` | 主体验解锁后以单粒、低密度的金银星尘绘制指针/手指轨迹，限制粒子数以减少连续移动时的绘制负担。 |
+| `assets/backgrounds/celestial-atlas-cloud-drift.png` + `index.html` 的 `#starfield` | 全站默认背景；生成星图直接在 CSS 中声明，预加载后以低幅度漂移呈现云层流动。 |
+| `firebase.json` / `.firebaserc` | Firebase 规则发布配置，目标项目为 `new-univese`。 |
+
+`memory_timeline.js` 与 `star_tree.js` 仍作为历史文件保留，但不再由公开页面加载。留言数据不会由网站代码自动清空；正式发布清理步骤见 `docs/2026-07-22-记忆档案与此刻页面重构.md`。
+
 ```
 D:\MY_Project\web-page\
 ├── index.html          # 【核心】主应用（内联 CSS + JS）
 ├── firebase-config.js  # Firebase 网页公开连接配置（可随 Vercel 发布）
 ├── config.js           # 本地私密配置（被 Git 忽略，不随 Vercel 发布）
+├── api/
+│   └── config.js        # Vercel 运行时公开配置（天气 Key、可选月亮信件；不含密码）
 ├── lion_background.js  # 原生 Three.js 狮子座模块（仅保留右上月亮构图与低饱和材质调整）
 ├── scripts/
 │   ├── opening/
-│       ├── cinematic-opening.js # 黑幕字幕镜面碎裂聚星、第一颗星与原生模块启动事件
+│       ├── cinematic-opening.js # 可见后开始的黑幕字幕、第一颗星与原生模块启动事件
 │       └── opening-flow.js # 密码层桥接与返回星光
 │   └── services/
 │       └── runtime-config.js # Firebase/天气配置有效性与可用状态
@@ -16,7 +37,6 @@ D:\MY_Project\web-page\
 ├── memory_timeline.js  # 【V2】时间星河（按日期渲染回忆）
 ├── love_letter.js      # 【V2】隐藏情书弹窗控制器
 ├── star_tree.js        # 【V2】留言到展示星星的映射
-├── ai_service.js       # 【V2】同源 AI 代理调用边界
 ├── serve-local.js       # 本地静态预览服务器（不参与线上部署）
 ├── 流星雨.html          # 独立视觉原型（未被主站引用，暂不删除）
 ├── manifest.json       # PWA 应用清单
@@ -60,12 +80,26 @@ D:\MY_Project\web-page\
 │   └── 2026-07-21-复用既有狮子座实现.md # 当前 Three.js 狮子座复用方案
 │   └── 2026-07-21-首星启动原生狮子座.md # 首星触发原生时间轴与双月亮处理
 │   └── 2026-07-21-文字聚星与首星对齐.md # 前置字幕镜面碎裂与首星对齐
+│   ├── 2026-07-21-P0修复与部署准备.md # 照片压缩、部署准备与首轮修复
+│   └── 2026-07-22-Firebase心跳与弱网降级修复.md # 心跳续期、月亮信件与弱网超时
+│   └── 2026-07-22-记忆档案与此刻页面重构.md # 公开隐藏留言、拍立得档案与双人在线心形
+│   └── 2026-07-22-放映机投稿可读性调整.md # 禁用投稿按钮保持可读，留言数据继续保留
+│   └── 2026-07-22-完整回忆档案Firebase迁移.md # 完整档案迁移、规则发布与安全清理顺序
+│   └── 2026-07-22-地球主页面与回忆留痕重构.md # 地球主页面、左侧标签、动态旅行路线与回忆页重构
+│   └── 2026-07-22-开场稳定与档案模块修复.md # 可见后开场、背景、独立档案与音乐路径修复
+│   └── 2026-07-23-未完成事项交接清单.md # 当前唯一未完成事项、上线顺序与延期边界
+│   └── 2026-07-23-星尘轨迹与流动星河.md # 全局星尘轨迹、流动星河与行星彩蛋
+│   └── 2026-07-23-同片天空心跳与天气重构.md # 左心形、右双城天气与在线状态视觉
+│   └── 2026-07-24-远景天体融入重构.md # 四颗行星降级为远景天体、星辰手记与缓存更新
+│   └── 2026-07-25-真实天体视觉资产接入.md # 四颗透明真实天体资产、CSS 交互与缓存更新
+│   └── 2026-07-25-天体暗面融合与低负载星尘.md # 隔离旧行星样式、暗面渐隐、紫月分层与拖尾降载
 ├── tests/
 │   └── site-features.test.js                # 静态功能与安全边界检查
 └── assets/             # 静态资源
     ├── Music/          # 背景音乐（.flac）
     ├── Photograph/     # 照片资源（89 张）
     ├── Leo/            # 狮子座设计参考图与当前透明金线主视觉
+    ├── planets/         # 四颗透明真实天体视觉资产
     ├── vendor/         # 本站托管的第三方浏览器依赖（Three.js r128）
     ├── blessing.mp3    # 生日祝福语音
     ├── icon-192.png    # PWA 图标小
@@ -77,15 +111,16 @@ D:\MY_Project\web-page\
 | 文件 | 改什么 |
 |------|--------|
 | `index.html` | 改配置变量（搜索 `【配置区】`）、改照片数组、改 MP3 播放列表、改 CSS 变量 |
+| `api/config.js` | 改 Vercel 提供的天气 Key 或可选 `MOON_LETTERS`，不放密码 |
 | `lion_background.js` | 原生狮子座模块；仅改月亮位置与缩放，其余开场逻辑只引用 |
 | `scripts/opening/cinematic-opening.js` | 改前置文字、第一颗星、原生模块启动事件与进入主页收拢 |
 | `scripts/opening/opening-flow.js` | 改密码层桥接和返回星光后的入口状态 |
 | `scripts/services/runtime-config.js` | 改 Firebase/天气配置的读取与有效性判断，不放私密 Key |
-| `image_carousel.js` | 改图片路径 `ALL_IMAGES` 数组 |
+| `image_carousel.js` | 改首页回退照片读取、完整档案订阅或朋友投稿流程 |
+| `scripts/media/migrate-archive-to-firebase.js` | 预演或执行完整档案迁移；服务账号 JSON 必须放在仓库外 |
 | `memory_timeline.js` | 改时间星河的照片排序和卡片渲染 |
 | `love_letter.js` | 改隐藏情书的打开与关闭逻辑 |
 | `star_tree.js` | 改 Firestore 留言到星星的展示映射 |
-| `ai_service.js` | 改同源 AI 代理请求和失败提示 |
 | `serve-local.js` | 本地预览站点；支持端口参数并禁用浏览器缓存，不影响 Vercel 部署 |
 | `流星雨.html` | 独立原型；删除前须确认未再使用 |
 | `manifest.json` | 改 `name`、`short_name`、图标路径 |

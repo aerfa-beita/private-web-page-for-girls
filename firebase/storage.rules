@@ -1,0 +1,28 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // 此目录只放主人确认后公开展示的完整回忆档案，浏览器可直接加载图片。
+    match /archive/{fileName} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /carousel-submissions/{userId}/{fileName} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+        && request.auth.uid == userId
+        && fileName.matches('[A-Za-z0-9]+\\.jpg')
+        && request.resource.contentType == 'image/jpeg'
+        && request.resource.size > 0
+        && request.resource.size <= 1024 * 1024;
+      // 允许投稿者在 Firestore 写入失败后删除自己的孤立文件。
+      allow delete: if request.auth != null && request.auth.uid == userId;
+      allow update: if false;
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

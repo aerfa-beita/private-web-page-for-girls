@@ -4,6 +4,7 @@
     var initialized = false;
     var phase = 'idle';
     var timers = [];
+    var visibilityHandler = null;
     var elements = {};
 
     function later(callback, delay) {
@@ -15,42 +16,21 @@
     function clearTimeline() {
         timers.forEach(function (timer) { window.clearTimeout(timer); });
         timers = [];
+        if (visibilityHandler) {
+            document.removeEventListener('visibilitychange', visibilityHandler);
+            visibilityHandler = null;
+        }
     }
 
     function emit(name) {
         window.dispatchEvent(new Event(name));
     }
 
-    function writeCaption(text, fragmentable) {
-        elements.caption.textContent = '';
-        if (!fragmentable) {
-            elements.caption.textContent = text;
-            return;
-        }
-
-        Array.from(text).forEach(function (character, index) {
-            if (character === '\n') {
-                elements.caption.appendChild(document.createElement('br'));
-                return;
-            }
-            var glyph = document.createElement('span');
-            glyph.className = 'cinematic-caption__glyph';
-            glyph.textContent = character;
-            glyph.dataset.char = character;
-            var shardX = (((index * 17) % 5) - 2) * 4;
-            var shardY = (((index * 11) % 5) - 2) * 3;
-            var shardTurn = (((index * 13) % 5) - 2) * 1.8;
-            glyph.style.setProperty('--shard-x', shardX + 'px');
-            glyph.style.setProperty('--shard-y', shardY + 'px');
-            glyph.style.setProperty('--shard-turn', shardTurn + 'deg');
-            glyph.style.setProperty('--shard-x-opposite', (-shardX) + 'px');
-            glyph.style.setProperty('--shard-y-opposite', (-shardY) + 'px');
-            glyph.style.setProperty('--shard-turn-opposite', (-shardTurn) + 'deg');
-            elements.caption.appendChild(glyph);
-        });
+    function writeCaption(text) {
+        elements.caption.textContent = text;
     }
 
-    function setCaption(text, visible, fragmentable) {
+    function setCaption(text, visible) {
         if (!elements.caption) return;
         if (visible === false) {
             elements.caption.textContent = '';
@@ -60,36 +40,15 @@
         if (elements.caption.classList.contains('is-visible')) {
             elements.caption.classList.remove('is-visible');
             later(function () {
-                writeCaption(text, fragmentable);
+                writeCaption(text);
                 elements.caption.classList.add('is-visible');
             }, 420);
             return;
         }
-        writeCaption(text, fragmentable);
+        writeCaption(text);
         window.requestAnimationFrame(function () {
             elements.caption.classList.add('is-visible');
         });
-    }
-
-    function gatherCaptionIntoStar() {
-        var glyphs = elements.caption.querySelectorAll('.cinematic-caption__glyph');
-        if (!glyphs.length) {
-            setCaption('', false);
-            return;
-        }
-
-        var target = elements.originStar.getBoundingClientRect();
-        var targetX = target.left + target.width / 2;
-        var targetY = target.top + target.height / 2;
-        elements.root.classList.add('is-origin-centered');
-
-        glyphs.forEach(function (glyph) {
-            var source = glyph.getBoundingClientRect();
-            glyph.style.setProperty('--gather-x', (targetX - (source.left + source.width / 2)).toFixed(1) + 'px');
-            glyph.style.setProperty('--gather-y', (targetY - (source.top + source.height / 2)).toFixed(1) + 'px');
-        });
-        elements.caption.classList.add('is-gathering');
-        later(function () { setCaption('', false); }, 1380);
     }
 
     function createStars() {
@@ -164,7 +123,7 @@
         if (phase !== 'awakening') return;
         phase = 'password';
         elements.root.classList.add('is-password-ready');
-        setCaption('只有我们知道的日期，\n\n才能让这片星空靠岸。');
+        setCaption('只有我们知道的日子，\n\n才能让这片星空靠岸。');
         emit('cinematicPasswordRequested');
     }
 
@@ -195,20 +154,35 @@
         }, 1100);
     }
 
-    function beginIntro() {
-        phase = 'intro';
-        elements.root.classList.add('is-active');
-        later(function () { setCaption('有人，\n轻轻想起了你。', true, true); }, 5000);
-        later(gatherCaptionIntoStar, 8200);
+    function startIntroTimeline() {
         later(function () {
-            elements.root.classList.add('is-origin-message');
-            setCaption('于是，宇宙亮起了第一颗星。');
-        }, 9600);
+            setCaption('有人，\n轻轻想起了你。', true);
+        }, 560);
+        later(function () {
+            setCaption('', false);
+            later(function () {
+                elements.root.classList.add('is-origin-message');
+                setCaption('于是，宇宙亮起了第一颗星。', true);
+            }, 520);
+        }, 4800);
         later(function () {
             setCaption('', false);
             elements.root.classList.remove('is-origin-message');
-        }, 14500);
-        later(showInvitation, 16000);
+        }, 8700);
+        later(showInvitation, 9400);
+    }
+
+    function beginIntro() {
+        phase = 'intro';
+        elements.root.classList.add('is-active');
+        visibilityHandler = function () {
+            if (document.visibilityState !== 'visible') return;
+            document.removeEventListener('visibilitychange', visibilityHandler);
+            visibilityHandler = null;
+            startIntroTimeline();
+        };
+        if (document.visibilityState === 'visible') visibilityHandler();
+        else document.addEventListener('visibilitychange', visibilityHandler);
     }
 
     function init() {

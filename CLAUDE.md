@@ -76,6 +76,18 @@ D:\MY_Project\web-page\
 - [2026-07-21 首星启动原生狮子座](docs/2026-07-21-首星启动原生狮子座.md)
 - [2026-07-21 文字聚星与首星对齐](docs/2026-07-21-文字聚星与首星对齐.md)
 - [2026-07-21 主目录媒体部署清单](docs/2026-07-21-主目录媒体部署清单.md)
+- [2026-07-21 P0 修复与部署准备](docs/2026-07-21-P0修复与部署准备.md)
+- [2026-07-22 Firebase 心跳与弱网降级修复](docs/2026-07-22-Firebase心跳与弱网降级修复.md)
+- [2026-07-22 记忆档案与此刻页面重构](docs/2026-07-22-记忆档案与此刻页面重构.md)
+- [2026-07-22 放映机投稿可读性调整](docs/2026-07-22-放映机投稿可读性调整.md)
+- [2026-07-22 完整回忆档案 Firebase 迁移](docs/2026-07-22-完整回忆档案Firebase迁移.md)
+- [2026-07-22 地球主页面与回忆留痕重构](docs/2026-07-22-地球主页面与回忆留痕重构.md)
+- [2026-07-22 开场稳定与档案模块修复](docs/2026-07-22-开场稳定与档案模块修复.md)
+- [2026-07-23 未完成事项交接清单](docs/2026-07-23-未完成事项交接清单.md)
+- [2026-07-23 同片天空心跳与天气重构](docs/2026-07-23-同片天空心跳与天气重构.md)
+- [2026-07-23 星尘轨迹与流动星河](docs/2026-07-23-星尘轨迹与流动星河.md)
+- [2026-07-25 真实天体视觉资产接入](docs/2026-07-25-真实天体视觉资产接入.md)
+- [2026-07-25 天体暗面融合与低负载星尘](docs/2026-07-25-天体暗面融合与低负载星尘.md)
 
 ## 🧠会话交接
 - 当前状态：主视觉、Firebase 基础接入与自定义域名已完成；进入上线验收和内容迁移阶段
@@ -88,16 +100,17 @@ D:\MY_Project\web-page\
 - 密码入口：真实密码输入在视觉上呈现为 `#pin-stars`；密码长度跟随 `SECRET_CODE`，正确后等待 `cinematicHomeReady` 再进入主页。
 - 本地开场验收：已在 `127.0.0.1:5174` 验证首段字幕、第一颗星、银河到密码层与返回星光路径；仍需小花先生确认实际美术节奏后才合并。
 - 本地预览：不要复用 `127.0.0.1:5173`；使用 `node serve-local.js 5174`，本地会禁用并注销 Service Worker，避免旧 worktree 缓存和离线乱码页干扰。
-- 运行配置：`scripts/services/runtime-config.js` 是 `firebase-config.js` / 本地 `config.js` 的只读校验边界；Firebase 或天气未配置时页面要显示可理解的降级状态，不能发送空配置请求。
-- Firebase 时序：在线心跳与秘密基地都必须在 `firebaseReadyPromise` 完成后初始化，避免用户较早解锁时永久跳过在线状态。
+- 运行配置：`scripts/services/runtime-config.js` 负责本地配置校验；线上 `/api/config` 异步补充天气与月亮信件，失败不阻塞开场。密码线上固定回退 `0729`。
+- Firebase 时序：秘密基地会先启动天气；在线心跳等待 Firebase SDK。SDK 12 秒超时后降级，后续成功会触发 `firebaseSdkReady` 自动重试。
 - 回忆放映机：只在首次切换到 `image-carousel` 模块时运行 `window.initImageCarousel()`；不要恢复页面加载时自动初始化。
 - 生日弹窗：统一从 `closeBirthdayModal()` 关闭，以释放花瓣动画和窗口 `resize` 回调。
 - 旧 worktree：`.worktrees/ui-desktop-polish` 基于旧快照，仅保留为试验记录，不再继续开发或合并。
 - 最近完成：密码正确后星图短暂停留并自动上划退场；开场节奏收束为流星、连续主星、狮子显形；月亮信件优先读取 `MOON_LETTERS`，首页与移动端排版同步收尾。
 - 仓库清理：旧开场实验、临时分析文件与未使用狮子源图已删除；私人媒体、私密配置与 Git 工作树保留在本地且不提交。
 - Firestore 留言：已改为匿名登录后再读写；登录与首次订阅均有 12 秒超时和页面内重试，仍需发布 `messages` 规则并完成线上读写验收。
-- Vercel 配置：Firebase 网页公开配置已从私有 `config.js` 拆分为可发布的 `firebase-config.js`；天气 Key、AI 地址与私人内容继续保持本地。
-- Storage 界面：已移除秘密基地内过期的“待开通 Storage”提示；图片上传仍待独立实现。
+- Firebase 心跳：使用 `status/{browserId}/{tabId}`、服务器时间戳和 45 秒续期；客户端不再清理其他访客的记录。
+- Vercel 配置：Firebase 网页公开配置在 `firebase-config.js`；天气 Key 由 `api/config.js` 异步提供（`.gitignore` 已显式包含该文件），`MOON_LETTERS` 可选且对站点访客可见。
+- Storage：小花先生已升级 Blaze；图片上传仍待独立实现文件校验、压缩、Storage 规则与留言关联。
 - 开场降级：Three.js 不可用时会显示完整的标题、月亮与静态狮子座，避免只剩空星空。
 - 开场可靠性：开场不再等待 Firebase；Three.js 优先读取本地 `assets/vendor/three.r128.min.js`，4.5 秒无响应时稳定回退，并在进入主页后始终清理备用狮子。
 - 设备策略：手机和平板不自动全屏也不锁方向，保持竖屏优先布局；仅带精确鼠标的 900px 以上桌面端自动全屏。
@@ -128,8 +141,37 @@ D:\MY_Project\web-page\
 - 🔒 当前阻塞：
 - Vercel 自动部署与真实域名验收尚未完成
   - Cyber-AI 尚未完成调试，不能接入公开前端
-  - 私人照片、音乐、天气 Key 与情书内容不能直接随 Git 发布，需要安全的线上承载方案
+  - 私人照片、音乐和专属情书内容不能直接随 Git 发布，需要安全的线上承载方案
 - 说明：全局偏好在 `C:\Users\yjhdetianxuan\.claude.md`；本文件只维护本项目交接
+
+## 2026-07-22 最新状态（覆盖较早的留言、树与轮播描述）
+
+- 完整回忆档案的目标承载已改为 Firebase Storage `archive/`，首页只保留 6 张拍立得作为 Vercel 首屏与弱网回退；`image_carousel.js` 通过 Firestore `archivePhotos` 订阅完整档案，迁移工具在 `scripts/media/migrate-archive-to-firebase.js`，默认只预演。
+- `firebase.json` 与 `.firebaserc` 已绑定 `firebase/firestore.rules`、`firebase/storage.rules` 到 `new-univese`；规则发布、真实迁移和浏览器验收仍需项目所有者在有 Firebase 凭据的环境中完成。
+- 原完整档案照片没有删除，也没有取消 Git 跟踪。只有迁移、Firebase Console 核对和 Vercel 预览都通过后，且取得项目所有者再次明确授权，才可清理旧档案的 Git 索引。
+- Service Worker 当前缓存版本为 `our-universe-v56-sparse-stardust`；生成的 `celestial-atlas-cloud-drift.png?v=2` 直接写入 `#starfield` 的 CSS 默认背景，预加载并以低幅度位移呈现云层漂移，不依赖 JavaScript 或刷新才出现。
+- 开场脚本 v8 在 `document.visibilityState === 'visible'` 后才启动字幕时间轴，使用完整文本节点而非逐字碎裂；音乐列表已与当前 `assets/Music/` 的 8 个 MP3 文件名一致。
+
+- 密码后默认进入 `scripts/ui/earth-atlas.js?v=4` 的流动星河；该模块解除桌面宽度与内边距限制，星河和全站宇宙背景连续铺满视口。左侧“地图”抽屉提供“星河 / 回忆 / 此刻 / 档案”。`GALAXY_PLANETS` 集中配置行星彩蛋，悬停显示名称，点击或触摸触发彩色星尘爆发和私密情话弹窗。
+- 公开信息架构为：回忆页只保留 6 张纵向拍立得；完整放映机和留言墙集中在独立“档案”模块，首次进入该模块才初始化放映机与 Firebase 留言。
+- `scripts/ui/presence-heart.js` 保持无边框的左心形、右天气双列布局：心电线在心两侧断开；在线侧光点抵达时心短促震颤，Realtime Database 确认两位不同访客在线后才完整点亮。心跳持续续租由 `index.html` 管理。
+- Firestore 留言数据和代码保留；档案模块展示 12 条一页的留言气泡，服务异常时静默隐藏。私有本地 `config.js` 的 `ENABLE_MESSAGE_TESTING: true` 只用于显示调试状态；该项绝不提交。
+- 正式交付前若要清除测试留言，先取得项目所有者的明确确认，再在 Firebase 控制台清理 `messages`。禁止由页面代码或发布脚本自动删除。
+- `image_carousel.js` 已实现朋友照片投稿的客户端压缩、匿名身份、每日限额、Storage 上传和 Firestore 待审核记录；`firebase/firestore.rules` 与 `firebase/storage.rules` 必须先由项目所有者发布并做线上验证，才能对外宣布该功能完成。
+- 全局 `scripts/ui/stardust-trail.js?v=2` 在主体验解锁后提供低密度金银星尘轨迹：每次采样只产生 2 至 3 粒，桌面上限 170 粒、移动端上限 110 粒，3.2 至 5 秒自然消失；Canvas 不拦截点击、滚动或抽屉操作，减少动态效果设置下自动停用。
+- Service Worker 当前缓存版本为 `our-universe-v56-sparse-stardust`。
+- 放映机投稿区的禁用按钮保留完整可读性；留言代码与测试数据均保留，公开页面仅隐藏测试面板。
+
+## 2026-07-23 当前未完成事项（唯一执行顺序）
+
+详细清单见 `docs/2026-07-23-未完成事项交接清单.md`。优先顺序固定为：
+
+1. 发布 Firestore 与 Storage 规则到 `new-univese`，随后验证匿名留言、双人心跳和朋友照片投稿；不得删除任何数据。
+2. 对已完成代码做线上多设备验收：开场首句、音乐、6 张拍立得、档案留言与放映机。
+3. 小花先生确认页面后，再挑选改动发布 GitHub/Vercel；当前不能直接用整个脏工作区覆盖线上版本。
+4. 地球、旅行地点共建、心跳最终视觉均先出设计图；未经确认不继续写 UI。
+
+当前照片和音乐继续由 Vercel 提供给朋友展示。Firebase 完整档案迁移、删除旧媒体和清空测试留言均已延后，任何删除必须取得小花先生单独确认。
 
 ## 开发注意事项
 - CSS 保留在 `index.html`；JavaScript 正逐步按开场、服务、照片等功能域拆到外部模块。
@@ -137,3 +179,11 @@ D:\MY_Project\web-page\
 - Three.js 通过 CDN 动态加载（r128），失败自动回落
 - 移动端自动检测 (`window.innerWidth < 600`) 降级粒子数
 - 修改颜色方案：改 `:root` CSS 变量即可全局生效
+
+## 2026-07-25 天体暗面融合与低负载星尘
+
+- 最新文档：`docs/2026-07-25-天体暗面融合与低负载星尘.md`。
+- 密码后首页继续使用现有真实星云背景和 Canvas 横向银河；`scripts/ui/earth-atlas.js?v=12` 隔离旧首页的 `.planet` 样式，并读取四颗渐隐暗面的真实天体资产。任何新天体组件必须在 `.earth-atlas` 内重置旧的阴影和伪元素，禁止 `01 · 29`、黑圆或旧轨道泄漏。
+- 梦境之境使用独立紫月与后层不规则 CSS 雾；其他三颗天体的暗面由 Alpha 融入背景。严禁恢复成纯 CSS 渐变球、白色描边、圆形编号或卡片式游戏 UI。
+- `scripts/ui/stardust-trail.js?v=3` 为单粒、低密度采样；桌面上限 82 粒、移动端上限 52 粒。Service Worker 当前缓存名为 `our-universe-v64-dissolved-night-sides`；本地预览仍使用 `node serve-local.js 5174`，由页面注销 Service Worker 并以 `no-store` 返回资源。
+- 已通过本地浏览器验收：四颗天体无黑色外框和日期伪元素，点击梦境之境只展开其私密文案。仍需小花先生在常用设备上确认最终美术效果。

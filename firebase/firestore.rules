@@ -1,0 +1,109 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function validUploadLimit() {
+      return request.resource.data.keys().hasOnly(['count', 'dayStartedAt'])
+        && request.resource.data.count is int
+        && request.resource.data.count >= 1
+        && request.resource.data.count <= 5
+        && request.resource.data.dayStartedAt is timestamp;
+    }
+
+    function usesNextUploadSlot(userId) {
+      return existsAfter(/databases/$(database)/documents/carouselUploadLimits/$(userId))
+        && (
+          (!exists(/databases/$(database)/documents/carouselUploadLimits/$(userId))
+            && getAfter(/databases/$(database)/documents/carouselUploadLimits/$(userId)).data.count == 1
+            && getAfter(/databases/$(database)/documents/carouselUploadLimits/$(userId)).data.dayStartedAt == request.time)
+          ||
+          (exists(/databases/$(database)/documents/carouselUploadLimits/$(userId))
+            && request.time - get(/databases/$(database)/documents/carouselUploadLimits/$(userId)).data.dayStartedAt < duration.value(1, 'd')
+            && getAfter(/databases/$(database)/documents/carouselUploadLimits/$(userId)).data.dayStartedAt == get(/databases/$(database)/documents/carouselUploadLimits/$(userId)).data.dayStartedAt
+            && getAfter(/databases/$(database)/documents/carouselUploadLimits/$(userId)).data.count == get(/databases/$(database)/documents/carouselUploadLimits/$(userId)).data.count + 1
+            && getAfter(/databases/$(database)/documents/carouselUploadLimits/$(userId)).data.count <= 5)
+          ||
+          (exists(/databases/$(database)/documents/carouselUploadLimits/$(userId))
+            && request.time - get(/databases/$(database)/documents/carouselUploadLimits/$(userId)).data.dayStartedAt >= duration.value(1, 'd')
+            && getAfter(/databases/$(database)/documents/carouselUploadLimits/$(userId)).data.count == 1
+            && getAfter(/databases/$(database)/documents/carouselUploadLimits/$(userId)).data.dayStartedAt == request.time)
+        );
+    }
+
+    match /messages/{messageId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['text', 'createdAt', 'authorId'])
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 500
+        && request.resource.data.authorId == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // 完整回忆档案由迁移工具或 Firebase Console 写入；访客只读取公开展示链接。
+    match /archivePhotos/{photoId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /carouselUploadLimits/{userId} {
+      allow get: if signedIn() && userId == request.auth.uid;
+      allow list, delete: if false;
+      allow create: if signedIn() && userId == request.auth.uid
+        && validUploadLimit()
+        && request.resource.data.count == 1
+        && request.resource.data.dayStartedAt == request.time;
+      allow update: if signedIn() && userId == request.auth.uid
+        && validUploadLimit()
+        && (
+          (request.time - resource.data.dayStartedAt < duration.value(1, 'd')
+            && request.resource.data.dayStartedAt == resource.data.dayStartedAt
+            && request.resource.data.count == resource.data.count + 1
+            && resource.data.count < 5)
+          ||
+          (request.time - resource.data.dayStartedAt >= duration.value(1, 'd')
+            && request.resource.data.count == 1
+            && request.resource.data.dayStartedAt == request.time)
+        );
+    }
+
+    match /carouselSubmissions/{submissionId} {
+      allow get: if signedIn() && resource.data.authorId == request.auth.uid;
+      allow list, update, delete: if false;
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly([
+          'authorId', 'status', 'storagePath', 'imageUrl', 'fileSize',
+          'contentType', 'width', 'height', 'createdAt'
+        ])
+        && request.resource.data.authorId == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.storagePath is string
+        && request.resource.data.storagePath.matches('carousel-submissions/' + request.auth.uid + '/.*\\.jpg')
+        && request.resource.data.imageUrl is string
+        && request.resource.data.imageUrl.size() <= 2000
+        && request.resource.data.fileSize is int
+        && request.resource.data.fileSize > 0
+        && request.resource.data.fileSize <= 1048576
+        && request.resource.data.contentType == 'image/jpeg'
+        && request.resource.data.width is int
+        && request.resource.data.width > 0
+        && request.resource.data.width <= 1920
+        && request.resource.data.height is int
+        && request.resource.data.height > 0
+        && request.resource.data.height <= 1920
+        && request.resource.data.createdAt == request.time
+        && usesNextUploadSlot(request.auth.uid);
+    }
+
+    // 此集合只能由 Firebase Console 中的小花先生写入；客户端只能读取审核过的照片。
+    match /carouselPhotos/{photoId} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

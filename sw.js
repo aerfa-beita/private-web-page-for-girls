@@ -1,13 +1,13 @@
 /* ============================================================
    Service Worker — "我们的宇宙" PWA
-   策略：CacheFirst（优先从缓存取，离线可用）
+   策略：核心文件 NetworkFirst（优先网络），静态资源 CacheFirst
    缓存文件列表在 CACHE_FILES 中定义，可按需增删
    ============================================================ */
 
-// 缓存名称（修改版本号可强制刷新缓存）
-const CACHE_NAME = 'our-universe-v38-main-media-mp3';
+// 缓存名称（修改版本号可强制刷新所有客户端缓存）
+const CACHE_NAME = 'our-universe-v64-dissolved-night-sides';
 
-// 需要缓存的静态文件列表
+// 需要预缓存的静态文件列表
 const CACHE_FILES = [
     'index.html',
     'firebase-config.js',
@@ -15,19 +15,21 @@ const CACHE_FILES = [
     'scripts/services/runtime-config.js?v=1',
     'lion_background.js?v=5',
     'assets/vendor/three.r128.min.js',
-    'scripts/opening/cinematic-opening.js?v=7',
+    'scripts/opening/cinematic-opening.js?v=8',
     'scripts/opening/opening-flow.js?v=2',
-    'image_carousel.js',
-    'memory_timeline.js',
+    'image_carousel.js?v=3',
     'love_letter.js',
-    'star_tree.js',
-    'ai_service.js',
+    'scripts/ui/presence-heart.js?v=2',
+    'scripts/ui/earth-atlas.js?v=12',
+    'scripts/ui/stardust-trail.js?v=3',
     'assets/blessing.mp3',
     'assets/icon-192.png',
-    'assets/icon-512.png'
-    // 照片文件如果也在 assets 下，按格式添加：
-    // 'assets/photo1.jpg',
-    // 'assets/photo2.jpg',
+    'assets/icon-512.png',
+    'assets/backgrounds/celestial-atlas-cloud-drift.png?v=2',
+    'assets/planets/first-light-v2.png',
+    'assets/planets/dream-realm-moon-v4.png',
+    'assets/planets/heart-trace-v2.png',
+    'assets/planets/eternal-pact-v2.png'
 ];
 
 /* ---- install：预缓存所有静态文件 ---- */
@@ -38,18 +40,17 @@ self.addEventListener('install', (event) => {
             .then(cache => {
                 console.log('[SW] 预缓存文件:', CACHE_FILES);
                 return cache.addAll(CACHE_FILES).catch(err => {
-                    // 某个文件不存在时不影响整体安装
                     console.warn('[SW] 部分文件缓存失败:', err);
                 });
             })
             .then(() => self.skipWaiting())
     );
-    self.skipWaiting();
+    // G9 修复：不再在 waitUntil 外调用 skipWaiting，避免缓存未就绪就激活
 });
 
 /* ---- activate：清理旧版本缓存 ---- */
 self.addEventListener('activate', (event) => {
-    console.log('[SW] 激活');
+    console.log('[SW] 激活，CACHE_NAME:', CACHE_NAME);
     event.waitUntil(
         caches.keys().then(keys => {
             return Promise.all(
@@ -63,25 +64,36 @@ self.addEventListener('activate', (event) => {
     );
 });
 
-/* ---- fetch：CacheFirst 策略（缓存优先，网络回退）---- */
+/* ---- message：页面可通知 SW 立即跳过等待 ---- */
+self.addEventListener('message', (event) => {
+    if (event.data === 'SKIP_WAITING') {
+        console.log('[SW] 收到 SKIP_WAITING，立即激活');
+        self.skipWaiting();
+    }
+});
+
+/* ---- fetch ---- */
 self.addEventListener('fetch', (event) => {
-    // 只处理 GET 请求
     if (event.request.method !== 'GET') return;
 
-    // 不对 Firebase / OpenWeatherMap API 请求做缓存
     const url = event.request.url;
+    const requestUrl = new URL(url);
+
+    // 不对 Firebase / OpenWeatherMap / 运行配置请求做缓存。
+    // /api/config 的环境变量可在不改动代码时更新，不能落入 CacheFirst。
     if (url.includes('firebaseio.com') ||
         url.includes('firestore.googleapis.com') ||
         url.includes('storage.googleapis.com') ||
-        url.includes('openweathermap.org')) {
-        return; // 直接走网络
+        url.includes('openweathermap.org') ||
+        url.includes('config.js') ||
+        (requestUrl.origin === self.location.origin && requestUrl.pathname.startsWith('/api/'))) {
+        return; // 直接走网络，不经过 SW
     }
 
-    const requestUrl = new URL(url);
     const isCorePageAsset = requestUrl.origin === self.location.origin &&
         /\.(?:html|js|css)$/.test(requestUrl.pathname);
 
-    // HTML、脚本与样式始终先取最新网络版本，断网时才回退到缓存。
+    // HTML、脚本与样式：NetworkFirst（先取最新网络版本，断网回退缓存）
     if (isCorePageAsset) {
         event.respondWith(
             fetch(event.request).then(response => {
@@ -95,26 +107,18 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
+    // 其他资源：CacheFirst（缓存优先，网络回退）
     event.respondWith(
         caches.match(event.request).then(cached => {
-            if (cached) {
-                // 缓存命中，直接返回
-                return cached;
-            }
-            // 缓存未命中，走网络并动态加入缓存
+            if (cached) return cached;
             return fetch(event.request).then(response => {
-                // 只缓存成功的响应
                 if (!response || response.status !== 200 || response.type !== 'basic') {
                     return response;
                 }
                 const clone = response.clone();
-                caches.open(CACHE_NAME).then(cache => {
-                    cache.put(event.request, clone);
-                });
+                caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
                 return response;
             }).catch(() => {
-                // 网络也失败，离线状态下返回一个简单的提示页
-                // （仅对 HTML 请求返回，图片等资源静默失败）
                 if (event.request.headers.get('accept')?.includes('text/html')) {
                     return new Response(
                         '<html><body style="background:#0a0a1a;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;"><p>📡 当前离线，请连接网络后重试</p></body></html>',

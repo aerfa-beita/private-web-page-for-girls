@@ -779,6 +779,12 @@
                 if (!sceneVisible) return;
                 sceneVisible = false;
 
+                var restoredStarfield = document.getElementById('starfield');
+                if (restoredStarfield) {
+                    restoredStarfield.style.display = '';
+                    restoredStarfield.style.visibility = '';
+                }
+
                 ['intro-text-overlay', 'leo-sickle-overlay', 'leo-linework-overlay', 'moon-letter-trigger', 'opening-fallback'].forEach(function(id) {
                     var layer = document.getElementById(id);
                     if (!layer) return;
@@ -863,4 +869,5 @@
     }
 
     window.initLionBackground = initLionBackground;
+    window.mountMoonLetterTrigger = mountMoonLetterTrigger;
 })();
