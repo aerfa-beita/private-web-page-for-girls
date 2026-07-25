@@ -1,4 +1,4 @@
-(function () {
+﻿(function () {
     var typewriterTimer = null;
 
     function stopTypewriter() {
@@ -78,6 +78,11 @@
         window.setTimeout(function () {
             if (!modal.hidden) typeLetter(modal);
         }, 720);
+        // 打字完成后关闭情书弹窗，弹出银河信封
+        window.setTimeout(function () {
+            closeLoveLetter();
+            if (typeof showEnvelope === 'function') showEnvelope();
+        }, 2200);
     }
 
     function closeLoveLetter() {

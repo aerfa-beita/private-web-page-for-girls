@@ -668,7 +668,6 @@
        8. 月亮隐藏情书逻辑
        ================================================================= */
     function triggerLoveLetter() {
-        if (typeof showEnvelope === 'function') showEnvelope();
         window.dispatchEvent(new CustomEvent('loveLetterRequested'));
     }
 
