@@ -90,8 +90,10 @@ D:\MY_Project\web-page\
 - [2026-07-25 天体暗面融合与低负载星尘](docs/2026-07-25-天体暗面融合与低负载星尘.md)
 - [2026-07-25 宇宙信封 v4 高级质感](docs/2026-07-25-宇宙信封v4高级质感.md)
 - [2026-07-26 月亮长按情书流程修复](docs/2026-07-26-月亮长按情书流程修复.md)
+- [2026-07-26 首页星球称谓更新](docs/2026-07-26-首页星球称谓更新.md)
 
 ## 🧠会话交接
+- 2026-07-26 首页星球称谓：密码解锁后 `scripts/ui/earth-atlas.js` 的“第一束光”私语已改为“已经朝向钰涵大人。”；文案集中在 `GALAXY_PLANETS` 的 `【小花先生改行星文案与位置】` 标记下。脚本为 `earth-atlas.js?v=13`，SW 为 `our-universe-v69-yuhan-planet-copy`。
 - 2026-07-26 月亮情书流程修复：长按月亮 1.2 秒只派发 `loveLetterRequested`；`love_letter.js` 先显示每日一句，只有“收下这句话”才调用 `showEnvelope()`，遮罩与 `Esc` 只关闭。封蜡已改为原生按钮，信封关闭会清理所有延迟与打字计时器，避免下次打开串内容。资源版本为 `love_letter.js?v=2`、`components/cosmic-envelope/*?v=8`，SW 为 `our-universe-v68-moon-letter-flow`。静态测试 31/31 通过，仍需发布后的桌面与手机手动长按验收。
 - 2026-07-25 信封 v4 重写：`components/cosmic-envelope/` 三个文件全部重写。上盖改用 `clip-path: polygon()` + `filter: drop-shadow()` + 3D `rotateX`，废弃旧 `border-left/border-right 310px` 大三角 hack。信封主体 (`envelope-body`) 深蓝黑底色 + 10 颗 radial-gradient 金色星尘 + 微弱星云纹理 + 顶部金线压纹。左右折页改为小 clip-path 三角（50×65px）。星徽改为火漆蜡封质感、`sealBurst` 爆亮动画后缩小。动画级联：click → `.activating`(0.6s) → `.open`(0.7s触发，上盖翻转) → `.reveal`(2.2s，信纸升 70%+打字)。信纸初始 `translateY(220px)` 完全隐藏在信封主体后。`showEnvelope()` 接口和背景/月亮/长按逻辑不变。CSS/JS 版本号 v4，SW 缓存 `our-universe-v66-cosmic-envelope`。未做视觉验收，不能合并 main。
 - 当前状态：主视觉、Firebase 基础接入与自定义域名已完成；进入上线验收和内容迁移阶段
@@ -186,8 +188,8 @@ D:\MY_Project\web-page\
 
 ## 2026-07-25 天体暗面融合与低负载星尘
 
-- 最新文档：`docs/2026-07-25-天体暗面融合与低负载星尘.md`。
-- 密码后首页继续使用现有真实星云背景和 Canvas 横向银河；`scripts/ui/earth-atlas.js?v=12` 隔离旧首页的 `.planet` 样式，并读取四颗渐隐暗面的真实天体资产。任何新天体组件必须在 `.earth-atlas` 内重置旧的阴影和伪元素，禁止 `01 · 29`、黑圆或旧轨道泄漏。
+- 最新文档：`docs/2026-07-26-首页星球称谓更新.md`。
+- 密码后首页继续使用现有真实星云背景和 Canvas 横向银河；`scripts/ui/earth-atlas.js?v=13` 隔离旧首页的 `.planet` 样式，并读取四颗渐隐暗面的真实天体资产。第一束光的私语当前写给“钰涵大人”。任何新天体组件必须在 `.earth-atlas` 内重置旧的阴影和伪元素，禁止 `01 · 29`、黑圆或旧轨道泄漏。
 - 梦境之境使用独立紫月与后层不规则 CSS 雾；其他三颗天体的暗面由 Alpha 融入背景。严禁恢复成纯 CSS 渐变球、白色描边、圆形编号或卡片式游戏 UI。
-- `scripts/ui/stardust-trail.js?v=3` 为单粒、低密度采样；桌面上限 82 粒、移动端上限 52 粒。Service Worker 当前缓存名为 `our-universe-v64-dissolved-night-sides`；本地预览仍使用 `node serve-local.js 5174`，由页面注销 Service Worker 并以 `no-store` 返回资源。
+- `scripts/ui/stardust-trail.js?v=3` 为单粒、低密度采样；桌面上限 82 粒、移动端上限 52 粒。Service Worker 当前缓存名为 `our-universe-v69-yuhan-planet-copy`；本地预览仍使用 `node serve-local.js 5174`，由页面注销 Service Worker 并以 `no-store` 返回资源。
 - 已通过本地浏览器验收：四颗天体无黑色外框和日期伪元素，点击梦境之境只展开其私密文案。仍需小花先生在常用设备上确认最终美术效果。

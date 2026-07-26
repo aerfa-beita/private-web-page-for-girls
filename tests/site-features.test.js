@@ -24,7 +24,7 @@ test('replaces the sixth photo placeholder with a real asset', () => {
 
 test('uses a versioned cache for all application scripts', () => {
     const serviceWorker = read('sw.js');
-    assert.match(serviceWorker, /our-universe-v68-moon-letter-flow/);
+    assert.match(serviceWorker, /our-universe-v69-yuhan-planet-copy/);
     assert.match(serviceWorker, /scripts\/services\/runtime-config\.js\?v=1/);
     assert.match(serviceWorker, /lion_background\.js\?v=5/);
     assert.match(serviceWorker, /scripts\/opening\/cinematic-opening\.js\?v=8/);
@@ -34,7 +34,7 @@ test('uses a versioned cache for all application scripts', () => {
     assert.match(serviceWorker, /components\/cosmic-envelope\/envelope\.css\?v=8/);
     assert.match(serviceWorker, /components\/cosmic-envelope\/envelope\.js\?v=8/);
     assert.match(serviceWorker, /scripts\/ui\/presence-heart\.js\?v=2/);
-    assert.match(serviceWorker, /scripts\/ui\/earth-atlas\.js\?v=12/);
+    assert.match(serviceWorker, /scripts\/ui\/earth-atlas\.js\?v=13/);
     assert.match(serviceWorker, /scripts\/ui\/stardust-trail\.js\?v=3/);
     assert.match(serviceWorker, /assets\/backgrounds\/celestial-atlas-cloud-drift\.png\?v=2/);
     assert.match(serviceWorker, /assets\/planets\/first-light-v2\.png/);
@@ -95,7 +95,7 @@ test('uses transparent lion linework with memory-star reveals', () => {
 
 test('refreshes cached visuals and uses a cinematic crescent with traced meteors', () => {
     const serviceWorker = read('sw.js');
-    assert.match(serviceWorker, /our-universe-v68-moon-letter-flow/);
+    assert.match(serviceWorker, /our-universe-v69-yuhan-planet-copy/);
     assert.match(serviceWorker, /isCorePageAsset/);
     assert.match(serviceWorker, /self\.skipWaiting\(\)/);
 
@@ -340,7 +340,7 @@ test('returns the CSS background and uses a flowing milky-way with planet secret
 
     assert.match(html, /id="module-earth-atlas"/);
     assert.match(html, /module-earth-atlas"\><\/div\>/);
-    assert.match(html, /scripts\/ui\/earth-atlas\.js\?v=12/);
+    assert.match(html, /scripts\/ui\/earth-atlas\.js\?v=13/);
     assert.match(html, /celestial-atlas-cloud-drift\.png\?v=2/);
     assert.match(html, /starfield\.style\.display = ''/);
     assert.match(lionBackground, /restoredStarfield\.style\.display = ''/);
@@ -356,6 +356,9 @@ test('returns the CSS background and uses a flowing milky-way with planet secret
     assert.match(earthAtlas, /dustCount = window\.matchMedia\('\(max-width: 700px\)'\)\.matches \? 360 : 960/);
     assert.match(earthAtlas, /dust\.x \+= dust\.speed/);
     assert.match(earthAtlas, /GALAXY_PLANETS/);
+    assert.match(earthAtlas, /【小花先生改行星文案与位置】/);
+    assert.match(earthAtlas, /已经朝向钰涵大人。/);
+    assert.doesNotMatch(earthAtlas, /已经朝向小花先生。/);
     assert.match(earthAtlas, /planet-card/);
     assert.match(earthAtlas, /planet-light/);
     assert.match(earthAtlas, /planet-asset/);

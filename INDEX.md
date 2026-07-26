@@ -11,7 +11,7 @@
 | `firebase/firestore.rules` | 留言测试、照片投稿限额、待审核记录与公开已审核照片的 Firestore 规则草案。 |
 | `firebase/storage.rules` | `carousel-submissions/` 图片上传路径、类型、体积及删除权限的 Storage 规则草案。 |
 | `scripts/media/migrate-archive-to-firebase.js` | 完整回忆档案迁移工具；默认预演，显式 `--execute` 后才写 Firebase Storage 与 Firestore。 |
-| `scripts/ui/earth-atlas.js` | 密码后的全视口横向流动星河主页面；隔离旧 `.planet` 样式，加载渐隐暗面的四颗真实天体资产，以星辰手记呈现，点击后显示各自轨道、粒子爆发与私密情话；保留左侧地图导航。 |
+| `scripts/ui/earth-atlas.js` | 密码后的全视口横向流动星河主页面；四颗天体的名称、位置和私语集中在 `GALAXY_PLANETS`，第一束光当前写给“钰涵大人”；保留左侧地图导航。 |
 | `assets/planets/` | 第一束光、梦境之境、心动轨迹、永恒之约四颗天体的透明 PNG 视觉资产；最暗区域渐隐，梦境之境的月面与 CSS 后层紫雾分离。 |
 | `scripts/ui/stardust-trail.js` | 主体验解锁后以单粒、低密度的金银星尘绘制指针/手指轨迹，限制粒子数以减少连续移动时的绘制负担。 |
 | `assets/backgrounds/celestial-atlas-cloud-drift.png` + `index.html` 的 `#starfield` | 全站默认背景；生成星图直接在 CSS 中声明，预加载后以低幅度漂移呈现云层流动。 |
@@ -96,6 +96,7 @@ D:\MY_Project\web-page\
 │   └── 2026-07-25-真实天体视觉资产接入.md # 四颗透明真实天体资产、CSS 交互与缓存更新
 │   └── 2026-07-25-天体暗面融合与低负载星尘.md # 隔离旧行星样式、暗面渐隐、紫月分层与拖尾降载
 │   └── 2026-07-26-月亮长按情书流程修复.md # 月亮每日一句、收下后信封与信纸打开流程
+│   └── 2026-07-26-首页星球称谓更新.md # 第一束光私语更新为钰涵大人
 ├── tests/
 │   └── site-features.test.js                # 静态功能、安全边界与月亮情书流程检查
 └── assets/             # 静态资源

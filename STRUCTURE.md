@@ -74,7 +74,7 @@ index.html
 │   ├── <script src="lion_background.js?v=5"> — 原生 Three.js 狮子座场景；首星事件后启动，月亮位于右上留白区
 │   ├── <script src="scripts/opening/cinematic-opening.js?v=7"> — 艺术字幕镜面碎裂、第一颗星、首次点击与主页收拢
 │   ├── <script src="scripts/opening/opening-flow.js?v=2"> — 密码层桥接与返回星光
-│   ├── <script src="scripts/ui/earth-atlas.js?v=12" defer> — 全视口流动星河、渐隐暗面的真实天体、行星彩蛋与私密情话
+│   ├── <script src="scripts/ui/earth-atlas.js?v=13" defer> — 全视口流动星河、渐隐暗面的真实天体、第一束光写给钰涵大人的私语
 │   ├── <script src="scripts/ui/stardust-trail.js?v=3" defer> — 全局单粒低负载金银星尘轨迹
 │   ├── <script src="image_carousel.js?v=4" defer> — 回忆放映机（93 张 Vercel 静态照片）
 │   ├── <script src="memory_timeline.js" defer>  — 时间星河
