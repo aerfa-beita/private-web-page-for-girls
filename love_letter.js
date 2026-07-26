@@ -4,7 +4,14 @@
    ============================================================ */
 
 (function () {
+    'use strict';
+
     var typewriterTimer = null;
+    var envelopeRequestTimer = null;
+
+    function getModal() {
+        return document.getElementById('love-letter-modal');
+    }
 
     function stopTypewriter() {
         if (typewriterTimer) window.clearInterval(typewriterTimer);
@@ -16,6 +23,12 @@
             content: modal.querySelector('[data-letter-content]'),
             source: modal.querySelector('[data-letter-source]')
         };
+    }
+
+    function clearLetter(modal) {
+        var parts = getParts(modal);
+        if (parts.content) parts.content.textContent = '';
+        if (parts.source) parts.source.textContent = '';
     }
 
     /* 设置情话内容，并自动开始打字 */
@@ -36,80 +49,107 @@
 
         var chars = Array.from(quote.text || '');
         var index = 0;
-        parts.content.textContent = '';
-        if (parts.source) parts.source.textContent = '';
+        clearLetter(modal);
 
         typewriterTimer = window.setInterval(function () {
             parts.content.textContent += chars[index] || '';
             index += 1;
-            if (index < chars.length) {
-                return;
-            }
+            if (index < chars.length) return;
+
             stopTypewriter();
             if (parts.source) parts.source.textContent = quote.source || '';
         }, 100);
+    }
+
+    function dismissLoveLetter() {
+        var modal = getModal();
+        if (!modal) return;
+
+        stopTypewriter();
+        modal._letterRequestId = (modal._letterRequestId || 0) + 1;
+        modal.classList.remove('active');
+        modal.hidden = true;
+    }
+
+    function showAcceptedEnvelope() {
+        if (typeof window.showEnvelope === 'function') {
+            window.showEnvelope();
+            return;
+        }
+
+        window.addEventListener('cosmicEnvelopeReady', function () {
+            if (typeof window.showEnvelope === 'function') window.showEnvelope();
+        }, { once: true });
     }
 
     /* ----------------------------------------------------------
        长按月亮 → loveLetterRequested 事件 → 显示弹窗 + 自动打字
        ---------------------------------------------------------- */
     function openLoveLetter() {
-        var modal = document.getElementById('love-letter-modal');
+        var modal = getModal();
         if (!modal) return;
+
         stopTypewriter();
         modal.hidden = false;
         modal.classList.add('active');
         modal._letterQuote = null;
-
-        var parts = getParts(modal);
-        if (parts.content) parts.content.textContent = '';
-        if (parts.source) parts.source.textContent = '';
+        modal._letterRequestId = (modal._letterRequestId || 0) + 1;
+        var requestId = modal._letterRequestId;
+        clearLetter(modal);
 
         if (typeof window.getMoonQuote !== 'function') {
             setQuote(modal);
             return;
         }
-        window.getMoonQuote().then(function (quote) {
-            if (modal.hidden) return;
+
+        Promise.resolve(window.getMoonQuote()).then(function (quote) {
+            if (modal.hidden || modal._letterRequestId !== requestId) return;
             setQuote(modal, quote);
         }).catch(function () {
-            if (!modal.hidden) setQuote(modal);
+            if (!modal.hidden && modal._letterRequestId === requestId) setQuote(modal);
         });
     }
 
     /* ----------------------------------------------------------
-       点击"收下这句话" → 关闭弹窗 → 弹出银河信封
+       只有点击"收下这句话"才进入信封；遮罩与 Esc 仅关闭每日一句。
        ---------------------------------------------------------- */
-    function closeLoveLetter() {
-        var modal = document.getElementById('love-letter-modal');
-        if (!modal) return;
-        stopTypewriter();
-        modal.classList.remove('active');
-        modal.hidden = true;
-
-        // 弹出银河信封
-        window.setTimeout(function () {
-            if (typeof showEnvelope === 'function') showEnvelope();
-        }, 400);
+    function acceptLoveLetter() {
+        dismissLoveLetter();
+        if (envelopeRequestTimer) window.clearTimeout(envelopeRequestTimer);
+        envelopeRequestTimer = window.setTimeout(function () {
+            envelopeRequestTimer = null;
+            showAcceptedEnvelope();
+        }, 260);
     }
 
-    /* ---- 事件绑定 ---- */
-    document.addEventListener('DOMContentLoaded', function () {
-        var modal = document.getElementById('love-letter-modal');
-        if (!modal) return;
+    function bindLoveLetter() {
+        var modal = getModal();
+        if (!modal || modal.dataset.letterBound === 'true') return;
+        modal.dataset.letterBound = 'true';
 
-        var closeBtn = modal.querySelector('[data-close-letter]');
-        if (closeBtn) closeBtn.addEventListener('click', closeLoveLetter);
+        var acceptBtn = modal.querySelector('[data-accept-letter]');
+        if (acceptBtn) acceptBtn.addEventListener('click', acceptLoveLetter);
 
         modal.addEventListener('click', function (event) {
-            if (event.target === modal) closeLoveLetter();
+            if (event.target === modal) dismissLoveLetter();
         });
         document.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape' && !modal.hidden) closeLoveLetter();
+            if (event.key === 'Escape' && !modal.hidden) dismissLoveLetter();
         });
+    }
+
+    function init() {
+        bindLoveLetter();
         window.addEventListener('loveLetterRequested', openLoveLetter);
-    });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init, { once: true });
+    } else {
+        init();
+    }
 
     window.openLoveLetter = openLoveLetter;
-    window.closeLoveLetter = closeLoveLetter;
+    window.acceptLoveLetter = acceptLoveLetter;
+    window.closeLoveLetter = dismissLoveLetter;
 }());

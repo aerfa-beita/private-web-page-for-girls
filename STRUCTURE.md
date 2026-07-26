@@ -167,7 +167,15 @@ lion_background.js  月亮长按 1.2 秒
          │
          │  dispatchEvent("loveLetterRequested")
          ▼
-love_letter.js  打开 #love-letter-modal
+love_letter.js  打开 #love-letter-modal，显示每日一句
+         │
+         │  点击“收下这句话”
+         ▼
+components/cosmic-envelope/envelope.js  showEnvelope() 展示信封
+         │
+         │  点击封蜡按钮
+         ▼
+信封上盖翻转 → 信纸升起 → 逐字显示
 ```
 
 ## 数据流向
@@ -232,7 +240,8 @@ UI 层（DOM 操作、事件监听、CSS 动画）
     ├── scripts/ui/stardust-trail.js（全局金银星尘轨迹）
     ├── image_carousel.js（首次切换到放映机时注入 CSS + DOM）
     ├── memory_timeline.js（读取照片配置，渲染时间线）
-    ├── love_letter.js（监听月亮长按事件；先显示信封，点击后展开信纸）
+    ├── love_letter.js（监听月亮长按事件；先显示每日一句，仅“收下”再展示信封）
+    ├── components/cosmic-envelope/（封蜡按钮、信封翻转、信纸升起与计时器清理）
     ├── star_tree.js（留言数据到星星展示）
     │
     ▼

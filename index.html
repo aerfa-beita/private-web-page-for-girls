@@ -1016,11 +1016,11 @@
 <script src="scripts/opening/cinematic-opening.js?v=8"></script>
 <script src="scripts/opening/opening-flow.js?v=2"></script>
 <script src="image_carousel.js?v=3" defer></script>
-<script src="love_letter.js" defer></script>
+<script src="love_letter.js?v=2" defer></script>
 <script src="scripts/ui/presence-heart.js?v=2" defer></script>
 <script src="scripts/ui/earth-atlas.js?v=12" defer></script>
 <script src="scripts/ui/stardust-trail.js?v=3" defer></script>
-<link rel="stylesheet" href="components/cosmic-envelope/envelope.css?v=7">
+<link rel="stylesheet" href="components/cosmic-envelope/envelope.css?v=8">
 </head>
 <body>
 
@@ -1272,7 +1272,7 @@
                 <h2 id="love-letter-title">月光替我说</h2>
                 <p data-letter-content>正在从星空里取一句话。</p>
                 <p data-letter-source></p>
-                <button type="button" data-close-letter>收下这句话</button>
+                <button type="button" data-accept-letter>收下这句话</button>
             </article>
         </div>
 
@@ -2857,11 +2857,11 @@
             <div class="envelope-fold fold-right"></div>
             <div class="envelope-fold fold-bottom"></div>
             <div class="envelope-flap"></div>
-            <div class="envelope-seal" id="envelopeSeal">
+            <button class="envelope-seal" id="envelopeSeal" type="button" aria-label="打开这封信">
                 <span>✦</span>
-            </div>
+            </button>
         </div>
     </div>
-    <script src="components/cosmic-envelope/envelope.js?v=7"></script>
+    <script src="components/cosmic-envelope/envelope.js?v=8"></script>
 </body>
 </html>

@@ -8,8 +8,8 @@ const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 
 test('registers the memory archive and love-letter modules', () => {
     const html = read('index.html');
-    assert.match(html, /image_carousel\.js\?v=4/);
-    assert.match(html, /love_letter\.js/);
+    assert.match(html, /image_carousel\.js\?v=3/);
+    assert.match(html, /love_letter\.js\?v=2/);
     assert.match(html, /id="memory-archive"/);
     assert.match(html, /id="module-memory-archive"/);
     assert.doesNotMatch(html, /memory_timeline\.js/);
@@ -24,13 +24,15 @@ test('replaces the sixth photo placeholder with a real asset', () => {
 
 test('uses a versioned cache for all application scripts', () => {
     const serviceWorker = read('sw.js');
-    assert.match(serviceWorker, /our-universe-v65-static-memory-archive/);
+    assert.match(serviceWorker, /our-universe-v68-moon-letter-flow/);
     assert.match(serviceWorker, /scripts\/services\/runtime-config\.js\?v=1/);
     assert.match(serviceWorker, /lion_background\.js\?v=5/);
     assert.match(serviceWorker, /scripts\/opening\/cinematic-opening\.js\?v=8/);
     assert.match(serviceWorker, /scripts\/opening\/opening-flow\.js\?v=2/);
     assert.match(serviceWorker, /image_carousel\.js\?v=4/);
-    assert.match(serviceWorker, /love_letter\.js/);
+    assert.match(serviceWorker, /love_letter\.js\?v=2/);
+    assert.match(serviceWorker, /components\/cosmic-envelope\/envelope\.css\?v=8/);
+    assert.match(serviceWorker, /components\/cosmic-envelope\/envelope\.js\?v=8/);
     assert.match(serviceWorker, /scripts\/ui\/presence-heart\.js\?v=2/);
     assert.match(serviceWorker, /scripts\/ui\/earth-atlas\.js\?v=12/);
     assert.match(serviceWorker, /scripts\/ui\/stardust-trail\.js\?v=3/);
@@ -93,7 +95,7 @@ test('uses transparent lion linework with memory-star reveals', () => {
 
 test('refreshes cached visuals and uses a cinematic crescent with traced meteors', () => {
     const serviceWorker = read('sw.js');
-    assert.match(serviceWorker, /our-universe-v65-static-memory-archive/);
+    assert.match(serviceWorker, /our-universe-v68-moon-letter-flow/);
     assert.match(serviceWorker, /isCorePageAsset/);
     assert.match(serviceWorker, /self\.skipWaiting\(\)/);
 
@@ -151,8 +153,8 @@ test('starts music on the first permitted gesture and refreshes moon messages', 
     assert.match(html, /window\.addEventListener\('cinematicFirstLight', startOpeningMusic, \{ once: true \}\)/);
     assert.match(html, /const OPENING_TRACK = "Music\/如果这份爱 - 罗森涛\.mp3"/);
     assert.match(html, /function createRandomQueue\(excludeTrack\)/);
-    assert.match(html, /audio\.dataset\.playerInitialized === 'true'/);
-    assert.match(html, /首次允许播放的手势只对应开场曲/);
+    assert.match(html, /audio\.dataset\.openingStarted === 'true'/);
+    assert.match(html, /开场曲固定播放；之后的下一首永远从其余曲目中随机选择。/);
     assert.match(html, /MUSIC_PLAYLIST[\s\S]*有愧 - LBI利比（时柏尘）\.mp3/);
     assert.match(html, /MUSIC_PLAYLIST[\s\S]*잘 알지도 못하면서 - 림킴/);
     assert.doesNotMatch(html, /MUSIC_PLAYLIST[\s\S]*焦迈奇 - 我的名字\.flac/);
@@ -165,6 +167,32 @@ test('starts music on the first permitted gesture and refreshes moon messages', 
     const loveLetter = read('love_letter.js');
     assert.match(loveLetter, /window\.getMoonQuote/);
     assert.match(loveLetter, /data-letter-source/);
+});
+
+test('keeps the moon letter path ordered from a long press to an opened paper', () => {
+    const html = read('index.html');
+    const background = read('lion_background.js');
+    const loveLetter = read('love_letter.js');
+    const envelope = read('components/cosmic-envelope/envelope.js');
+    const envelopeMarkup = read('components/cosmic-envelope/envelope.html');
+
+    assert.match(background, /setTimeout\(function\(\) \{[\s\S]*triggerLoveLetter\(\);[\s\S]*\}, 1200\)/);
+    assert.match(background, /new CustomEvent\('loveLetterRequested'\)/);
+    assert.match(html, /data-accept-letter>收下这句话/);
+    assert.doesNotMatch(html, /data-close-letter/);
+    assert.match(loveLetter, /window\.addEventListener\('loveLetterRequested', openLoveLetter\)/);
+    assert.match(loveLetter, /function acceptLoveLetter\(\)/);
+    assert.match(loveLetter, /function dismissLoveLetter\(\)/);
+    assert.match(loveLetter, /if \(event\.target === modal\) dismissLoveLetter\(\);/);
+    assert.match(loveLetter, /cosmicEnvelopeReady/);
+    assert.match(loveLetter, /window\.showEnvelope\(\);/);
+    assert.match(html, /<button class="envelope-seal" id="envelopeSeal" type="button" aria-label="打开这封信">/);
+    assert.match(envelopeMarkup, /<button class="envelope-seal" id="envelopeSeal" type="button" aria-label="打开这封信">/);
+    assert.match(envelope, /var typingStartTimer = null;/);
+    assert.match(envelope, /window\.dispatchEvent\(new Event\('cosmicEnvelopeReady'\)\)/);
+    assert.match(envelope, /typingStartTimer = setTimeout/);
+    assert.match(envelope, /if \(typingStartTimer\) \{ clearTimeout\(typingStartTimer\); typingStartTimer = null; \}/);
+    assert.doesNotMatch(envelope, /contentEl\.innerHTML/);
 });
 
 test('morphs the galaxy into the homepage after a correct password', () => {

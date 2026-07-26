@@ -89,8 +89,10 @@ D:\MY_Project\web-page\
 - [2026-07-25 真实天体视觉资产接入](docs/2026-07-25-真实天体视觉资产接入.md)
 - [2026-07-25 天体暗面融合与低负载星尘](docs/2026-07-25-天体暗面融合与低负载星尘.md)
 - [2026-07-25 宇宙信封 v4 高级质感](docs/2026-07-25-宇宙信封v4高级质感.md)
+- [2026-07-26 月亮长按情书流程修复](docs/2026-07-26-月亮长按情书流程修复.md)
 
 ## 🧠会话交接
+- 2026-07-26 月亮情书流程修复：长按月亮 1.2 秒只派发 `loveLetterRequested`；`love_letter.js` 先显示每日一句，只有“收下这句话”才调用 `showEnvelope()`，遮罩与 `Esc` 只关闭。封蜡已改为原生按钮，信封关闭会清理所有延迟与打字计时器，避免下次打开串内容。资源版本为 `love_letter.js?v=2`、`components/cosmic-envelope/*?v=8`，SW 为 `our-universe-v68-moon-letter-flow`。静态测试 31/31 通过，仍需发布后的桌面与手机手动长按验收。
 - 2026-07-25 信封 v4 重写：`components/cosmic-envelope/` 三个文件全部重写。上盖改用 `clip-path: polygon()` + `filter: drop-shadow()` + 3D `rotateX`，废弃旧 `border-left/border-right 310px` 大三角 hack。信封主体 (`envelope-body`) 深蓝黑底色 + 10 颗 radial-gradient 金色星尘 + 微弱星云纹理 + 顶部金线压纹。左右折页改为小 clip-path 三角（50×65px）。星徽改为火漆蜡封质感、`sealBurst` 爆亮动画后缩小。动画级联：click → `.activating`(0.6s) → `.open`(0.7s触发，上盖翻转) → `.reveal`(2.2s，信纸升 70%+打字)。信纸初始 `translateY(220px)` 完全隐藏在信封主体后。`showEnvelope()` 接口和背景/月亮/长按逻辑不变。CSS/JS 版本号 v4，SW 缓存 `our-universe-v66-cosmic-envelope`。未做视觉验收，不能合并 main。
 - 当前状态：主视觉、Firebase 基础接入与自定义域名已完成；进入上线验收和内容迁移阶段
 - 当前 worktree：`.worktrees/modular-opening` 基于 `9fe615c` 创建；其中的开场模块化和交互改动尚未经过视觉验收，不能直接合并回 `main`。

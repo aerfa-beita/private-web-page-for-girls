@@ -122,7 +122,8 @@
     position: absolute; top: 50%; left: 50%;
     transform: translate(-50%, -50%);
     width: 86px; height: 86px; border-radius: 50%; z-index: 30;
-    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; padding: 0;
+    border: 0; cursor: pointer;
     background:
         radial-gradient(circle at 38% 32%, rgba(70,90,140,0.45) 0%, transparent 38%),
         radial-gradient(circle at 45% 40%, #263858 0%, #0d1a30 50%, #050b18 100%);

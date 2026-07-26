@@ -15,7 +15,7 @@
 | `assets/planets/` | 第一束光、梦境之境、心动轨迹、永恒之约四颗天体的透明 PNG 视觉资产；最暗区域渐隐，梦境之境的月面与 CSS 后层紫雾分离。 |
 | `scripts/ui/stardust-trail.js` | 主体验解锁后以单粒、低密度的金银星尘绘制指针/手指轨迹，限制粒子数以减少连续移动时的绘制负担。 |
 | `assets/backgrounds/celestial-atlas-cloud-drift.png` + `index.html` 的 `#starfield` | 全站默认背景；生成星图直接在 CSS 中声明，预加载后以低幅度漂移呈现云层流动。 |
-| `components/cosmic-envelope/` | 宇宙信封组件（v4）：clip-path 三角形上盖 + 深蓝黑银河纹理主体 + 火漆星徽封印 + 3D 翻转打开 + 信纸升起 70%；由长按月亮触发 `showEnvelope()`。 |
+| `components/cosmic-envelope/` | 宇宙信封组件（v8）：长按月亮后先展示每日一句，点击“收下”才调用 `showEnvelope()`；原生封蜡按钮打开上盖和信纸，并在关闭时清理所有动画计时器。 |
 
 `memory_timeline.js` 与 `star_tree.js` 仍作为历史文件保留，但不再由公开页面加载。留言数据不会由网站代码自动清空；正式发布清理步骤见 `docs/2026-07-22-记忆档案与此刻页面重构.md`。
 
@@ -35,7 +35,9 @@ D:\MY_Project\web-page\
 │       └── runtime-config.js # Firebase/天气配置有效性与可用状态
 ├── image_carousel.js   # 【V2】回忆放映机（图片轮播）
 ├── memory_timeline.js  # 【V2】时间星河（按日期渲染回忆）
-├── love_letter.js      # 【V2】隐藏情书弹窗控制器
+├── love_letter.js      # 月亮每日一句与信封交接控制器
+├── components/
+│   └── cosmic-envelope/ # 信封结构、样式与信纸动画
 ├── star_tree.js        # 【V2】留言到展示星星的映射
 ├── serve-local.js       # 本地静态预览服务器（不参与线上部署）
 ├── 流星雨.html          # 独立视觉原型（未被主站引用，暂不删除）
@@ -93,8 +95,9 @@ D:\MY_Project\web-page\
 │   └── 2026-07-24-远景天体融入重构.md # 四颗行星降级为远景天体、星辰手记与缓存更新
 │   └── 2026-07-25-真实天体视觉资产接入.md # 四颗透明真实天体资产、CSS 交互与缓存更新
 │   └── 2026-07-25-天体暗面融合与低负载星尘.md # 隔离旧行星样式、暗面渐隐、紫月分层与拖尾降载
+│   └── 2026-07-26-月亮长按情书流程修复.md # 月亮每日一句、收下后信封与信纸打开流程
 ├── tests/
-│   └── site-features.test.js                # 静态功能与安全边界检查
+│   └── site-features.test.js                # 静态功能、安全边界与月亮情书流程检查
 └── assets/             # 静态资源
     ├── Music/          # 背景音乐（.flac）
     ├── Photograph/     # 照片资源（89 张）
@@ -119,7 +122,8 @@ D:\MY_Project\web-page\
 | `image_carousel.js` | 改首页回退照片读取、完整档案订阅或朋友投稿流程 |
 | `scripts/media/migrate-archive-to-firebase.js` | 预演或执行完整档案迁移；服务账号 JSON 必须放在仓库外 |
 | `memory_timeline.js` | 改时间星河的照片排序和卡片渲染 |
-| `love_letter.js` | 改隐藏情书的打开与关闭逻辑 |
+| `love_letter.js` | 改月亮每日一句、收下交接与关闭逻辑；仅“收下这句话”会打开信封 |
+| `components/cosmic-envelope/` | 改信封、封蜡打开按钮、信纸动画与关闭时计时器清理 |
 | `star_tree.js` | 改 Firestore 留言到星星的展示映射 |
 | `serve-local.js` | 本地预览站点；支持端口参数并禁用浏览器缓存，不影响 Vercel 部署 |
 | `流星雨.html` | 独立原型；删除前须确认未再使用 |

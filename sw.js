@@ -5,7 +5,7 @@
    ============================================================ */
 
 // 缓存名称（修改版本号可强制刷新所有客户端缓存）
-const CACHE_NAME = 'our-universe-v67-cosmic-letter';
+const CACHE_NAME = 'our-universe-v68-moon-letter-flow';
 
 // 需要预缓存的静态文件列表
 const CACHE_FILES = [
@@ -18,12 +18,12 @@ const CACHE_FILES = [
     'scripts/opening/cinematic-opening.js?v=8',
     'scripts/opening/opening-flow.js?v=2',
     'image_carousel.js?v=4',
-    'love_letter.js',
+    'love_letter.js?v=2',
     'scripts/ui/presence-heart.js?v=2',
     'scripts/ui/earth-atlas.js?v=12',
     'scripts/ui/stardust-trail.js?v=3',
-    'components/cosmic-envelope/envelope.css?v=7',
-    'components/cosmic-envelope/envelope.js?v=7',
+    'components/cosmic-envelope/envelope.css?v=8',
+    'components/cosmic-envelope/envelope.js?v=8',
     'assets/blessing.mp3',
     'assets/icon-192.png',
     'assets/icon-512.png',

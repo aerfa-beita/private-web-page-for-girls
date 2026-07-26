@@ -19,6 +19,7 @@
 
     var typingTimer = null;
     var openTimer   = null;
+    var typingStartTimer = null;
 
     /* showEnvelope() — 由 lion_background.js 长按月亮调用 */
     window.showEnvelope = function () {
@@ -26,8 +27,10 @@
         resetEnvelope();
         requestAnimationFrame(function () {
             envelope.classList.add('active');
+            if (seal && typeof seal.focus === 'function') seal.focus({ preventScroll: true });
         });
     };
+    window.dispatchEvent(new Event('cosmicEnvelopeReady'));
 
     /* 点击封蜡或信封 → 打开 */
     seal.addEventListener('click', function (e) {
@@ -50,7 +53,10 @@
         openTimer = setTimeout(function () {
             envelope.classList.add('open');
             // 等信纸升起后开始打字
-            setTimeout(function () { typeContent(); }, 1400);
+            typingStartTimer = setTimeout(function () {
+                typingStartTimer = null;
+                typeContent();
+            }, 1400);
         }, 600);
     }
 
@@ -77,10 +83,10 @@
         if (typingTimer) clearInterval(typingTimer);
 
         var i = 0;
-        contentEl.innerHTML = '';
+        contentEl.textContent = '';
 
         typingTimer = setInterval(function () {
-            contentEl.innerHTML += text[i];
+            contentEl.textContent += text[i];
             i++;
             if (i >= text.length) {
                 clearInterval(typingTimer);
@@ -92,7 +98,8 @@
     function resetEnvelope() {
         if (typingTimer) { clearInterval(typingTimer); typingTimer = null; }
         if (openTimer)   { clearTimeout(openTimer);   openTimer = null; }
-        if (contentEl) contentEl.innerHTML = '';
+        if (typingStartTimer) { clearTimeout(typingStartTimer); typingStartTimer = null; }
+        if (contentEl) contentEl.textContent = '';
         envelope.classList.remove('active', 'activating', 'open');
     }
 
